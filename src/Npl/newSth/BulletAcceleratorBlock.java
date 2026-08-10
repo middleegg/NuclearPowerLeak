@@ -72,8 +72,8 @@ public class BulletAcceleratorBlock extends Block {
         solid = true;            // 玩家/单位会碰撞（走路会绕开）
         update = true;           // 每 tick 调 updateTile
         group = BlockGroup.projectors;
-        hasPower = true;
         hasItems = true;
+        hasPower = true;          // 电力驱动（具体功耗在实例化时用 consumePower(...) 设置）
         canOverdrive = false;    // 不接受别的 OverdriveProjector 加速
         emitLight = true;
         lightRadius = 50f;

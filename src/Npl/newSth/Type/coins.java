@@ -2,6 +2,7 @@ package Npl.newSth.Type;
 
 import arc.*;
 import arc.graphics.*;
+import arc.scene.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
@@ -10,6 +11,8 @@ import mindustry.type.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
+import arc.graphics.g2d.*;
+import arc.scene.utils.*;
 
 import static mindustry.Vars.*;
 
@@ -179,14 +182,46 @@ public class coins extends Item {
 
     private static void addCoinsDisplay(){
         try{
-            Table coinsTable = new Table();
+            // 匿名 Table：draw 先画 90% 不透明灰黑背景，再画内容
+            Table coinsTable = new Table(){
+                @Override
+                public void draw(){
+                    Draw.color(0.08f, 0.08f, 0.1f, 0.9f);
+                    Fill.rect(x + width/2f, y + height/2f, width, height);
+                    Draw.color();
+                    super.draw();
+                }
+            };
             coinsTable.name = "npl-coins-display";
-            coinsTable.background(Styles.black6);
+
             coinsTable.setPosition(70f, Core.graphics.getHeight() / 2f - 20f);
+
+            // 找到 coins Item（它的 uiIcon 已经由 Item.java 的帧动画逻辑自动切换了）
+            Item coinItem = null;
+            if(mindustry.Vars.content != null){
+                coinItem = mindustry.Vars.content.items().find(i -> "coins".equals(i.name));
+            }
+            final Item finalCoin = coinItem;
 
             coinsTable.table(t -> {
                 t.defaults().pad(3f);
-                t.add("★").padRight(4f);
+
+                // 匿名 Element：Draw.rect 直接读 uiIcon 当前 UV，天然跟随帧切换
+                if(finalCoin != null){
+                    Element icon = new Element(){
+                        @Override
+                        public void draw(){
+                            Draw.color(1f, 1f, 1f, 1f);
+                            Draw.rect(finalCoin.uiIcon, x + width/2f, y + height/2f, width, height);
+                            Draw.color();
+                        }
+                    };
+                    icon.setSize(28f, 28f);
+                    t.add(icon).padRight(4f).size(28f);
+                }else{
+                    t.add("★").padRight(4f);
+                }
+
                 t.add("coins").padLeft(2f);
 
                 Label valueLabel = new Label("0");
@@ -196,7 +231,6 @@ public class coins extends Item {
                 t.add(valueLabel).padLeft(6f).width(50f);
             }).pad(6f);
 
-            // 初始时设为不可见，只有进入地图时才显示
             coinsTable.visible = false;
 
             Core.scene.add(coinsTable);

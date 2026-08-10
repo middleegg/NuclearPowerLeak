@@ -8,7 +8,7 @@ import Npl.content.*;
 import Npl.newSth.*;
 
 public class NuAttribute{
-    public static Attribute rubber,uranCrystal;
+    public static Attribute oriRubber,uranCrystal;
     static{
         register();
     }
@@ -20,7 +20,7 @@ public class NuAttribute{
         }
     }
     private static void register(){
-        rubber = addIfAbsent("rubber");
+        oriRubber = addIfAbsent("oriRubber");
         uranCrystal = addIfAbsent("uranCrystal");
     }
 }

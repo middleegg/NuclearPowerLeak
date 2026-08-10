@@ -3,7 +3,6 @@ package Npl.content;
 import static mindustry.Vars.*;
 import static mindustry.type.ItemStack.*;
 import Npl.newSth.*;
-import Npl.content.NuItems;
 import Npl.content.*;
 import arc.graphics.*;
 import arc.math.*;
@@ -53,73 +52,69 @@ import static mindustry.type.ItemStack.*;
 public class NuBlocks {
     // ============= 静态方块声明：以后在这儿加就行 =============
     public static Block
-            redenmore,
-            conTest,
-            Testonme,      // ConfigurableBlock（旧版纯物品多配方）
-            hunfuTest,     // ✅ 新加：HunfuBlock 混成工厂（物品+液体双参与）
-            antiStealthRadar, // ✅ 反隐探测雷达
-            stormCrafter,
+            //crafting
+            MagnetPurifier,monoSiliCrystalFactory,stormCrafter, coinProducer, exchange,CompressionChamber,
+            //effect
+            antiStealthRadar,BulletAccelerator,
+            //turret
             however,
-            hyw,  // ✅ 闪电风暴工厂：三阶段视觉 + LightningBullet 发射
-            coinProducer, // ✅ 铸币厂（消耗原料生产 coins，直接入系统）
-            coinConsumer; // ✅ 高级工厂（消耗 coins 生产物品，直接从系统扣）
-
+            //production
+            bigIronDrills,rubberCrusher;
     public static void load() {
 
-        Testonme = new ConfigurableBlock("testonme"){{
-            requirements(Category.crafting, with(
-                    NuItems.bigIron,200,
-                    Items.lead,   150,
-                    Items.silicon, 60,
-                    Items.graphite, 50
-            ));
-            size = 2;
-            health= 1000;
-            craftEffect = NuFx.lightningStormFull;
-            plans = Seq.with(
-                    new Plan(with(NuItems.pumice,3),30f,with(NuItems.bigIron,2,NuItems.sulFurFrag,2)),
-                    new Plan(with(NuItems.uranium,4),75f,with(NuItems.uranCrystal,2,NuItems.sulFurFrag,3)),
-                    new Plan(with(NuItems.bottledMagenticStorm,1),90f,with(NuItems.magent,2,NuItems.alkSliver,5))
-            );
-            consumePower(4.5f);
-        }};
-        redenmore = new GenericCrafter("redenmore") {{
-            requirements(Category.crafting, with(NuItems.bigIron,40));
-            outputItem = new ItemStack(NuItems.magent,1);
+        MagnetPurifier = new GenericCrafter("MagentPurifier") {{
+            requirements(Category.crafting, with(NuItems.bigIron,100,NuItems.sulFurFrag,75,NuItems.frailPolyester,150,
+                    NuItems.monoSiliCrystal,100,Items.graphite,100));
+            outputItem = new ItemStack(NuItems.magent,4);
             craftTime =60f;
             hasItems=hasPower=true;
             ambientSound=Sounds.loopGrind;
             ambientSoundVolume=0.025f;
-            consumeItems(ItemStack.with(Npl.content.NuItems.bigIron,3));
+            consumeItems(ItemStack.with(NuItems.bigIron,3,NuItems.Tcoal,1));
             consumePower(2.1f);
+            health = 800;
             size=2;
+            itemCapacity = 20;
+            craftEffect =new ParticleEffect(){{
+                particles = 8;
+                cone = 360f;
+                lenFrom = 12f;
+                lenTo = 0f;
+                spin = 6;
+                sizeFrom = 7f;
+                sizeTo = 0f;
+                colorFrom = NuColor.PaleConColor;
+                colorTo = NuColor.PaleSilverColor;
+            }};
+        }};
+        monoSiliCrystalFactory = new GenericCrafter("monoSiliCrystalFactory") {{
+            requirements(Category.crafting, with(NuItems.bigIron,100,Items.graphite,30));
+            outputItem = new ItemStack(NuItems.monoSiliCrystal,5);
+            hasItems=true;
+            ambientSound=Sounds.loopGrind;
+            ambientSoundVolume=0.025f;
+            consumeItems(ItemStack.with(NuItems.Tcoal,3,Items.sand,2));
+            health = 800;
+            size=2;
+            itemCapacity = 40;
         }};
 
-        // =================================================================
-        // ✅ 风暴合成器（storm-crafter）
-        // =================================================================
-        // 三阶段视觉 + 真正发射原版 LightningBulletType：
-        //   Phase1 [0 ~ 5 秒]：光圈 + 5 粒子一波从中心发散并变大（只跑一次不复用）
-        //   Phase2 [5 秒 ~ 约 7 秒]：保留光球，外圈 40 格处弧线扫一圈成完整圆环
-        //   Phase3 [圆环填满后永久]：圆环保留 + 高亮扫弧不断再转一圈 + 持续向 360° 发射 LightningBullet
-        //
-        // 不再使用 craftEffect 调用 Effect（Effect 有 lifetime 无法永久），
-        // 而是在 StormCrafterBlock.Building 的 updateTile()/draw() 里自己做状态机和渲染。
-        // =================================================================
         stormCrafter = new StormCrafterBlock("storm-crafter") {{
             requirements(Category.crafting, with(
-                    NuItems.bigIron, 60,
-                    Items.lead,      80,
-                    Items.silicon,   40
+                    NuItems.bigIron, 550,
+                    NuItems.sulFurFrag, 500,
+                    NuItems.pumice, 145,
+                    NuItems.thallide,75,
+                    NuItems.alkSliver,100
             ));
             size = 2;
-            health = 800;
+            health = 1500;
             hasItems = hasPower = true;
             // 合成本身速度独立（和三阶段视觉不挂钩，用户可自改）
-            craftTime = 200f;
-            outputItem = new ItemStack(NuItems.magent, 1);
-            consumeItems(ItemStack.with(NuItems.bigIron, 2));
-            consumePower(3.0f);
+            craftTime = 22f*60;
+            outputItem = new ItemStack(NuItems.bottledMagenticStorm, 1);
+            consumeItems(ItemStack.with(Items.pyratite, 3,NuItems.pumice,2));
+            consumePower(15.0f);
             // ==================== 风暴专属字段 ====================
             stormColor       = new Color(0x6F9BFFff);
             stormBrightColor = new Color(0xE3F2FDff);
@@ -147,17 +142,12 @@ public class NuBlocks {
             outerRingWidth        = 3f;
             ringSweepSpeedPhase2  = 3f;         // 3°/tick，约 2 秒扫满一圈
             ringSweepSpeedPhase3  = 1.8f;       // 填满后循环扫弧速度
-            ringSweepSweepAngle   = 45f;        // 高亮扫弧段长 45°
+            ringSweepSweepAngle   = 1f;        // 高亮扫弧段长 45°
             ringSweepWidth        = 4f;
             // 光照：
             lightRadius = 260f;
-
-            // ==================== Phase3 发射 LightningBullet ====================
-            //   ⚠ 这里用的是 Mindustry 原版 LightningBulletType，
-            //     直接走 bt.create(this, team, x, y, angle)，
-            //     不是手动画闪电折线（之前画的线铺满全屏那种彻底去掉）。
             lightningBullet = new LightningBulletType() {{
-                damage               = 32f;
+                damage               = 100f;
                 lightningLength      = 12;
                 lightningLengthRand  = 5;
                 lightningColor       = new Color(0xE3F2FDff);
@@ -179,68 +169,64 @@ public class NuBlocks {
             lightningLengthMin    = 8;       // 闪电最短 8 格
             lightningLengthMax    = 42;      // 闪电最长 22 格
         }};
-        hunfuTest = new HunfuBlock("hunfu-test") {{
+        coinProducer = new CoinProducerBlock("coin-producer") {{
             requirements(Category.crafting, with(
-                    NuItems.bigIron, 100,
-                    Items.lead,  80,
-                    Items.silicon, 40,
-                    Items.graphite, 40
+                    NuItems.bigIron,  200,
+                    NuItems.monoSiliCrystal, 150,
+                    NuItems.pumice,  160,
+                    NuItems.rubber,  80
             ));
             size = 2;
             health = 800;
-            consumePower(6.0f);   // 混成工厂耗电稍高
-
+            hasItems = hasPower = true;
+            itemCapacity = 500;
+            craftTime = 120f;       // 2 秒一次
+            coinPerCraft = 10;       // 每次 +5 coins
+            consumeItems(ItemStack.with(NuItems.bigIron,  100));
+            consumePower(1.5f);
+        }};
+        exchange = new CoinConsumerBlock("exchange") {{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron,  100,
+                    NuItems.monoSiliCrystal,  100,
+                    NuItems.pumice,  200,
+                    NuItems.magent,  45
+            ));
+            size = 2;
+            health = 1000;
+            hasItems = true;
             plans = Seq.with(
-                    // ─────────────────────────────────────
-                    // 配方 1：纯物品（向后兼容 ConfigurableBlock）
-                    //   原料：煤×2 + 铜×1  →  产物：钛×2 + 硅×1   （90 tick = 1.5 秒）
-                    // ─────────────────────────────────────
-                    new HunfuBlock.Plan(
-                            with(Items.titanium, 2, Items.silicon, 1),    // outItem（物品产物）
-                            90f,                                            // time
-                            with(Items.coal, 2, Items.copper, 1)           // requirements（物品原料）
-                    ),
-
-                    // ─────────────────────────────────────
-                    // 配方 2：纯液体
-                    //   原料液体：水×10  →  产物液体：油×3   （120 tick = 2 秒）
-                    //   （炼油配方，测试纯液体场景）
-                    // ─────────────────────────────────────
-                    new HunfuBlock.Plan(
-                            null,                                           // outItem = null → 没有物品产物
-                            120f,                                           // time
-                            null,                                           // requirements = null → 没有物品原料
-                            LiquidStack.with(Liquids.oil, 3),                // outLiquid（液体产物）——显式调用 LiquidStack.with 消除歧义
-                            LiquidStack.with(Liquids.water, 10)              // inLiquid（液体原料）——显式调用 LiquidStack.with
-                    ),
-
-                    // ─────────────────────────────────────
-                    // 配方 3：物品 + 液体 混成（真正发挥 HunfuBlock 能力）
-                    //   物品原料：铅×2
-                    //   液体原料：水×5
-                    //   ────────────────
-                    //   物品产物：相织物（phase-fabric）×1
-                    //   液体产物：炉渣液（slag）×4
-                    //   耗时：180 tick = 3 秒
-                    // ─────────────────────────────────────
-                    new HunfuBlock.Plan(
-                            with(Items.phaseFabric, 1),                     // outItem：相织物
-                            180f,                                           // time
-                            with(Items.lead, 2),                            // requirements：物品原料铅
-                            LiquidStack.with(Liquids.slag, 4),               // outLiquid：炉渣液（液体产物）——显式 LiquidStack.with
-                            LiquidStack.with(Liquids.water, 5)               // inLiquid：水（液体原料）——显式 LiquidStack.with
-                    )
+                    new Plan(with(NuItems.bigIron,100),60f*10,null,15),
+                    new Plan(with(NuItems.monoSiliCrystal,100),60f*20,null,80),
+                    new Plan(with(Items.graphite,100),60f*20,null,80),
+                    new Plan(with(NuItems.sulFurFrag,100),60f*16,null,60),
+                    new Plan(with(NuItems.magent,100),60f*30,null,120),
+                    new Plan(with(NuItems.frailPolyester,100),60f*10,null,15),
+                    new Plan(with(NuItems.oriRubber,100),60f*16,null,60),
+                    new Plan(with(NuItems.oriUranium,100),60f*16,null,60),
+                    new Plan(with(NuItems.pumice,100),60f*30,null,120),
+                    new Plan(with(NuItems.rubber,100),60f*40,null,200),
+                    new Plan(with(NuItems.alkSliver,100),60f*40,null,200),
+                    new Plan(with(NuItems.thallide,100),60f*60,null,400),
+                    new Plan(with(NuItems.uranium,100),60f*60,null,400),
+                    new Plan(with(NuItems.bottledMagenticStorm,100),60f*60,null,400),
+                    new Plan(with(NuItems.rubberFrag,100),60f*10,null,30),
+                    new Plan(with(Items.pyratite,100),60f*20,null,60)
             );
         }};
+        CompressionChamber = new GenericCrafter("CompressionChamber") {{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron,  100
+            ));
+            outputItem = new ItemStack(Items.graphite,3);
+            hasItems = true;
+            craftTime = 120f;
+            health = 800;
+            size = 2;
+            consumeItems(ItemStack.with(NuItems.Tcoal,3));
+        }};
 
-        // =================================================================
-        // ✅ 反隐探测雷达（antiStealthRadar）
-        // 功能：
-        //   1. 战争迷雾：提供 fogRadius=14 格长期开雾
-        //   2. 反隐身：每 0.5 秒在 detectionRange(=fogRadius*tilesize) 范围内
-        //      给所有敌方 InvisibleAbility 单位延长 radarRevealedTick，强制其可被炮台锁定
-        //   3. 需要 5 功率电力驱动；没电力时只保留开雾，不做反隐扫描
-        // =================================================================
+
         antiStealthRadar = new AntiStealthRadar("anti-stealth-radar") {{
             requirements(Category.effect, with(
                 NuItems.bigIron,    120,   // 结构铁壳
@@ -257,12 +243,25 @@ public class NuBlocks {
             scanTick        = 30f;              // 每 0.5 秒扫一次（越小越灵敏，但耗电/CPU 开销略高）
             revealPerStep   = 60f;              // 每扫一次强制隐身单位显形 1 秒（60 tick），等于"一直在范围内就一直显形"
             consumePower    = true;             // 不供电就不反隐（只开雾）
-            consumePower(5f);                   // 耗电 5 功率（配太阳能/燃烧发电就能转）
+            consumePower(10f);                   // 耗电 5 功率（配太阳能/燃烧发电就能转）
             rotate          = false;            // 手动无法旋转（天线由 rotateSpeed 自动转）
             rotateSpeed     = 3.6f;             // 天线自转速度（视觉效果）
             glowScl         = 6f;               // 探测中发光层呼吸缩放
             glowMag         = 0.7f;
         }};
+        BulletAccelerator = new BulletAcceleratorBlock("BulletAccelerator"){{
+            requirements(Category.effect, with(NuItems.bigIron, 35));
+            range = 8f;
+            boostSpeed = 1.3f;
+            baseColor = phaseColor = NuColor.PaleColor;
+            consumePower(15f);
+            phaseBoostMul = 0.3f;
+            phaseRangeBoost = 8f;
+            useTime = 600f;
+            itemCapacity = 10;
+            consumeItem(NuItems.rubber).boost();
+        }};
+
         however = new ItemTurret("however"){{
             requirements(Category.turret, with(NuItems.bigIron, 35));
             ammo(
@@ -290,7 +289,6 @@ public class NuBlocks {
                     }});
                 }
             }};
-
             shootSound = Sounds.shootDuo;
             recoil = 0.5f;
             shootY = 3f;
@@ -307,49 +305,38 @@ public class NuBlocks {
             depositCooldown = 2.0f;
             limitRange(5f);
         }};
-        hyw = new BulletAcceleratorBlock("hyw"){{
-            requirements(Category.defense, with(NuItems.bigIron, 35));
-        }};
 
-        // =================================================================
-        // ✅ Coin 铸币厂（coin-producer）
-        // - 消耗: 铅×2 + 铁×2 + 功率 2.0
-        // - 产出: 每次合成直接获得 5 coins（不入核心物品栏，直接进货币池）
-        // =================================================================
-        coinProducer = new CoinProducerBlock("coin-producer") {{
-            requirements(Category.crafting, with(
-                Items.lead,      60
-            ));
-            size = 2;
-            health = 600;
-            hasItems = hasPower = true;
-            craftTime = 120f;       // 2 秒一次
-            coinPerCraft = 5;       // 每次 +5 coins
-            consumeItems(ItemStack.with(Items.lead, 2));
-            consumePower(0.0f);
-        }};
 
-        // =================================================================
-        // ✅ Coin 消耗工厂（coin-consumer）
-        // - 每次合成: 消耗 10 coins（从货币池扣）
-        // - 同时消耗: 硅×3 + 功率 3.0
-        // - 产出: phase-fabric ×1（高级研究材料）
-        // =================================================================
-        coinConsumer = new CoinConsumerBlock("coin-consumer") {{
-            requirements(Category.crafting, with(
-                NuItems.bigIron,  100,
-                Items.lead,        80,
-                Items.silicon,     60,
-                Items.plastanium,  30
-            ));
+        rubberCrusher = new WallCrafter("rubberCrusher"){{
+            requirements(Category.production, with(Items.graphite, 25));
+            consumePower(11 / 60f);
+            drillTime = 110f;
+            size = 3;
+            attribute = NuAttribute.oriRubber;
+            output = NuItems.oriRubber;
+            fogRadius = 2;
+            researchCost = with( Items.graphite, 40);
+            ambientSound = Sounds.loopDrill;
+            ambientSoundVolume = 0.04f;
+        }};
+        bigIronDrills = new Drill("bigIronDrills"){{
+            requirements(Category.production, with(NuItems.bigIron, 10));
+            drillTime = 240f;
             size = 2;
-            health = 700;
-            hasItems = hasPower = true;
-            craftTime = 180f;              // 3 秒一次
-            coinPerCraft = 10;             // 每次消耗 10 coins
-            outputItem = new ItemStack(Items.phaseFabric, 1);
-            consumeItems(ItemStack.with(Items.silicon, 3));
-            consumePower(3.0f);
+            health = 500;
+            tier = 4;
+            hardnessDrillMultiplier = 200f;
+            itemCapacity = 20;
+            hasItems = hasLiquids = true;
+            drillEffect = new WaveEffect(){{
+                sizeFrom = 0f;
+                sizeTo = 20f;
+                strokeFrom = 2f;
+                strokeTo = 0.2f;
+                colorFrom = NuColor.PaleColor;
+                colorTo = NuColor.PaleConColor;
+                lifetime = 30f;
+            }};
         }};
     }
 }

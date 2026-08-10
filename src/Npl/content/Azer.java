@@ -24,8 +24,8 @@ public class Azer {
         Azer = new Planet(
                 "Azer",          // 名称（对应图片文件名）
                 Planets.sun,          // 绕哪个恒星转（或 null）
-                1.5f,                 // 大小（相对于地球）
-                4                     // 生成器种子
+                3f,                 // 大小（相对于地球）
+                3                     // 生成器种子
         ) {{
             // ===== 基础属性 =====
             visible = true;               // 在星图中可见
@@ -35,7 +35,7 @@ public class Azer {
 
             // ===== 地形生成 =====
             // 使用六边形网格（标准行星）
-            meshLoader = () -> new HexMesh(this, 5);
+            meshLoader = () -> new HexMesh(this, 6);
             sectorApproxRadius = 0.4f;
             // 使用自定义地形生成器（如果不需要特殊地形，用默认的）
             // generator = new MyPlanetGenerator();  // 需要自定义的话
@@ -65,8 +65,9 @@ public class Azer {
             // ===== 大气和环境 =====
             atmosphereColor = Color.valueOf("BED462");    // 大气颜色
             landCloudColor = Color.valueOf("EFFFB1");     // 陆地云层颜色
-            atmosphereRadIn = 0.12f;                      // 大气内半径
+            atmosphereRadIn = 0.2f;                      // 大气内半径
             atmosphereRadOut = 0.45f;                     // 大气外半径
+            bloom = true;
 
             generator= new AzerPlanetGenerator();
             // ===== 轨道环（可选） =====

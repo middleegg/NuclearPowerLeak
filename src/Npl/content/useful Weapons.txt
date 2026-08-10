@@ -1,0 +1,246 @@
+Nonsense old weapons
+ weapons.add(new Weapon("forever honor"){{
+                reload = 60f;
+                x = 4f;
+                y = -5f;
+                mirror = true;
+                rotate = true;
+                shake = 0.3f;
+                recoil = -0.5f;
+                range = 360f;
+                maxRange = 360f;
+                shootSound = Sounds.shootMalign;
+                shoot = new ShootAlternate(){{
+                    shots = 3;
+                    shotDelay = 10f;
+                    spread = 10f;
+                    barrels =3;
+                }};
+                bullet = new BasicBulletType(4f,250f){{
+                    knockback = 2.4f;
+                    lifetime = 40f;
+                    accel = 0.175f;
+                    frontColor = lightColor = trailColor = NuColor.DespColor;
+                    backColor = hitColor = NuColor.DespBackColor;
+                    trailInterval = 3f;
+                    width = 18f;
+                    height = 24f;
+                    homingPower = 0.55f;
+                    homingRange = 320f;
+                    status = NuStatus.lack;
+                    buildingDamageMultiplier = 1.55f;
+                    trailEffect = new SeqEffect(new WaveEffect(){{
+                        interp = Interp.circleOut;
+                        lifetime = 16f;
+                        sizeFrom = 1f;
+                        sizeTo = 8f;
+                        strokeFrom=2f;
+                        strokeTo=0f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }}, new ParticleEffect(){{
+                        particles = 4;
+                        sizeFrom = 5f;
+                        sizeTo = 1f;
+                        length =7f;
+                        baseLength = 3f;
+                        lifetime = 13f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }});
+                    fragBullets = 4;
+                    fragRandomSpread = 60f;
+                    fragBullet = new BasicBulletType(11f,293f){{
+                        lifetime = 40f;
+                        accel = 1f;
+                        drag = 0.45f;
+                        width = 14f;
+                        height = 18f;
+                        targetAir = true;
+                        targetGround = true;
+                        frontColor = lightColor = trailColor = NuColor.DespColor;
+                        backColor = hitColor = NuColor.DespBackColor;
+                    }};
+                }};
+            }});
+overPraise old weapons
+ weapons.add(new Weapon("nu-scattering60"){{
+                top = true;
+                reload=90f;
+                recoil = -1f;
+                x = 15f;
+                y = -10f;
+                mirror = true;
+                rotate =  true;
+                range = 400;
+                maxRange = 400;
+                shoot = new ShootSpread(8, 90f);
+                bullet = new BasicBulletType(5f,0f){{
+                   lifetime = 4f;
+                    width = 12f;
+                    height = 15f;
+                    frontColor = Color.valueOf("ffffff");
+                    trailColor = lightColor = NuColor.HonorElseColor;
+                    backColor=hitColor=NuColor.HonorBackColor;
+                    trailLength = 25;
+                   shootEffect = smokeEffect = Fx.sparkShoot;
+                   fragBullets = 4;
+                   fragRandomSpread =60f;
+                   fragBullet = new BasicBulletType(5.25f,400f){{
+                       hitColor = NuColor.HonorConColor;
+                       lifetime = 80f;
+                       width = 12f;
+                       height = 15f;
+                       frontColor = Color.valueOf("ffffff");
+                       trailColor = lightColor = NuColor.HonorElseColor;
+                       backColor=hitColor=NuColor.HonorBackColor;
+                       trailLength = 25;
+                       splashDamage = 60f;
+                       splashDamageRadius = 24f;
+                       homingPower = 1f;
+                       homingRange = 280f;
+                       homingDelay = 10f;
+                       despawnHit =true;
+                       despawnEffect = hitEffect =new MultiEffect(Fx.hitBulletColor, new SeqEffect(new WaveEffect(){{
+                           lightColor=colorTo=NuColor.HonorConColor;
+                           sizeTo = 16f;
+                           sizeFrom =24f;
+                           strokeFrom = 4f;
+                           lifetime = 16f;
+                       }},new WaveEffect(){{
+                           lightColor=colorTo=NuColor.HonorConColor;
+                           sizeTo = 12f;
+                           sizeFrom =24f;
+                           strokeFrom = 4f;
+                           lifetime = 16f;
+                       }}));
+                   }};
+                }};
+            }});
+            weapons.add(new Weapon("nu-desire"){{
+                x = 0f;
+                y = 0f;
+                mirror = false;
+                rotate =  true;
+                range = 350f;
+                maxRange = 350f;
+                reload = 100f;
+                shake = 2f;
+                recoil = 3.5f;
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    shotDelay = 10f;
+                    spread = 4f;
+                    barrels = 5;
+                }};
+                bullet = new  FlakBulletType(5f,350F){{
+                    width = 20f;
+                    height = 20f;
+                    sprite="large-bomb";
+                    lifetime = 10f;
+                    trailColor = lightColor = NuColor.HonorElseColor;
+                    backColor=hitColor=NuColor.HonorBackColor;
+                    trailLength = 3;
+                    despawnEffect=hitEffect =new MultiEffect(Fx.magmasmoke,new ExplosionEffect(){{
+                        waveColor=smokeColor=sparkColor= NuColor.HonorElseColor;
+                        waveLife = 6f;
+                        waveStroke = 3f;
+                        waveRad = 15f;
+                        waveRadBase = 2f;
+                        sparkStroke = 1f;
+                        sparkRad = 23f;
+                        sparkLen = 3f;
+                        smokeSize = 4f;
+                        smokeSizeBase = 0.5f ;
+                        smokeRad = 23f;
+                        smokes = 5 ;
+                        sparks = 4;
+                    }});
+                    fragBullets = 14;
+                    fragRandomSpread = 75f;
+                    fragBullet = new BasicBulletType(6f,25f){{
+                        width = 12f;
+                        height = 12f;
+                        sprite = "large-orb";
+                        lifetime = 30f;
+                        accel=0.52f;
+                        drag = 0.1f;
+                        trailColor = lightColor = NuColor.HonorElseColor;
+                        backColor=hitColor=NuColor.HonorBackColor;
+                        despawnEffect=hitEffect = Fx.flakExplosion;
+                        trailLength=10;
+                    }};
+                }};
+            }});
+setsails' old weapons
+            weapons.add(new Weapon("steal chous"){{
+                x = 8f;
+                y = 9f;
+                mirror = true;
+                rotate = true;
+                reload = 15f;
+                range = 200f;
+                rotateSpeed = 10f;
+                bullet = new BasicBulletType(8f,600f){{
+                    accel = 1f;
+                    lifetime = 70f;
+                    drag = 0.5f;
+                    sprite = "mine-bullet";
+                    width = 24f;
+                    height = 24f;
+                    weaveMag = 5f;
+                    weaveScale = 4f;
+                    homingPower = 1f;
+                    homingRange = 100f;
+                    collideFloor = true;
+                    splashDamage = 180f;
+                    splashDamageRadius = 64f;
+                    layer = 10f;
+                    shootEffect = Fx.shootTitan;
+                    maxRange = 200f;
+                    ignoreRotation = true;
+                    healAmount = damage*0.85f;
+                    frontColor = lightColor = trailColor = NuColor.SailColor;
+                    backColor = hitColor = NuColor.SailBackColor;
+                    underwater = true;
+                    collidesAir = false;
+                    hitSound = Sounds.explosionPlasmaSmall;
+                    hitEffect = despawnEffect = new MultiEffect(NuFx.sailPlasmaHit,NuFx.SailSmoke);
+                    fragBullets = 10;
+                    fragRandomSpread = 90f;
+                    fragBullet = new BasicBulletType(1f,60f){{
+                        width = 18f;
+                        height = 18f;
+                        accel = 0.1f;
+                        lifetime = 40f;
+                        drag = -0.01f;
+                        homingPower =1f;
+                        homingRange = 130f;
+                        homingDelay =5f;
+                        splashDamage = 18f;
+                        splashDamageRadius = 64f;
+                        frontColor = lightColor = trailColor = NuColor.SailColor;
+                        backColor = hitColor = NuColor.SailBackColor;
+                        trailLength = 25;
+                        trailWidth =15f;
+                        underwater = true;
+                        collidesAir = false;
+                        collideFloor = true;
+                        hitSound = Sounds.explosionPlasmaSmall;
+                        hitEffect = despawnEffect = new MultiEffect(NuFx.sailArcHit,Fx.blastExplosion,Fx.greenCloud);
+                        fragBullets = 1;
+                        fragRandomSpread = 0f;
+                        fragBullet = new BasicBulletType(0f,60f){{
+                           lifetime = 20f;
+                            hitSound = Sounds.explosionPlasmaSmall;
+                            hitEffect = despawnEffect = new MultiEffect(NuFx.sailArcHit,Fx.blastExplosion,Fx.greenCloud);
+                            collidesAir = false;
+                            collideFloor = true;
+                            splashDamage = 18f;
+                            splashDamageRadius = 64f;
+                            frontColor = lightColor = trailColor = NuColor.SailColor;
+                            backColor = hitColor = NuColor.SailBackColor;
+                        }};
+                    }};
+                }};
+            }});

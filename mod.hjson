@@ -1,0 +1,8 @@
+displayName: "NuclearPowerLeak"
+name: "nu"
+author: "Zero(middle_egg),闰闰小师妹,涅翎，祈汐"
+main: "Npl.nu"
+description: "a mod for mindustry,it includes java and hjson"
+version:0.1
+minGameVersion: 158
+java: true

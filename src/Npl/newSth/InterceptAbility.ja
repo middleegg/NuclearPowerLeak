@@ -1,0 +1,63 @@
+package Npl.newSth;
+
+import mindustry.entities.abilities.Ability;
+import arc.*;
+import arc.audio.*;
+import arc.func.*;
+import arc.graphics.*;
+import arc.graphics.g2d.*;
+import arc.math.*;
+import arc.math.geom.*;
+import arc.scene.ui.layout.*;
+import arc.util.*;
+import mindustry.*;
+import mindustry.content.*;
+import mindustry.gen.*;
+import mindustry.graphics.*;
+import mindustry.ui.*;
+
+
+public InterceptAbility extends Ability {
+    public int amount = 12;
+    public float maxDamage = 2000f;
+    public float reload = 120f;
+    public float injuredMultiplier = 0.8f;
+    public Effect applyEffect = Fx.shieldApply;
+    public Effect activeEffect = Fx.shieldWave;
+    public boolean bossMode = false;
+    public Sound breakSound = Sounds.shieldBreakSmall;
+    public Sound hitSound = Sounds.shieldHit;
+    public float hitSoundVolume = 0.12f;
+    public InterceptAbility(int amount,float maxDamage,float reload,float injuredMultiplier,boolean bossMode){
+        this.amount = amount;
+        this.maxDamage =maxDamage;
+        this.reload =reload;
+        this.injuredMultiplier=injuredMultiplier;
+        this.bossMode = bossMode;
+    };
+    @Override
+    public void addStats(Table t){
+        super.addStats(t);
+        t.add(Core.bundle.format("amount", Strings.autoFixed(amount / tilesize, 2)));
+        t.row();
+        t.add(abilityStat("reload", Strings.autoFixed(60f / reload, 2)));
+        t.row();
+        t.add(abilityStat("maxDamage", Strings.autoFixed(maxDamage, 2)));
+        t.row();
+        t.add(abilityStat("ShieldBreakDamageReduction", Strings.autoFixed(injuredMultiplier, 2)));
+    };
+    @override
+    public void updata(Unit unit){
+        if(unit.field <= 0 && !wasBroken){
+            unit.field -= ;
+            Fx.shieldBreak.at(unit.x, unit.y,unit.type.shieldColor(unit), this);
+            breakSound.at(unit.x, unit.y);
+        }
+        if (unit.field < amount) {
+            chargeTimer += Time.delta;
+            if (chargeTimer >= reload) {
+                chargeTimer = 0f;                 // 重置计时
+                unit.field++;
+
+            };
+}

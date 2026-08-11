@@ -125,7 +125,11 @@ public class StormCrafterBlock extends GenericCrafter {
     public float ringSweepSweepAngle = 45f;
     /** 循环高亮扫弧的宽度 */
     public float ringSweepWidth = 5f;
-
+    /** 允许实际完成合成的最低阶段：
+     *   1 = Phase 1（粒子阶段）就允许生产（原版行为，无延迟）
+     *   2 = Phase 2（扫弧阶段）起才允许生产 ← 默认值
+     *   3 = 只有 Phase 3（完整圆环 + 闪电）才允许生产 */
+    public int craftStartPhase = 3;
     /* ==========================================================
      *                  光球 / 光圈
      * ========================================================== */
@@ -200,7 +204,10 @@ public class StormCrafterBlock extends GenericCrafter {
         public void updateTile() {
             // —— 基础合成逻辑（原 GenericCrafter） ——
             super.updateTile();
-
+            if (phase < craftStartPhase && craftTime > 0f) {
+                progress = Math.min(progress, craftTime - 0.001f);
+                warmup = Mathf.approachDelta(warmup, 0f, 0.1f);
+            }
             // —— 阶段机：放置后不立即启动，只有真正生产时才启动。
             //    启动条件：phase == 0 且 progress > lastProgress（配方进度在推进，
             //    说明原料+电力都满足，正在实际生产）。

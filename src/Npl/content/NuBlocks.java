@@ -53,7 +53,10 @@ public class NuBlocks {
     // ============= 静态方块声明：以后在这儿加就行 =============
     public static Block
             //crafting
-            MagnetPurifier,monoSiliCrystalFactory,stormCrafter, coinProducer, exchange,CompressionChamber,
+            MagnetPurifier,monoSiliCrystalFactory,coinProducer, exchange,CompressionChamber,HeatMaker, strangeLiquidExtractionRoom,
+            seedCollector,rubberGrower,heatRelaxation,distillationRoom,silverPlatingRoom,Grinder,nuclearFluidCollector,
+            thalliumCompoundCrucible,OxygenLiquefactionRoom,UraniumPrecipitationRoom,MagneticStormStabiliser,MagentEnergyStation,
+            uraniumPurificationRoom,
             //effect
             antiStealthRadar,BulletAccelerator,
             //turret
@@ -97,9 +100,257 @@ public class NuBlocks {
             health = 800;
             size=2;
             itemCapacity = 40;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawRegion("-top"),new DrawDefault(),
+                    new DrawParticles(){{
+                        color = Color.valueOf("616161");
+                        sides = 12;
+                        x = 0f;
+                        y = 0f;
+                        alpha = 0.5f;
+                        particles = 15;
+                        particleRotation = 0f;
+                        particleLife = 60f;
+                        particleRad = 6;
+                        particleSize = 3;
+                        fadeMargin = 0.4f;
+                        rotateScl = 3f;
+                        reverse = true;
+                        poly = true;
+                        particleInterp = Interp.circleOut;
+                    }});
+        }};
+        coinProducer = new CoinProducerBlock("coin-producer") {{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron,  200,
+                    NuItems.monoSiliCrystal, 150,
+                    NuItems.pumice,  160,
+                    NuItems.alkSliver,120,
+                    NuItems.rubber,  80
+            ));
+            size = 2;
+            health = 800;
+            hasItems = hasPower = true;
+            itemCapacity = 500;
+            craftTime = 120f;       // 2 秒一次
+            coinPerCraft = 10;       // 每次 +5 coins
+            consumeItems(ItemStack.with(NuItems.bigIron,  100));
+            consumePower(1.5f);
+        }};
+        exchange = new HunfuBlock("exchange") {{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron,  100,
+                    NuItems.monoSiliCrystal,  100,
+                    NuItems.pumice,  200,
+                    NuItems.alkSliver , 90,
+                    NuItems.rubber,  50,
+                    NuItems.magent,  45
+            ));
+            size = 2;
+            health = 1000;
+            hasItems = true;
+            plans = Seq.with(
+                    new Plan(with(NuItems.bigIron,100),60f*10,null,15),
+                    new Plan(with(NuItems.monoSiliCrystal,100),60f*20,null,80),
+                    new Plan(with(Items.graphite,100),60f*20,null,80),
+                    new Plan(with(NuItems.sulFurFrag,100),60f*16,null,60),
+                    new Plan(with(NuItems.magent,100),60f*30,null,120),
+                    new Plan(with(NuItems.frailPolyester,100),60f*10,null,15),
+                    new Plan(with(NuItems.oriRubber,100),60f*16,null,60),
+                    new Plan(with(NuItems.oriUranium,100),60f*16,null,60),
+                    new Plan(with(NuItems.pumice,100),60f*30,null,120),
+                    new Plan(with(NuItems.rubber,100),60f*40,null,200),
+                    new Plan(with(NuItems.alkSliver,100),60f*40,null,200),
+                    new Plan(with(NuItems.thallide,100),60f*60,null,400),
+                    new Plan(with(NuItems.uranium,100),60f*60,null,400),
+                    new Plan(with(NuItems.bottledMagenticStorm,100),60f*60,null,400),
+                    new Plan(with(NuItems.rubberFrag,100),60f*10,null,30),
+                    new Plan(with(Items.pyratite,100),60f*20,null,60)
+            );
+        }};
+        CompressionChamber = new GenericCrafter("CompressionChamber") {{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron,60
+            ));
+            outputItem = new ItemStack(Items.graphite,3);
+            hasItems = true;
+            craftTime = 120f;
+            health = 800;
+            size = 2;
+            consumeItems(ItemStack.with(NuItems.Tcoal,3));
+            craftEffect = Fx.blastExplosion;
+        }};
+        HeatMaker = new HeatProducer("HeatMaker") {{
+            requirements(Category.crafting, with(NuItems.pumice,90,NuItems.monoSiliCrystal,100,NuItems.sulFurFrag,50,NuItems.magent,30));
+            consumePower(1.666667f);
+            craftEffect = Fx.lava;
+            size = 2;
+            health = 800;
+            hasPower = true;
+            ambientSound = Sounds.loopSmelter;
+            researchCostMultiplier = 0.5f;
+            drawer = new DrawMulti(new DrawDefault(),new DrawHeatOutput(){{
+                heatColor = NuColor.HeatColor;
+            }});
+            rotate = true;
+            heatOutput = 3;
+            craftTime = 60f;
+        }};
+        strangeLiquidExtractionRoom = new HeatCrafter("strangeLiquidExtractionRoom") {{
+            requirements(Category.crafting, with(NuItems.monoSiliCrystal,160,NuItems.pumice,150,Items.graphite,200));
+            hasLiquids = true;
+            liquidCapacity = 200;
+            size = 2;
+            health = 800;
+            consumePower(6f);
+            researchCostMultiplier = 0.5f;
+            maxEfficiency = 5;
+            heatRequirement = 5;
+            ambientSound = Sounds.loopExtract;
+            ambientSoundVolume = 0.06f;
+            outputLiquid = new LiquidStack(NuLiquid.strangeLiquid,0.1f);
+            hasPower = true;
+            craftTime = 240f;
+            drawer = new DrawMulti(new DrawHeatInput(){{
+                heatColor = NuColor.HeatColor;
+            }},new DrawRegion("-bottom"),new DrawLiquidTile(NuLiquid.strangeLiquid, 4f),new DrawDefault(), new DrawParticles(){{
+                color = NuColor.DespColor;
+                alpha = 0.6f;
+                particleSize = 4f;
+                particles = 10;
+                particleRad = 12f;
+                particleLife = 140f;
+            }});
+        }};
+        seedCollector = new GenericCrafter("seedCollector") {{
+            requirements(Category.crafting, with(Items.graphite,450,NuItems.pumice,250,NuItems.magent,50));
+            hasItems = true;
+            craftTime = 450f;
+            health = 800;
+            size = 2;
+            buildTime = 40f;
+            drawer = new DrawMulti(new DrawRegion("-rotator"){{
+                rotateSpeed = 2f;
+                spinSprite = true;
+            }}, new DrawDefault(),new DrawRegion("-top"),new DrawRegion("-bottom"));
+            ambientSound = Sounds.plantBreak;
+            itemCapacity = 60;
+            outputItem = new ItemStack(NuItems.rubberFrag,8);
+            consumePower(2.4f);
+            consumeItems(ItemStack.with(NuItems.oriRubber,2));
+            craftEffect = Fx.smeltsmoke;
+        }};
+        rubberGrower = new HeatCrafter("rubberGrower") {{
+            requirements(Category.crafting,with(NuItems.monoSiliCrystal,100,NuItems.bigIron,300,NuItems.pumice,150,NuItems.sulFurFrag,90));
+            size = 2;
+            buildTime = 50f;
+            drawer = new DrawMulti(new DrawHeatInput(){{}});
+            craftTime = 600f;
+            consumePower(6f);
+            outputItem = new ItemStack(NuItems.rubber,2);
+            drawer = new DrawMulti(new DrawHeatInput(){{
+                heatColor = NuColor.HeatColor;
+            }},new DrawDefault(),new DrawGlowRegion("-heat"){{
+                blending = Blending.additive;
+                color = NuColor.HeatConColor;
+            }},new DrawRegion("-bottom"));
+            ambientSound = Sounds.loopSmelter;
+            consumeItems(ItemStack.with(NuItems.rubberFrag,1));
+            craftEffect = Fx.smeltsmoke;
+            itemCapacity = 40;
+            heatRequirement = 10;
+            maxEfficiency = 3;
+        }};
+        heatRelaxation = new HeatProducer("heatRelaxation") {{
+            requirements(Category.crafting,with(NuItems.monoSiliCrystal,100,NuItems.magent,75,NuItems.pumice,150,NuItems.rubber,50));
+            size = 2;
+            heatOutput = 15;
+            craftTime = 600f;
+            researchCostMultiplier = 0.5f;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawHeatInput(){{
+                heatColor = NuColor.HeatColor;
+            }},new DrawDefault());
+            craftEffect = Fx.lava;
+            rotate = true;
+            consumeItems(ItemStack.with(NuItems.rubber,1));
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.1f;
+            itemCapacity = 20;
+        }};
+        distillationRoom = new GenericCrafter("distillationRoom") {{
+            requirements(Category.crafting,with(NuItems.bigIron,200,NuItems.monoSiliCrystal,125,NuItems.pumice,75,Items.graphite,150,NuItems.rubber,50));
+            size = 3;
+            health = 1200;
+            craftTime = 180f;
+            itemCapacity = 60;
+            buildTime = 25f;
+            updateEffect = Fx.smoke;
+            consumePower(3f);
+            researchCostMultiplier = 0.5f;
+            consumeItems(ItemStack.with(NuItems.Tcoal,3));
+            consumeLiquids(LiquidStack.with(Liquids.water,0.2));
+            craftEffect = new MultiEffect (new WaveEffect(){{
+                sizeFrom = 0f;
+                sizeTo = 32f;
+                colorFrom = NuColor.PaleColor;
+                colorTo = NuColor.DarkColor;
+                lifetime = 120f;
+                layer = 120f;
+            }},Fx.smokePuff,Fx.steamCoolSmoke);
+            outputItem = new ItemStack(Items.graphite,6);
+        }};
+        silverPlatingRoom = new HeatCrafter("silverPlatingRoom") {{
+            requirements(Category.crafting,with(NuItems.bigIron,300,NuItems.monoSiliCrystal,300,NuItems.pumice,150,NuItems.magent,100));
+            heatRequirement = 5;
+            maxEfficiency = 3;
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.24f;
+            size = 2;
+            health = 800;
+            itemCapacity = 30;
+            buildTime = 25f;
+            updateEffect = Fx.smoke;
+            consumePower(4.5f);
+            consumeItems(ItemStack.with(NuItems.pumice,3,Items.sand,5));
+            craftTime = 145f;
+            researchCostMultiplier = 0.5f;
+            outputItem = new ItemStack(NuItems.alkSliver,1);
+            craftEffect = Fx.blastExplosion;
+        }};
+        Grinder = new HunfuBlock("grinder"){{
+            requirements(Category.crafting,with(
+                    NuItems.bigIron,300,
+                    NuItems.monoSiliCrystal,250,
+                    NuItems.pumice,175,
+                    NuItems.alkSliver,100
+            ));
+            health = 800;
+            size = 2;
+            consumePower(10f);
+            researchCostMultiplier = 0.75f;
+            craftEffect = NuFx.PaleSmoke;
+            itemCapacity = 40;
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.24f;
+            buildTime = 30f;
+            plans = Seq.with(
+                    new HunfuBlock.Plan(
+                         with(NuItems.oriUranium,2),
+                         140f,
+                         with(NuItems.sulFurFrag,2,NuItems.uranCrystal,2)
+                    ),
+                    new HunfuBlock.Plan(
+                         with(Items.pyratite,4),
+                         60*1.2f,
+                         with(NuItems.sulFurFrag,2,NuItems.rubberFrag,3),
+                         null,
+                         LiquidStack.with(Liquids.water, 0.1),
+                         0,
+                         0
+                    )
+            );
         }};
 
-        stormCrafter = new StormCrafterBlock("storm-crafter") {{
+        MagneticStormStabiliser = new StormCrafterBlock("MagenticStormStabiliser") {{
             requirements(Category.crafting, with(
                     NuItems.bigIron, 550,
                     NuItems.sulFurFrag, 500,
@@ -111,9 +362,9 @@ public class NuBlocks {
             health = 1500;
             hasItems = hasPower = true;
             // 合成本身速度独立（和三阶段视觉不挂钩，用户可自改）
-            craftTime = 22f*60;
+            craftTime = 3f*60;
             outputItem = new ItemStack(NuItems.bottledMagenticStorm, 1);
-            consumeItems(ItemStack.with(Items.pyratite, 3,NuItems.pumice,2));
+            consumeItems(ItemStack.with(Items.pyratite, 3,NuItems.pumice,2,NuItems.magent,2));
             consumePower(15.0f);
             // ==================== 风暴专属字段 ====================
             stormColor       = new Color(0x6F9BFFff);
@@ -168,62 +419,6 @@ public class NuBlocks {
             lightningFireCountMax = 10;        // 最多 5 条（实际数量随机）
             lightningLengthMin    = 8;       // 闪电最短 8 格
             lightningLengthMax    = 42;      // 闪电最长 22 格
-        }};
-        coinProducer = new CoinProducerBlock("coin-producer") {{
-            requirements(Category.crafting, with(
-                    NuItems.bigIron,  200,
-                    NuItems.monoSiliCrystal, 150,
-                    NuItems.pumice,  160,
-                    NuItems.rubber,  80
-            ));
-            size = 2;
-            health = 800;
-            hasItems = hasPower = true;
-            itemCapacity = 500;
-            craftTime = 120f;       // 2 秒一次
-            coinPerCraft = 10;       // 每次 +5 coins
-            consumeItems(ItemStack.with(NuItems.bigIron,  100));
-            consumePower(1.5f);
-        }};
-        exchange = new CoinConsumerBlock("exchange") {{
-            requirements(Category.crafting, with(
-                    NuItems.bigIron,  100,
-                    NuItems.monoSiliCrystal,  100,
-                    NuItems.pumice,  200,
-                    NuItems.magent,  45
-            ));
-            size = 2;
-            health = 1000;
-            hasItems = true;
-            plans = Seq.with(
-                    new Plan(with(NuItems.bigIron,100),60f*10,null,15),
-                    new Plan(with(NuItems.monoSiliCrystal,100),60f*20,null,80),
-                    new Plan(with(Items.graphite,100),60f*20,null,80),
-                    new Plan(with(NuItems.sulFurFrag,100),60f*16,null,60),
-                    new Plan(with(NuItems.magent,100),60f*30,null,120),
-                    new Plan(with(NuItems.frailPolyester,100),60f*10,null,15),
-                    new Plan(with(NuItems.oriRubber,100),60f*16,null,60),
-                    new Plan(with(NuItems.oriUranium,100),60f*16,null,60),
-                    new Plan(with(NuItems.pumice,100),60f*30,null,120),
-                    new Plan(with(NuItems.rubber,100),60f*40,null,200),
-                    new Plan(with(NuItems.alkSliver,100),60f*40,null,200),
-                    new Plan(with(NuItems.thallide,100),60f*60,null,400),
-                    new Plan(with(NuItems.uranium,100),60f*60,null,400),
-                    new Plan(with(NuItems.bottledMagenticStorm,100),60f*60,null,400),
-                    new Plan(with(NuItems.rubberFrag,100),60f*10,null,30),
-                    new Plan(with(Items.pyratite,100),60f*20,null,60)
-            );
-        }};
-        CompressionChamber = new GenericCrafter("CompressionChamber") {{
-            requirements(Category.crafting, with(
-                    NuItems.bigIron,  100
-            ));
-            outputItem = new ItemStack(Items.graphite,3);
-            hasItems = true;
-            craftTime = 120f;
-            health = 800;
-            size = 2;
-            consumeItems(ItemStack.with(NuItems.Tcoal,3));
         }};
 
 

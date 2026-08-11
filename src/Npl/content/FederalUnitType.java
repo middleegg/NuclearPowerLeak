@@ -54,7 +54,9 @@ import mindustry.type.weapons.PointDefenseWeapon;
 import mindustry.type.weapons.RepairBeamWeapon;
 import mindustry.world.meta.BlockFlag;
 import mindustry.world.meta.Env;
-import Npl.content.NuColor;
+import Npl.content.*;
+import Npl.newSth.Type.*;
+import Npl.newSth.AI.*;
 import Npl.newSth.*;
 import static arc.graphics.g2d.Draw.*;
 import static arc.graphics.g2d.Lines.*;
@@ -76,7 +78,7 @@ public class FederalUnitType {
    //pale's Hovering
     pureJade,
    //special
-    hometown;
+    hometown,dragon;
     public static Weapon truly;
     public static void load(){
 

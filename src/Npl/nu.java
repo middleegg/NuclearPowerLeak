@@ -8,6 +8,7 @@ import mindustry.ui.dialogs.*;
 import Npl.content.*;
 import Npl.content.envBlocks;
 import Npl.newSth.NewItemsType;
+import Npl.newSth.Type.*;
 import arc.graphics.Color;
 import arc.struct.Seq;
 import mindustry.ui.*;

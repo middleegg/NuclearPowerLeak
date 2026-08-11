@@ -7,6 +7,9 @@ import mindustry.graphics.*;
 
 public class NuColor {
     public static Color
+            HeatColor = Color.valueOf("FFCA57B0"),
+            HeatConColor = Color.valueOf("FFBC8C80"),
+            DarkColor = Color.valueOf("4D4E58FF"),
             HonorColor =   Color.valueOf("C58BFF"),
             HonorBackColor =   Color.valueOf("9B6ACC"),
             HonorElseColor =   Color.valueOf("A97FD4"),

@@ -143,6 +143,9 @@ nb-configuration.xml
 /local.properties
 .gradle/
 gradle-app.setting
+
+# 本地依赖 jar（Mindustry dependencies.jar 通过镜像下载，不入库）
+/libs/
 /build/
 /android/build/
 /core/build/
@@ -150,11 +153,6 @@ gradle-app.setting
 /html/build/
 /ios/build/
 /ios-moe/build/
-<<<<<<< HEAD
-sdk.dir=D\:/cmdline-tools
-=======
-
->>>>>>> 0f7ed9b597c64ab2341a420074329ac24d36486d
 ## OS Specific
 .DS_Store
 Thumbs.db

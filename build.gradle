@@ -7,6 +7,44 @@ sourceSets.main.java.srcDirs = ["src"]
 repositories{
     mavenCentral()
 
+    //GitHub 镜像（国内访问 GitHub 较慢，优先使用镜像）。Gradle 会按顺序尝试，第一个可用即返回。
+    //注意：不能在 url 里写 'https://gh-proxy.com/https://github.com/'，Gradle 会把 'https://github.com'
+    //里的双斜杠规范化成单斜杠（变成 'https:/github.com'），导致镜像收到错误请求。镜像支持省略协议前缀的写法。
+    //镜像 1: gh-proxy.com
+    ivy{
+        url = 'https://gh-proxy.com/github.com/'
+        patternLayout{artifact '/[organisation]/[module]/releases/download/[revision]/dependencies.jar'}
+        metadataSources{ artifact() }
+    }
+    ivy{
+        url = 'https://gh-proxy.com/github.com/'
+        patternLayout{artifact '/[organisation]/[module]/releases/[revision]/download/dependencies.jar'}
+        metadataSources{ artifact() }
+    }
+    ivy{
+        url = 'https://gh-proxy.com/github.com/'
+        patternLayout{artifact '/[organisation]/[module]/releases/download/master/[revision].jar'}
+        metadataSources{ artifact() }
+    }
+
+    //镜像 2: ghproxy.net（gh-proxy 不可用时兜底）
+    ivy{
+        url = 'https://ghproxy.net/github.com/'
+        patternLayout{artifact '/[organisation]/[module]/releases/download/[revision]/dependencies.jar'}
+        metadataSources{ artifact() }
+    }
+    ivy{
+        url = 'https://ghproxy.net/github.com/'
+        patternLayout{artifact '/[organisation]/[module]/releases/[revision]/download/dependencies.jar'}
+        metadataSources{ artifact() }
+    }
+    ivy{
+        url = 'https://ghproxy.net/github.com/'
+        patternLayout{artifact '/[organisation]/[module]/releases/download/master/[revision].jar'}
+        metadataSources{ artifact() }
+    }
+
+    //原 GitHub 直连（镜像均不可用时的最后兜底）
     //Downloads the dependencies JAR file from Mindustry releases; does not use any real repository. Surprisingly, this is the most reliable option.
     ivy{
         url = 'https://github.com/'
@@ -46,7 +84,14 @@ ext{
 }
 
 dependencies{
-    compileOnly mindustryVersion == "be" ? "Anuken:MindustryBuilds:latest" : "Anuken:Mindustry:$mindustryVersion"
+    //优先使用本地已下载的 dependencies.jar（位于 libs/ 目录），避免每次构建都通过 GitHub 镜像拉取。
+    //本地 jar 不存在时，回退到 ivy 仓库（上方配置的镜像 + GitHub 直连）按需下载。
+    def localJar = file("libs/Mindustry-${mindustryVersion}.jar")
+    if(localJar.exists()){
+        compileOnly files(localJar)
+    }else{
+        compileOnly mindustryVersion == "be" ? "Anuken:MindustryBuilds:latest" : "Anuken:Mindustry:$mindustryVersion"
+    }
 }
 
 tasks.register('jarAndroid'){

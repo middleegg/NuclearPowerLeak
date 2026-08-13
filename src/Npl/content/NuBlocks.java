@@ -4,6 +4,7 @@ import static mindustry.Vars.*;
 import static mindustry.type.ItemStack.*;
 import Npl.newSth.*;
 import Npl.content.*;
+import Npl.content.Azer;
 import arc.graphics.*;
 import arc.math.*;
 import arc.struct.*;
@@ -58,7 +59,7 @@ public class NuBlocks {
             thalliumCompoundCrucible,OxygenLiquefactionRoom,uraniumPurificationRoom,MagneticStormStabiliser,MagentEnergyStation,
             UraniumPrecipitationRoom,
             //effect
-            antiStealthRadar,BulletAccelerator,
+            antiStealthRadar,BulletAccelerator,FederalJuniorCore,FederalSubCore,
             //turret
             however,
             //production
@@ -74,7 +75,7 @@ public class NuBlocks {
             ambientSound=Sounds.loopGrind;
             ambientSoundVolume=0.025f;
             consumeItems(ItemStack.with(NuItems.bigIron,3,NuItems.Tcoal,1));
-            consumePower(2.1f);
+            consumePower(5f);
             health = 800;
             size=2;
             itemCapacity = 20;
@@ -134,7 +135,7 @@ public class NuBlocks {
             craftTime = 120f;       // 2 秒一次
             coinPerCraft = 10;       // 每次 +5 coins
             consumeItems(ItemStack.with(NuItems.bigIron,  100));
-            consumePower(1.5f);
+            consumePower(4f);
         }};
         exchange = new HunfuBlock("exchange") {{
             requirements(Category.crafting, with(
@@ -145,8 +146,8 @@ public class NuBlocks {
                     NuItems.rubber,  50,
                     NuItems.magent,  45
             ));
-            size = 2;
-            health = 1000;
+            size = 3;
+            health = 1400;
             hasItems = true;
             plans = Seq.with(
                     new Plan(with(NuItems.bigIron,100),60f*10,null,15),
@@ -181,7 +182,7 @@ public class NuBlocks {
         }};
         HeatMaker = new HeatProducer("HeatMaker") {{
             requirements(Category.crafting, with(NuItems.pumice,90,NuItems.monoSiliCrystal,100,NuItems.sulFurFrag,50,NuItems.magent,30));
-            consumePower(1.666667f);
+            consumePower(3.333333f);
             craftEffect = Fx.lava;
             size = 2;
             health = 800;
@@ -235,7 +236,7 @@ public class NuBlocks {
             ambientSound = Sounds.plantBreak;
             itemCapacity = 60;
             outputItem = new ItemStack(NuItems.rubberFrag,8);
-            consumePower(2.4f);
+            consumePower(4.8f);
             consumeItems(ItemStack.with(NuItems.oriRubber,2));
             craftEffect = Fx.smeltsmoke;
         }};
@@ -245,7 +246,7 @@ public class NuBlocks {
             buildTime = 50f;
             drawer = new DrawMulti(new DrawHeatInput(){{}});
             craftTime = 600f;
-            consumePower(6f);
+            consumePower(7.5f);
             outputItem = new ItemStack(NuItems.rubber,2);
             drawer = new DrawMulti(new DrawHeatInput(){{
                 heatColor = NuColor.HeatColor;
@@ -284,7 +285,7 @@ public class NuBlocks {
             itemCapacity = 60;
             buildTime = 25f;
             updateEffect = Fx.smoke;
-            consumePower(3f);
+            consumePower(10f);
             researchCostMultiplier = 0.5f;
             consumeItems(ItemStack.with(NuItems.Tcoal,3));
             consumeLiquids(LiquidStack.with(Liquids.water,0.2));
@@ -309,7 +310,7 @@ public class NuBlocks {
             itemCapacity = 30;
             buildTime = 25f;
             updateEffect = Fx.smoke;
-            consumePower(4.5f);
+            consumePower(12f);
             consumeItems(ItemStack.with(NuItems.pumice,3,Items.sand,5));
             craftTime = 145f;
             researchCostMultiplier = 0.5f;
@@ -325,7 +326,7 @@ public class NuBlocks {
             ));
             health = 800;
             size = 2;
-            consumePower(10f);
+            consumePower(9f);
             researchCostMultiplier = 0.75f;
             craftEffect = NuFx.PaleSmoke;
             itemCapacity = 40;
@@ -399,7 +400,7 @@ public class NuBlocks {
             ambientSoundVolume = 0.24f;
             researchCostMultiplier = 0.5f;
             outputItem = new ItemStack(NuItems.thallide,3);
-            consumePower(15f);
+            consumePower(12f);
             consumeItems(ItemStack.with(NuItems.sulFurFrag,6,NuItems.Tcoal,5));
             craftEffect = new MultiEffect(new RadialEffect(){{
                 amount = 4;
@@ -449,7 +450,7 @@ public class NuBlocks {
             researchCostMultiplier = 0.5f;
             consumeItems(ItemStack.with(NuItems.magent,1f));
             consumeLiquids(LiquidStack.with(Liquids.water,0.1f));
-            consumePower(10f);
+            consumePower(20f);
             outputLiquid = new LiquidStack(NuLiquid.liquidOxygen,0.05f);
             hasLiquids = hasItems = true;
             itemCapacity = 10;
@@ -480,7 +481,7 @@ public class NuBlocks {
                 drawLiquid = Liquids.water;
                 padding = 3f;
             }});
-            consumePower(15f);
+            consumePower(20f);
             consumeItems(ItemStack.with(NuItems.oriUranium,2));
             consumeLiquids(LiquidStack.with(Liquids.water,0.5f));
             outputItem = new ItemStack(NuItems.uranium,2);
@@ -509,14 +510,14 @@ public class NuBlocks {
                     NuItems.thallide,75,
                     NuItems.alkSliver,100
             ));
-            size = 2;
-            health = 1000;
+            size = 3;
+            health = 1600;
             hasItems = hasPower = true;
             // 合成本身速度独立（和三阶段视觉不挂钩，用户可自改）
             craftTime = 3f*60;
             outputItem = new ItemStack(NuItems.bottledMagenticStorm, 1);
             consumeItems(ItemStack.with(Items.pyratite, 3,NuItems.pumice,2,NuItems.magent,2));
-            consumePower(15.0f);
+            consumePower(40f);
             // ==================== 风暴专属字段 ====================
             stormColor       = new Color(0x6F9BFFff);
             stormBrightColor = new Color(0xE3F2FDff);
@@ -609,21 +610,66 @@ public class NuBlocks {
                 alpha = 0.7f;
             }});
         }};
+        UraniumPrecipitationRoom = new HeatProducer("UraniumPrecipitationRoom") {{
+            requirements(Category.crafting, with(
+                    NuItems.magent, 200,
+                    NuItems.pumice, 300,
+                    NuItems.monoSiliCrystal, 450,
+                    NuItems.alkSliver,150,
+                    NuItems.uranium,100
+            ));
+            researchCostMultiplier = 1.6f;
+            itemCapacity = 60;
+            liquidCapacity = 1000;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawLiquidTile(){{
+                drawLiquid = NuLiquid.nuclearFluid;
+                padding = 3f;
+            }},new DrawDefault(),new DrawHeatOutput(){{
+                heatColor = NuColor.HeatColor;
+            }});
+            heatOutput = 20;
+            size = 3;
+            health = 1500;
+            hasItems = hasPower = true;
+            consumePower(20f);
+            consumeLiquids(LiquidStack.with(NuLiquid.nuclearFluid,1f,NuLiquid.strangeLiquid,0.2f));
+            consumeItems(ItemStack.with(NuItems.sulFurFrag,3));
+            outputItem = new ItemStack(NuItems.uranium,8);
+            craftTime = 300f;
+            craftEffect = new MultiEffect(new ParticleEffect(){{
+               particles = 8;
+               cone = 90f;
+               lenFrom = 32f;
+               lenTo = 0f;
+               spin = 6f;
+               sizeFrom = 7f;
+               sizeTo = 0f;
+               colorFrom = NuColor.SailColor;
+               colorTo = NuColor.SailBackColor;
+               lifetime =100f;
+               layer = 100f;
+            }},new WaveEffect(){{
+                sizeFrom = 0f;
+                sizeTo = 48f;
+                colorFrom = NuColor.SailColor;
+                colorTo = NuColor.SailBackColor;
+                lifetime = 60f;
+                layer = 90f;
+            }});
+        }};
 
 
         antiStealthRadar = new AntiStealthRadar("anti-stealth-radar") {{
             requirements(Category.effect, with(
-                NuItems.bigIron,    120,   // 结构铁壳
-                Items.lead,         150,   // 电路基板
-                Items.silicon,      240,   // 硅芯片 / 天线信号处理
-                Items.metaglass,     80,   // 雷达罩透明玻璃
-                Items.plastanium,    40,   // 轻质外壳
-                Items.surgeAlloy,    30    // 高阶合金：脉冲探测发射器
+                NuItems.bigIron,    150,   // 结构铁壳
+                NuItems.frailPolyester,200,
+                NuItems.monoSiliCrystal,240,
+                NuItems.magent,25
             ));
             size            = 2;                // 2×2 占地
             health          = 3000;             // 血量（雷达要堆高血量，避免被偷袭一下就没）
             fogRadius       = 14;               // 开雾 14 格（比原版雷达大一点）
-            // detectionRange = 默认 = fogRadius * tilesize（14 * 8 = 112 像素 ≈ 14 格）
+            detectionRange = fogRadius*0.8f;
             scanTick        = 30f;              // 每 0.5 秒扫一次（越小越灵敏，但耗电/CPU 开销略高）
             revealPerStep   = 60f;              // 每扫一次强制隐身单位显形 1 秒（60 tick），等于"一直在范围内就一直显形"
             consumePower    = true;             // 不供电就不反隐（只开雾）
@@ -644,6 +690,21 @@ public class NuBlocks {
             useTime = 600f;
             itemCapacity = 10;
             consumeItem(NuItems.rubber).boost();
+        }};
+        FederalJuniorCore = new CoreBlock("FederalJuniorCore"){{
+            requirements(Category.effect, BuildVisibility.coreZoneOnly, with(
+                    NuItems.bigIron,2500,
+                    NuItems.monoSiliCrystal, 800,
+                    Items.graphite , 2000
+            ));
+            alwaysUnlocked = true;
+            isFirstTier = false;
+            unitType = FederalUnitTypes.survive;
+            health = 6500;
+            itemCapacity = 6000;
+            size = 3;
+            buildCostMultiplier = 2f;
+            unitCapModifier = 16;
         }};
 
         however = new ItemTurret("however"){{

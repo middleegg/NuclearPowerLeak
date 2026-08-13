@@ -6,6 +6,7 @@ import mindustry.game.EventType.*;
 import mindustry.mod.*;
 import mindustry.ui.dialogs.*;
 import Npl.content.*;
+import Npl.events.*;
 import Npl.content.envBlocks;
 import Npl.newSth.NewItemsType;
 import Npl.newSth.Type.*;
@@ -51,7 +52,6 @@ public class nu extends Mod {
                     t.add(Core.bundle.get("ui.nu.frog.welcome")).pad(20).row();
                     t.image(Core.atlas.find("nu-frog")).size(120).pad(10).row();
                     // ★ Bundle 用法 6："关掉" 按钮
-                    t.button(Core.bundle.get("ui.nu.frog.btn.close"), dialog::hide).size(120, 40);
                 }).growX().pad(20).row();
 
                 // ┌───────── 第 2 行：底部标准 OK 按钮 ─────────┐
@@ -68,11 +68,15 @@ public class nu extends Mod {
         NuItems.load();
         NuLiquid.load();
         Azer.load();
+        // ★ FederalUnitTypes 必须在 NuBlocks 之前加载：
+        //   NuBlocks 的 FederalJuniorCore.unitType = FederalUnitTypes.survive 需要 survive 先赋好值，
+        //   否则 CoreBlock.postInit() 里读 unitType.shownPlanets 会 NPE
+        FederalUnitTypes.load();
         NuBlocks.load();
         NuStatus.load();
-        FederalUnitType.load();
         envBlocks.load();
         CalamityUnitType.load();
+        OneEvent.load();
     }
 
     /* ──────────────────────────────────────────────────────
@@ -101,7 +105,6 @@ public class nu extends Mod {
             profile.hide();
             backTo.show();
         });
-        profile.buttons.button(Core.bundle.get("ui.nu.frog.profile.btn.close"), profile::hide);
 
         profile.show();
     }

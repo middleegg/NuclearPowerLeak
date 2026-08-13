@@ -47,6 +47,8 @@ public class CalamityUnitType {
 
     /** 多节单位 UnitType 字段：每个虫子有「头部」和「段身」两个 UnitType */
     public static UnitType
+        dragon,
+        dragonTail,
         arcnelidia,            // 电弧虫头部
         arcnelidiaSegment,     // 电弧虫段身
         toxobyte,              // 毒疫虫头部
@@ -87,13 +89,13 @@ public class CalamityUnitType {
         // ═══════════════════════════════════════════════════════════
 
         // —— 段身 UnitType（先创建，头部 config 要引用它）——
-        arcnelidiaSegment = new UnitType("arcnelidia-segment") {{
-            health = 1600;  // ★ 提高段身血量（头部800×2），避免段身太脆
+        dragonTail = new UnitType("dragonTail") {{
+            health = 100000;  // ★ 提高段身血量（头部800×2），避免段身太脆
             speed = 0f;     // 段身不需要自己移动（由头部驱动）
             // ★ hitSize=19.75f（19.25 + 0.5）
             // 碰撞计算：段间距 22.7 > 半径 9.875+9.875=19.75，不重叠（间隙 2.95）
-            hitSize = 19.75f;
-            armor = 5f;
+            hitSize = 197.5f;
+            armor = 500f;
             flying = true;
             rotateSpeed = 1f;
             faceTarget = false;
@@ -139,14 +141,14 @@ public class CalamityUnitType {
         }};
 
         // —— 头部 Arcnelidia 飞行分段虫子 ——
-        arcnelidia = new UnitType("arcnelidia") {{
+        dragon = new UnitType("dragon") {{
             // ===== 基础属性（PU132 原值） =====
-            health = 800;  // PU132 原版
+            health = 2000000;  // PU132 原版
             speed = 4f;
             accel = 0.035f;
             rotateSpeed = 3.2f;
-            hitSize = 19.75f;
-            armor = 5f;
+            hitSize = 197.5f;
+            armor = 500f;
             flying = true;
             // PU132：engineSize=-1f（不显示引擎喷射效果）
             engineSize = -1f;
@@ -201,11 +203,11 @@ public class CalamityUnitType {
         // angleLimit=30f（龙的感觉：更大的弯曲角度）
         // anglePhysicsSmooth=0.5f（更平滑的转向，段身自然跟随头部）
         // segmentCast=6, jointStrength=0.6f（增大传播范围，减小关节强度防止脱节）
-        SegmentWormEntity.configs.put(arcnelidia.name,
-            new SegmentWormEntity.SegmentConfig(arcnelidiaSegment, 9, 22.7f, 0f, 0, true, false, false,
+        SegmentWormEntity.configs.put(dragon.name,
+            new SegmentWormEntity.SegmentConfig(dragonTail, 9, 22.7f, 0f, 0, true, false, false,
                 30f, 6f, 0.1f, 0.6f, 6, 0.5f, false, 0f));
         // 电弧虫：每秒回10血
-        SegmentWormEntity.configs.get(arcnelidia.name).healPerSecond = 10f;
+        SegmentWormEntity.configs.get(dragon.name).healPerSecond = 10f;
 
         // 用反射设置 shootSound 和 visualElevation，避开编译期字段差异（v150 vs v154）
         try {
@@ -213,14 +215,14 @@ public class CalamityUnitType {
             java.lang.reflect.Field f = soundsClass.getField("shootLaser");
             Object snd = f.get(null);
             arc.audio.Sound sound = (arc.audio.Sound) snd;
-            arcnelidia.weapons.first().shootSound = sound;
+            dragon.weapons.first().shootSound = sound;
         } catch (Throwable t) {
             try { Log.err("set shootSound failed", t); } catch (Throwable ignored) {}
         }
         // PU132：visualElevation=0.8f（可能已移除该字段，静默忽略）
         try {
-            java.lang.reflect.Field ve = arcnelidia.getClass().getSuperclass().getField("visualElevation");
-            ve.setFloat(arcnelidia, 0.8f);
+            java.lang.reflect.Field ve = dragon.getClass().getSuperclass().getField("visualElevation");
+            ve.setFloat(dragon, 0.8f);
         } catch (Throwable ignored) {}
 
         // ═══════════════════════════════════════════════════════════

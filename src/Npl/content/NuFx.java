@@ -145,6 +145,30 @@ public class NuFx {
         smokeFrom    = 2f; smokeTo = 12f;
         alphaMul     = 1f;
     }};
+    public static Effect bloodEnergyTail = new BulletTailEffect(){{
+        colorFrom    = NuColor.BloodColor;
+        colorTo      = NuColor.BloodBackColor;
+        particles    = 12;
+        particleShape = 3;     // 圆形粒子
+        particleSpread = 8f;
+        coreFrom     = 5f; coreTo = 0.5f;
+        coreGlowMul  = 1.4f;
+        smokeLayers  = 1;
+        smokeFrom    = 2f; smokeTo = 12f;
+        alphaMul     = 1f;
+    }};
+    public static Effect survivalEnergyTail = new BulletTailEffect(){{
+        colorFrom    = NuColor.SurvivalColor;
+        colorTo      = NuColor.SurvivalBackColor;
+        particles    = 12;
+        particleShape = 3;     // 圆形粒子
+        particleSpread = 8f;
+        coreFrom     = 5f; coreTo = 0.5f;
+        coreGlowMul  = 1.4f;
+        smokeLayers  = 1;
+        smokeFrom    = 2f; smokeTo = 12f;
+        alphaMul     = 1f;
+    }};
     public static Effect despEnergyTail = new BulletTailEffect(){{
         colorFrom    = NuColor.DespColor;
         colorTo      = NuColor.DespBackColor;

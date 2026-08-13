@@ -63,8 +63,10 @@ import static arc.graphics.g2d.Lines.*;
 import static arc.math.Angles.*;
 import static mindustry.Vars.*;
 
-public class FederalUnitType {
+public class FederalUnitTypes{
     public static  UnitType
+   //core's
+   survive,
    //desp's
     vile,shame,loss,nonsense,
    //honor's
@@ -82,6 +84,105 @@ public class FederalUnitType {
     public static Weapon truly;
     public static void load(){
 
+        survive = new UnitType("survive"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            flying = true;
+            drawCell = true;
+            circleTarget = true;
+            itemCapacity = 45;
+            health = 2200;
+            speed = 4f;
+            researchCostMultiplier = 0.50f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 14;
+            hitSize = 12f;
+            mineTier = 3;
+            buildRange = 480f;
+            drag = 0.1f;
+            buildSpeed = 3.5f;
+            mineSpeed = 4.5f;
+            alwaysUnlocked = true;
+            isEnemy = true;
+            abilities.add(new ShieldRegenFieldAbility(20f,1000f,120f,50f));
+            weapons.add(new Weapon("breakBullet-l"){{
+                x = -6.5f;
+                y = -1f;
+                reload = 120f;
+                shootCone = 20f;
+                range = 125f;
+                velocityRnd = 0.2f;
+                inaccuracy = 1f;
+                shoot = new ShootSpread(3,4f);
+                shootY = 1f;
+                shootX = -1f;
+                recoil = 2.5f;
+                bullet = new MissileBulletType(5f,80f){{
+                    collides = true;
+                    collidesAir = true;
+                    collidesGround = true;
+                    collidesTeam = true;
+                    height = 16f;
+                    width = 15f;
+                    lifetime = 25f;
+                    hitEffect = despawnEffect = new WaveEffect(){{
+                       strokeFrom = 2.5f;
+                       strokeTo = 0f;
+                       colorFrom = NuColor.SurvivalColor;
+                       colorTo = NuColor.SurvivalBackColor;
+                       sizeFrom = 12f;
+                       sizeTo = 1f;
+                       lifetime =12f;
+                       sides = 12;
+                    }};
+                    healAmount = 25f;
+                    lightColor = frontColor = trailColor = NuColor.SurvivalColor;
+                    backColor = hitColor = NuColor.SurvivalBackColor;
+                    trailInterval = 2.5f;
+                    trailEffect = NuFx.survivalEnergyTail;
+                }};
+            }});
+            weapons.add(new Weapon("breakBullet-r"){{
+                x = 6.5f;
+                y = -1f;
+                reload = 120f;
+                shootCone = 20f;
+                range = 125f;
+                mirror = false;
+                velocityRnd = 0.2f;
+                inaccuracy = 1f;
+                shoot = new ShootSpread(3,4f){{
+                    firstShotDelay = 60f;
+                }};
+                shootY = 1f;
+                shootX = -1f;
+                recoil = 2.5f;
+                bullet = new MissileBulletType(5f,80f){{
+                    collides = true;
+                    collidesAir = true;
+                    collidesGround = true;
+                    collidesTeam = true;
+                    height = 16f;
+                    width = 15f;
+                    lifetime = 25f;
+                    hitEffect = despawnEffect = new WaveEffect(){{
+                        strokeFrom = 2.5f;
+                        strokeTo = 0f;
+                        colorFrom = NuColor.BloodColor;
+                        colorTo = NuColor.BloodBackColor;
+                        sizeFrom = 12f;
+                        sizeTo = 1f;
+                        lifetime =12f;
+                        sides = 12;
+                    }};
+                    healAmount = 25f;
+                    lightColor = frontColor = trailColor = NuColor.BloodColor;
+                    backColor = hitColor = NuColor.BloodBackColor;
+                    trailInterval = 2.5f;
+                    trailEffect = NuFx.bloodEnergyTail;
+                }};
+            }});
+        }};
         vile = new UnitType("vile"){{
             constructor =  UnitEntity::create;
             EntityMapping.nameMap.put(name,constructor);
@@ -99,7 +200,7 @@ public class FederalUnitType {
             targetAir = false;
             maxRange = 40f;
             // 【最简写法】和你写 InterceptFieldAbility 一样，用双大括号（匿名子类）最顺手
-            // ⬇️⬇️⬇️ FederalUnitType.java 里，和 InterceptFieldAbility 写在一起 ⬇️⬇️⬇️
+            // ⬇️⬇️⬇️ FederalUnitTypes.java 里，和 InterceptFieldAbility 写在一起 ⬇️⬇️⬇️
             abilities.add(new InvisibleAbility(){{
                 fullyInvisible       = true;     // ★ 开启完全隐身（单位本体/腿/底座/阴影都看不到）
                 visibleToAllies      = true;     // 队友还能正常看到（便于协同），false = 队友也完全看不见

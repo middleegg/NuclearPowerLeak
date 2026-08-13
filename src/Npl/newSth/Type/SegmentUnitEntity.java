@@ -461,7 +461,7 @@ public class SegmentUnitEntity extends UnitEntity {
         // ★ 尾部：查找 tail 贴图替换；非尾部：直接用 UnitType.load() 加载的段身贴图
         if (isTail) {
             String p = texturePrefix;
-            String modP = "create-" + p;
+            String modP = "nu-" + p;
             TextureRegion tailR = findRegion(p + "tail", modP + "tail");
             if (tailR.found()) t.region = tailR;
             TextureRegion tailO = findRegion(p + "tail-outline", modP + "tail-outline");

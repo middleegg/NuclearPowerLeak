@@ -146,6 +146,9 @@ gradle-app.setting
 
 # 本地依赖 jar（Mindustry dependencies.jar 通过镜像下载，不入库）
 /libs/
+
+# 参考文件夹（包含其他 mod 的源码、贴图、音效等，仅用于本地参考，不入库）
+/参考/
 /build/
 /android/build/
 /core/build/

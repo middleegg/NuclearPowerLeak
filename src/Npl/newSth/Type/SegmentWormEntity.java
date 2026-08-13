@@ -1535,7 +1535,7 @@ public class SegmentWormEntity extends UnitEntity {
                 float sx = arc.util.Tmp.v1.x, sy = arc.util.Tmp.v1.y;
 
                 String p = texturePrefix != null ? texturePrefix : "arcnelidia-";
-                String modP = "create-" + p;
+                String modP = "nu-" + p;
                 arc.graphics.g2d.TextureRegion tailRegion = findRegion(p + "tail", modP + "tail");
 
                 float progress = repairTime / regenTime;

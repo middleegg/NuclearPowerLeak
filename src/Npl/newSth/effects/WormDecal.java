@@ -57,12 +57,12 @@ public class WormDecal {
     /**
      * 加载本装饰需要的所有贴图。
      *
-     * <p>★ mod 贴图在 atlas 中会自动带上 modname- 前缀（例如 "create-oppression-hydraulics-base"），
+     * <p>★ mod 贴图在 atlas 中会自动带上 modname- 前缀（例如 "nu-oppression-hydraulics-base"），
      * 但有时也会用不带前缀的命名。因此 {@link #findRegion} 会优先尝试带前缀的，找不到再退回不带前缀的，
      * 兼容两种命名习惯。
      */
     public void load() {
-        String modName = "create-" + name;
+        String modName = "nu-" + name;
         baseRegion = findRegion(modName + "-base", name + "-base");
         endRegion = findRegion(modName + "-end", name + "-end");
         segmentRegions = new TextureRegion[segments];

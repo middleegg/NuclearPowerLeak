@@ -2,8 +2,11 @@ package Npl.content;
 
 import arc.graphics.Color;
 import arc.util.Log;
+import mindustry.content.StatusEffects;
+import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BombBulletType;
 import mindustry.entities.bullet.LaserBulletType;
+import mindustry.entities.bullet.SapBulletType;
 import mindustry.graphics.Pal;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
@@ -45,7 +48,9 @@ public class CalamityUnitType {
     /** 多节单位 UnitType 字段：每个虫子有「头部」和「段身」两个 UnitType */
     public static UnitType
         arcnelidia,            // 电弧虫头部
-        arcnelidiaSegment;     // 电弧虫段身
+        arcnelidiaSegment,     // 电弧虫段身
+        toxobyte,              // 毒疫虫头部
+        toxobyteSegment;       // 毒疫虫段身
 
     /**
      * 加载所有多节单位。在 mod 的 loadContent 阶段被调用一次。
@@ -56,6 +61,13 @@ public class CalamityUnitType {
      *   <li>按顺序创建虫子（段身 UnitType 先于头部，因为头部 config 要引用段身）</li>
      *   <li>每个虫子内：段身 UnitType → 头部 UnitType → SegmentConfig 注册 → 反射设置音效</li>
      * </ol>
+     * <p>已移植单位：
+     * <ul>
+     *   <li><b>电弧虫 arcnelidia</b>：9 段直线冲锋型，激光+投弹，不可分裂/合并</li>
+     *   <li><b>毒疫虫 toxobyte</b>：25 段环绕盘旋型，瘟疫激光+瘟疫炮弹，
+     *       <b>可分裂（段身死亡时虫子一分为二）+ 可链式合并（两条靠近时合并为一条）</b>，
+     *       每 6 秒再生一节段身（上限 25 节）</li>
+     * </ul>
      */
     public static void load() {
         // ★ 关键：注册自定义 Entity 到 EntityMapping.idMap，否则 UnitType.init() 会失败 ★
@@ -210,5 +222,146 @@ public class CalamityUnitType {
             java.lang.reflect.Field ve = arcnelidia.getClass().getSuperclass().getField("visualElevation");
             ve.setFloat(arcnelidia, 0.8f);
         } catch (Throwable ignored) {}
+
+        // ═══════════════════════════════════════════════════════════
+        //  Toxobyte (毒疫虫) —— PU132 同名单位移植
+        //  - 25 段（segmentLength=25, maxSegments=25）
+        //  - segmentOffset=16.25f
+        //  - hitSize=14.2f (段间距 16.25 > 半径之和 14.2, 不重叠)
+        //  - regenTime=6f*60f (每6秒再生一节段身)
+        //  - angleLimit=30f, wobble=false (静止不晃动)
+        //  - 头部武器：12 发发散 SapBullet (瘟疫激光, 自动回血)
+        //  - 段身武器：ArtilleryBullet (瘟疫炮弹, splashDamage=25)
+        //  - ★ splittable=true (段身死亡时虫子一分为二)
+        //  - ★ chainable=true (两条虫子靠近时合并为一条)
+        //  - segmentDamageScl=3f (段身受击伤害×3, 配合 splittable 让段身更易被打掉触发分裂)
+        //  - circleTarget=true + omniMovement=false (WormAI 走 circleAttack(120f) 环绕盘旋分支)
+        //  - 每秒回15血
+        // ═══════════════════════════════════════════════════════════
+
+        // —— 段身 UnitType（先创建，头部 config 要引用它）——
+        toxobyteSegment = new UnitType("toxobyte-segment") {{
+            health = 400f;   // ★ 提高段身血量（头部200×2），避免段身太脆
+            speed = 0f;      // 段身不动（位置由头部控制）
+            // ★ hitSize=14.2f：段间距 16.25 > 半径之和 14.2，不重叠（间隙 2.05）
+            hitSize = 14.2f;
+            flying = true;
+            rotateSpeed = 1f;
+            faceTarget = false;
+            constructor = SegmentUnitEntity::create;
+            // ★ 隐藏段身（不出现在数据库/Spawner）
+            hidden = true;
+            // ★ 段身不计入单位上限
+            useUnitCap = false;
+            // ★ 段身关闭物理碰撞（physics=false），避免撞墙尾部乱甩
+            physics = false;
+            hittable = true;
+            // ★ 关闭 wobble（PU132 原版静止时不晃动）
+            wobble = false;
+
+            // ===== 段身武器：ArtilleryBullet（瘟疫炮弹） =====
+            // PU132 原版匿名武器，无炮台贴图
+            // splashDamage=25, splashDamageRadius=25, 瘟疫色
+            weapons.add(new Weapon() {{
+                rotate = true;
+                mirror = false;
+                reload = 60f;
+                shootCone = 90f;
+                rotateSpeed = 50f;
+                bullet = new ArtilleryBulletType(5f, 7f) {{
+                    collidesTiles = true;
+                    collidesAir = true;
+                    collidesGround = true;
+                    width = 11f;
+                    height = 11f;
+                    splashDamage = 25f;
+                    splashDamageRadius = 25f;
+                    // PU132 UnityPal.plagueDark = #54de3b, plague = #a3f080
+                    trailColor = hitColor = lightColor = backColor = Color.valueOf("54de3b");
+                    frontColor = Color.valueOf("a3f080");
+                }};
+            }});
+        }};
+
+        // —— 头部 Toxobyte 飞行分段虫子 ——
+        toxobyte = new UnitType("toxobyte") {{
+            // ===== 基础属性（PU132 原值） =====
+            health = 200f;  // PU132 原版
+            speed = 3f;
+            accel = 0.035f;
+            rotateSpeed = 3f;
+            // ★ hitSize=14.75f
+            hitSize = 14.75f;
+            flying = true;
+            // PU132：engineSize=-1f（不显示引擎尾焰）
+            engineSize = -1f;
+            range = 130f;   // 武器 length=130
+            // ★ PU132 原版 faceTarget=false：单位朝飞行方向，不盯目标
+            faceTarget = false;
+            // ★ 关闭 wobble（PU132 原版静止时不晃动）
+            wobble = false;
+            // ★ drag 用飞行单位合理值（默认 0.3f 太大，速度衰减太快）
+            drag = 0.025f;
+            // ★ PU132：circleTarget=true, omniMovement=false
+            // WormAI.updateMovement() 检查 circleTarget，为 true 时走 circleAttack(120f) 环绕盘旋
+            circleTarget = true;
+            omniMovement = false;
+            // 用自定义 Entity（SegmentWormEntity）
+            constructor = SegmentWormEntity::create;
+            // ★ 使用 WormAI（待机静止，有目标时环绕盘旋）
+            aiController = () -> new WormAI();
+
+            // ===== 头部武器：12 发发散 SapBullet（瘟疫激光） =====
+            // PU132 原版匿名武器，无炮台贴图
+            // SapBulletType 自动回血（吸取敌人血量），对应 PU132 的 drain 效果
+            weapons.add(new Weapon() {{
+                x = 0f;
+                rotate = false;
+                mirror = false;
+                reload = 70f;
+                shootCone = 90f;
+                inaccuracy = 35f;   // 35° 散射角，12 发覆盖范围
+                xRand = 2f;
+                // v154.3 ShootPattern：shots=12, shotDelay=0.5f
+                shoot.shots = 12;
+                shoot.shotDelay = 0.5f;
+                bullet = new SapBulletType() {{
+                    // PU132 UnityPal.plague = #a3f080（浅黄绿）
+                    color = Color.valueOf("a3f080");
+                    damage = 20f;
+                    length = 130f;
+                    width = 1f;
+                    status = StatusEffects.none;
+                }};
+            }});
+        }};
+
+        // ★ 注册 toxobyte 段身配置到 configs Map ★
+        // PU132 原版：segmentLength=25, segmentOffset=16.25f
+        // regenTime=6f*60f（每6秒再生一节段身，PU132 原版 15秒，缩短让玩家更快看到再生效果）
+        // maxSegments=25（段数上限，初始即满段，再生仅在段身被分裂/打掉后补满）
+        // splittable=true（段身死亡时虫子一分为二）
+        // chainable=true（两条虫子靠近时合并为一条，每5秒扫描一次）
+        // segmentDamageScl=3f（段身受击伤害×3，让段身更易被打掉触发分裂）
+        // angleLimit=30f, segmentCast=8, jointStrength=0.5f, anglePhysicsSmooth=0.5f
+        SegmentWormEntity.configs.put(toxobyte.name,
+            new SegmentWormEntity.SegmentConfig(toxobyteSegment, 25, 16.25f, 6f * 60f, 25, false, true, true,
+                30f, 3f, 0.1f, 0.5f, 8, 0.5f, false, 0f));
+        // 毒疫虫：每秒回15血
+        SegmentWormEntity.configs.get(toxobyte.name).healPerSecond = 15f;
+
+        // 用反射设置 shootSound，避开编译期字段差异
+        // 头部 SapBullet 武器：shootSap
+        // 段身 Artillery 武器：shootArtillery
+        try {
+            Class<?> soundsClass = Class.forName("mindustry.gen.Sounds");
+            java.lang.reflect.Field f;
+            f = soundsClass.getField("shootSap");
+            toxobyte.weapons.first().shootSound = (arc.audio.Sound) f.get(null);
+            f = soundsClass.getField("shootArtillery");
+            toxobyteSegment.weapons.first().shootSound = (arc.audio.Sound) f.get(null);
+        } catch (Throwable t) {
+            try { Log.err("set toxobyte shootSound failed", t); } catch (Throwable ignored) {}
+        }
     }
 }

@@ -1,4 +1,4 @@
-package Npl.newSth.Type;
+package  Npl.newSth.Type;
 
 import arc.func.Prov;
 import arc.struct.ObjectIntMap;
@@ -8,29 +8,29 @@ import mindustry.gen.Entityc;
 
 /**
  * 自定义 Entity 注册工具（模仿 PU132 的 UnityEntityMapping）。
- *
+ * <p>
  * <h3>为什么需要这个类？</h3>
  * <p>Mindustry v154.3 起要求每个自定义 Entity 子类都拥有唯一的 classId，
  * 否则在 {@code UnitType.init()} 阶段会抛 {@link ClassCastException}，
  * 表现为「单位一召唤游戏就崩」或「mod 加载时报错」。
- *
- * <p>但 arc 框架的 {@link EntityMapping} 并没有暴露「注册并返回 id」的 API，
+ * <p>
+ * 但 arc 框架的 {@link EntityMapping} 并没有暴露「注册并返回 id」的 API，
  * 只有一个 {@code idMap} 数组和一个 {@code nameMap}。所以我们自己实现一个
  * 小工具：扫描 {@code idMap} 找一个空 slot，把构造器塞进去，再用一张
  * {@code Class → int} 的映射记录 classId。
- *
+ * <p>
  * <h3>使用流程（在 mod 的 loadContent 阶段）</h3>
  * <pre>{@code
  * // 1. 注册：把自定义 Entity 类和它的构造器 Prov 放进 idMap
  * ZEntityRegister.register(SegmentWormEntity.class, SegmentWormEntity::new);
  * ZEntityRegister.register(SegmentUnitEntity.class, SegmentUnitEntity::new);
- *
+ * <p>
  * // 2. 在 Entity 子类内重写 classId()，返回注册时拿到的 id
  * @Override public int classId() {
  *     return ZEntityRegister.classId(SegmentWormEntity.class);
  * }
  * }</pre>
- *
+ * <p>
  * <h3>本精简版说明</h3>
  * <p>原项目注册了 SegmentWormEntity、SegmentUnitEntity、EndGroundUnit、CopterUnitEntity 等
  * 多种 Entity。本精简版只保留 SegmentWormEntity（虫子头部）和 SegmentUnitEntity（虫子段身），

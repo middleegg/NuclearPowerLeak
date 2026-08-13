@@ -55,8 +55,8 @@ public class NuBlocks {
             //crafting
             MagnetPurifier,monoSiliCrystalFactory,coinProducer, exchange,CompressionChamber,HeatMaker, strangeLiquidExtractionRoom,
             seedCollector,rubberGrower,heatRelaxation,distillationRoom,silverPlatingRoom,Grinder,nuclearFluidCollector,
-            thalliumCompoundCrucible,OxygenLiquefactionRoom,UraniumPrecipitationRoom,MagneticStormStabiliser,MagentEnergyStation,
-            uraniumPurificationRoom,
+            thalliumCompoundCrucible,OxygenLiquefactionRoom,uraniumPurificationRoom,MagneticStormStabiliser,MagentEnergyStation,
+            UraniumPrecipitationRoom,
             //effect
             antiStealthRadar,BulletAccelerator,
             //turret
@@ -343,13 +343,164 @@ public class NuBlocks {
                          60*1.2f,
                          with(NuItems.sulFurFrag,2,NuItems.rubberFrag,3),
                          null,
-                         LiquidStack.with(Liquids.water, 0.1),
+                         LiquidStack.with(Liquids.water, 6),
                          0,
                          0
                     )
             );
         }};
-
+        nuclearFluidCollector = new GenericCrafter("nuclearFluidCollector") {{
+           requirements(Category.crafting,with(
+                   NuItems.pumice,150,
+                   NuItems.magent,300,
+                   NuItems.alkSliver,90,
+                   Items.graphite,200
+           ));
+           ambientSound = Sounds.loopGrind;
+           ambientSoundVolume = 0.2f;
+           size = 2;
+           buildTime = 25f;
+           health = 800;
+           itemCapacity = 20;
+           consumeItems(ItemStack.with(NuItems.uranCrystal,2));
+           consumeLiquids(LiquidStack.with(Liquids.water,1f));
+           outputLiquid = new LiquidStack(NuLiquid.nuclearFluid,1f);
+           craftTime = 180f;
+           liquidCapacity = 500f;
+           craftEffect = new ParticleEffect(){{
+               particles = 8;
+               cone = 180;
+               lenFrom = 15f;
+               lenTo = 0f;
+               spin = 3f;
+               sizeFrom = 4f;
+               sizeTo = 0f;
+               colorFrom = NuColor.SailColor;
+               colorTo = NuColor.SailBackColor;
+               lifetime = 60f;
+               layer =110f;
+           }};
+           consumePower(10f);
+        }};
+        thalliumCompoundCrucible = new HeatCrafter("thalliumCompoundCrucible") {{
+            requirements(Category.crafting,with(
+                    NuItems.bigIron,400,
+                    NuItems.monoSiliCrystal,280,
+                    NuItems.alkSliver,50,
+                    NuItems.magent,300,
+                    NuItems.pumice,300
+            ));
+            health = 1200;
+            size = 3;
+            craftTime = 300f;
+            heatRequirement = 10;
+            maxEfficiency = 6;
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.24f;
+            researchCostMultiplier = 0.5f;
+            outputItem = new ItemStack(NuItems.thallide,3);
+            consumePower(15f);
+            consumeItems(ItemStack.with(NuItems.sulFurFrag,6,NuItems.Tcoal,5));
+            craftEffect = new MultiEffect(new RadialEffect(){{
+                amount = 4;
+                rotationSpacing = 90f;
+                rotationOffset = 55f;
+                lengthOffset = 12f;
+                effect = Fx.surgeCruciSmoke;
+            }},new RadialEffect(){{
+                amount = 4;
+                rotationSpacing = 90f;
+                rotationOffset = 50f;
+                lengthOffset = 12f;
+                effect = Fx.surgeCruciSmoke;
+            }},new RadialEffect(){{
+                amount = 4;
+                rotationSpacing = 90f;
+                rotationOffset = 45f;
+                lengthOffset = 12f;
+                effect = Fx.surgeCruciSmoke;
+            }},new RadialEffect(){{
+                amount = 4;
+                rotationSpacing = 90f;
+                rotationOffset = 40f;
+                lengthOffset = 12f;
+                effect = Fx.surgeCruciSmoke;
+            }},new RadialEffect(){{
+                amount = 4;
+                rotationSpacing = 90f;
+                rotationOffset = 35f;
+                lengthOffset = 12f;
+                effect = Fx.surgeCruciSmoke;
+            }});
+            itemCapacity = 60;
+        }};
+        OxygenLiquefactionRoom =new HeatCrafter("OxygenLiquefactionRoom") {{
+            requirements(Category.crafting,with(
+                    NuItems.monoSiliCrystal,300,
+                    NuItems.bigIron,400,
+                    NuItems.alkSliver,100,
+                    NuItems.magent,200
+            ));
+            heatRequirement = 5;
+            maxEfficiency = 6;
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.2f;
+            craftTime = 120f;
+            researchCostMultiplier = 0.5f;
+            consumeItems(ItemStack.with(NuItems.magent,1f));
+            consumeLiquids(LiquidStack.with(Liquids.water,0.1f));
+            consumePower(10f);
+            outputLiquid = new LiquidStack(NuLiquid.liquidOxygen,0.05f);
+            hasLiquids = hasItems = true;
+            itemCapacity = 10;
+            liquidCapacity = 200;
+            drawer = new DrawMulti(new DrawHeatInput(){{
+                heatColor = NuColor.HeatColor;
+            }},new DrawRegion("-bottom"),new DrawLiquidTile(NuLiquid.strangeLiquid, 4f),new DrawDefault(), new DrawParticles(){{
+                color = NuColor.PaleColor;
+                alpha = 0.6f;
+                particleSize = 8f;
+                particles = 10;
+                particleRad = 12f;
+                particleLife = 140f;
+            }});
+        }};
+        uraniumPurificationRoom = new GenericCrafter("uraniumPurificationRoom") {{
+            requirements(Category.crafting,with(
+                    NuItems.pumice,350,
+                    NuItems.uranCrystal,200,
+                    NuItems.rubber,125,
+                    NuItems.alkSliver,75,
+                    NuItems.magent,200
+            ));
+            researchCostMultiplier = 0.5f;
+            itemCapacity = 20;
+            hasItems = true;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawDefault(), new DrawLiquidTile(){{
+                drawLiquid = Liquids.water;
+                padding = 3f;
+            }});
+            consumePower(15f);
+            consumeItems(ItemStack.with(NuItems.oriUranium,2));
+            consumeLiquids(LiquidStack.with(Liquids.water,0.5f));
+            outputItem = new ItemStack(NuItems.uranium,2);
+            craftEffect = new MultiEffect(new RadialEffect(){{
+                amount = 4;
+                rotationSpacing = 90f;
+                effect = Fx.surgeCruciSmoke;
+            }},new ParticleEffect(){{
+                particles = 8;
+                cone = 180f;
+                lenFrom = 32f;
+                lenTo = 2f;
+                spin = 6f;
+                sizeTo =3f;
+                colorFrom = NuColor.SailColor;
+                colorTo = Color.valueOf("ffffff");
+                lifetime = 80f;
+                layer =100f;
+            }});
+        }};
         MagneticStormStabiliser = new StormCrafterBlock("MagenticStormStabiliser") {{
             requirements(Category.crafting, with(
                     NuItems.bigIron, 550,
@@ -359,7 +510,7 @@ public class NuBlocks {
                     NuItems.alkSliver,100
             ));
             size = 2;
-            health = 1500;
+            health = 1000;
             hasItems = hasPower = true;
             // 合成本身速度独立（和三阶段视觉不挂钩，用户可自改）
             craftTime = 3f*60;
@@ -419,6 +570,44 @@ public class NuBlocks {
             lightningFireCountMax = 10;        // 最多 5 条（实际数量随机）
             lightningLengthMin    = 8;       // 闪电最短 8 格
             lightningLengthMax    = 42;      // 闪电最长 22 格
+        }};
+        MagentEnergyStation = new HeatProducer("MagenticEnergyStation") {{
+            requirements(Category.crafting, with(
+               NuItems.bigIron,400,
+               NuItems.monoSiliCrystal,300,
+               NuItems.magent,200,
+               Items.graphite,300,
+               NuItems.alkSliver,150
+            ));
+            heatOutput = 10;
+            size = 3;
+            health = 1200;
+            hasItems = hasPower = true;
+            outputItem = new ItemStack(NuItems.magent,6);
+            consumePower(10f);
+            consumeItems(ItemStack.with(NuItems.bigIron,3));
+            consumeLiquids(LiquidStack.with(Liquids.water,1f));
+            itemCapacity = 60;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawLiquidTile(){{
+                drawLiquid = Liquids.water;
+            }},new DrawCircles(){{
+                color = NuColor.PaleColor;
+                strokeMax = 3.25f;
+                radius =10f;
+                amount = 4;
+                timeScl = 200f;
+            }},new DrawRegion("-center"),new DrawCells(){{
+                color = NuColor.DespColor;
+                particleColorFrom = NuColor.DespColor;
+                particleColorTo = NuColor.DespBackColor;
+                particles =40;
+                range =10f;
+            }},new DrawDefault(),new DrawHeatOutput(){{
+                heatColor = NuColor.HeatColor;
+            }},new DrawGlowRegion("-glow"){{
+                color = NuColor.BombColor;
+                alpha = 0.7f;
+            }});
         }};
 
 

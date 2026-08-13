@@ -65,7 +65,7 @@ import static mindustry.Vars.*;
 
 public class CalamityUnitType {
     public static UnitType
-    dragon;
+    dragon,dragonTail;
     public static void load(){
         FedUnitEntity.register(SegmentWormEntity.class, SegmentWormEntity::new);
         FedUnitEntity.register(SegmentUnitEntity.class, SegmentUnitEntity::new);
@@ -75,7 +75,17 @@ public class CalamityUnitType {
             health = 200000;
             speed = 2f;
             researchCostMultiplier = 2.3f;
-            // 拦截场：3 种简洁写法任选其一（都能正确变色，不再冗长）
+            armor = 90;
+            hitSize = 100f;
+            alwaysUnlocked = false;
+            targetAir = true;
+        }};
+        dragonTail = new  UnitType("dragonTail"){{
+            constructor = SegmentWormEntity::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 100000;
+            speed = 2f;
+            researchCostMultiplier = 2.3f;
             armor = 90;
             hitSize = 100f;
             alwaysUnlocked = false;

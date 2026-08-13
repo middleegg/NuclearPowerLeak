@@ -72,6 +72,7 @@ public class nu extends Mod {
         NuStatus.load();
         FederalUnitType.load();
         envBlocks.load();
+        CalamityUnitType.load();
     }
 
     /* ──────────────────────────────────────────────────────

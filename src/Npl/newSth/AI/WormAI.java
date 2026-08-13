@@ -7,8 +7,8 @@ import mindustry.ai.types.*;
 
 /**
  * 虫子（多节段）单位专用飞行 AI（复刻自 PU132 的 WormAI，继承自 FlyingAI）。
- *
- * <p>在多节段单位系统中的角色：
+ * <p>
+ * 在多节段单位系统中的角色：
  * <ul>
  *   <li>每个节段（段身）都是一个独立的飞行单位，各自挂载一份 WormAI 来控制自己的移动。</li>
  *   <li>头部节段负责索敌与进攻；后续节段通过「记仇机制」把受击位置回传给头部，
@@ -17,10 +17,10 @@ import mindustry.ai.types.*;
  *       索敌与开火交给父类 FlyingAI 的 updateTargeting/updateWeapons 自动处理，
  *       这样既能复用 v158 原版的稳定行为，又能针对虫子做最小改动。</li>
  * </ul>
- *
- * <p>★ v158 适配说明：去掉了旧版 PU132 中 {@code command() == UnitCommand.attack} 的判断，
+ * <p>
+ * ★ v158 适配说明：去掉了旧版 PU132 中 {@code command() == UnitCommand.attack} 的判断，
  * 因为 v158 已无该 API，而 FlyingAI 默认就是攻击模式，无需再额外判断。
- *
+ * <p>
  * @see FlyingAI
  */
 public class WormAI extends FlyingAI{

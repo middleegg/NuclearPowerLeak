@@ -1,14 +1,13 @@
-package Npl.newSth.Type;
+package  Npl.newSth.Type;
 
 import arc.graphics.g2d.*;
 import arc.struct.*;
 import mindustry.gen.*;
 import mindustry.type.*;
-import mindustry.content.*;
-import mindustry.net.*;
+
 /**
  * UnityUnitType（PU132 {@code unity.type.UnityUnitType} 的简化移植版）。
- *
+ * <p>
  * <h3>这是什么？为什么需要它？</h3>
  * <p>原版 {@link UnitType} 的武器渲染顺序是「按 weapons 列表顺序 + mirror 镜像」绘制的，
  * 但分段（虫子）单位有两类特殊需求，原版 UnitType 不直接支持：
@@ -18,19 +17,19 @@ import mindustry.net.*;
  *   <li><b>底层武器</b>（bottomWeapons）—— 某些武器要在单位贴图下方绘制（如阴影/底盘炮），
  *       需要在 {@link #drawWeapons(Unit)} 里临时降低 z 值。</li>
  * </ol>
- *
- * <p>本精简版只保留这两类核心能力：
+ * <p>
+ * 本精简版只保留这两类核心能力：
  * <ul>
  *   <li>{@link #segWeapSeq} —— 段身武器序列，{@link #sortSegWeapons(Seq)} 负责镜像+排序</li>
  *   <li>{@link #bottomWeapons} —— 底层武器列表，{@link #drawWeapons(Unit)} 按 z 区分绘制</li>
  *   <li>{@link #weaponXs} —— 武器初始 x 坐标，供 ShootArmorAbility 等做镜像偏移</li>
  * </ul>
- *
+ * <p>
  * <h3>已移除的高级功能</h3>
  * <p>原 PU132 UnityUnitType 还包含 Worm/Copter/Tentacle/Decoration/CLeg/Monolith 等大量分支，
  * 依赖链很深。本精简版把它们都删掉，只保留多节单位真正需要的字段，
  * 让代码更易读、依赖更少。需要的 Worm 逻辑由 {@code SegmentWormEntity} 直接实现。
- *
+ * <p>
  * <h3>constructor 默认值</h3>
  * <p>注意：本类默认 {@code constructor = UnitEntity::create}。
  * 真正的虫子头部/段身 UnitType 在 {@code Z_Units.load()} 里会覆盖为

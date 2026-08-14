@@ -27,6 +27,8 @@ public class NuColor {
             PaleGoldColor =   Color.valueOf("FAF7C5"),
             PaleBronzeColor =   Color.valueOf("F9E9E9"),
             PaleIronColor =   Color.valueOf("F8EF8E"),
+            NuclearColor = Color.valueOf("D3F6D6B0"),
+            NuclearBackColor =   Color.valueOf("BDD2BFB5"),
             BombColor = Color.valueOf("F8FF93"),
             BombBackColor = Color.valueOf("FBFFBC"),
             SurvivalColor =   Color.valueOf("ADD6FF"),
@@ -36,5 +38,9 @@ public class NuColor {
             ChaosColor = Color.valueOf("C92B1F"),
             LackColor = Color.valueOf("3DA7D1"),
             ParalysisColor = Color.valueOf("473B78"),
-            RadiationColor = Color.valueOf("8FDE5D");
+            RadiationColor = Color.valueOf("8FDE5D"),
+            CoreColor = Color.valueOf("FFDF80"),
+            CoreConColor = Color.valueOf("FFD34D"),
+            CoreElseColor = Color.valueOf("FFC414"),
+            CoreBackColor = Color.valueOf("E1CA86");
 }

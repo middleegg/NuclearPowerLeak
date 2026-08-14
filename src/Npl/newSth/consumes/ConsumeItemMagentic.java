@@ -10,7 +10,7 @@ public class ConsumeItemMagentic extends ConsumeItemEfficiency{
 
     public ConsumeItemMagentic(float minMagentic){
         this.minMagentic = minMagentic;
-        filter = item -> NewItemsType.magentic >= this.minMagentic;
+        filter = item -> item instanceof NewItemsType ni && ni.magentic >= this.minMagentic;
     }
 
     public ConsumeItemMagentic(){
@@ -19,7 +19,8 @@ public class ConsumeItemMagentic extends ConsumeItemEfficiency{
 
     @Override
     public float itemEfficiencyMultiplier(Item item){
-        return NewItemsType.magentic;
+        if (item instanceof NewItemsType ni) return ni.magentic;
+        return 0f;
     }
 
 }

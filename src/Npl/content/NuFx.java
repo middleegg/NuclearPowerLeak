@@ -16,6 +16,7 @@ import mindustry.world.*;
 import mindustry.world.blocks.units.UnitAssembler.*;
 import Npl.content.*;
 import Npl.newSth.BulletTailEffect;
+import Npl.newSth.effects.CuneEffect;
 import Npl.newSth.expEffect;
 import Npl.newSth.LightningStormEffect;
 import Npl.newSth.TextPopupEffect;
@@ -31,6 +32,10 @@ import static mindustry.Vars.*;
  * 用法：在任何地方调用 NuFx.explosion1.at(x, y, Color.scarlet); 即可
  */
 public class NuFx {
+    /** 原版 Fx.rand 的复制品，供需要 setSeed 的特效使用 */
+    public static final Rand rand = new Rand();
+    /** 原版 Fx.v 的复制品，供 trns() 临时向量运算使用 */
+    public static final Vec2 v = new Vec2();
 
     // ========================================================
     // 爆炸 1：冲击波圈 + 12 方向飞散粒子
@@ -113,6 +118,268 @@ public class NuFx {
         }
         Draw.reset();
     });
+
+    // ========================================================
+    // 绿色激光蓄力特效 · 纯改版（颜色从 Pal.heal → 纯白色）
+    //   视觉：描边光环（由小向外扩散、由细变粗再消失）
+    //         + 中心实心蓄力点（由小变大）
+    //         + 20 颗随机方向圆形粒子
+    //         + 15 颗随机方向旋转 45° 方块粒子
+    // ========================================================
+
+    /** 原版 Fx.greenLaserCharge 的白色版（lifetime 80 / clip 100）。适合普通激光武器蓄力。 */
+    public static Effect LaserChargeWhite = new Effect(80f, 100f, e -> {
+        color(Color.white);
+        stroke(e.fin() * 2f);
+        Lines.circle(e.x, e.y, 4f + e.fout() * 100f);
+        Fill.circle(e.x, e.y, e.fin() * 20f);
+        randLenVectors(e.id, 20, 40f * e.fout(),
+                (x, y) -> Fill.circle(e.x + x, e.y + y, e.fin() * 3f));
+        color(Color.white);
+        randLenVectors(e.id, 15, 14f * e.fout(),
+                (x, y) -> Fill.square(e.x + x, e.y + y, e.fin() * 2.2f, 45f));
+    });
+
+    /** 原版 Fx.greenLaserChargeSmall 的白色版（lifetime 50 / clip 60，整体缩小 40%）。
+     *  适合小口径/速射激光的蓄力视觉。 */
+    public static Effect LaserChargeSmallWhite = new Effect(50f, 60f, e -> {
+        float s = 0.5f;
+        color(Color.white);
+        stroke(e.fin() * 1.5f*s);
+        Lines.circle(e.x, e.y, 2.4f + e.fout() * 60f*s);   // 4 * 0.6 = 2.4；100 * 0.6 = 60
+        Fill.circle(e.x, e.y, e.fin() * 12f*s);              // 20 * 0.6 = 12
+        randLenVectors(e.id, 12, 24f * e.fout(),           // 40 * 0.6 = 24；粒子数 20→12
+                (x, y) -> Fill.circle(e.x + x, e.y + y, e.fin() * 1.8f*s));   // 3 * 0.6 = 1.8
+        color(Color.white);
+        randLenVectors(e.id, 9, 8.4f * e.fout(),           // 14 * 0.6 = 8.4；15→9
+                (x, y) -> Fill.square(e.x + x, e.y + y, e.fin() * 1.32f, 45f)); // 2.2 * 0.6 = 1.32
+    });
+    public static Effect LaserChargeSmallCore = new Effect(50f, 60f, e -> {
+        float s = 0.5f;
+        color(NuColor.CoreConColor);
+        stroke(e.fin() * 1.5f*s);
+        Lines.circle(e.x, e.y, 2.4f + e.fout() * 60f*s);   // 4 * 0.6 = 2.4；100 * 0.6 = 60
+        Fill.circle(e.x, e.y, e.fin() * 12f*s);              // 20 * 0.6 = 12
+        randLenVectors(e.id, 12, s*24f * e.fout(),           // 40 * 0.6 = 24；粒子数 20→12
+                (x, y) -> Fill.circle(e.x + x, e.y + y, e.fin() * 1.8f*s));   // 3 * 0.6 = 1.8
+        color(Color.white);
+        randLenVectors(e.id, 9, s*8.4f * e.fout(),           // 14 * 0.6 = 8.4；15→9
+                (x, y) -> Fill.square(e.x + x, e.y + y, e.fin() * s *1.32f, 45f)); // 2.2 * 0.6 = 1.32
+    });
+
+    /** 蓄力光圈：从中心向外扩张到 maxR，持续一段时间，再缩回。
+     *  调用：chargeRing.at(x, y); */
+    public static Effect chargeRing = new Effect(90f, 200f, e -> {
+        float maxR      = 40f;    // 最终半径
+        float expandEnd = 0.5f;   // 0 ~ 50%：扩张阶段
+        float holdEnd   = 0.75f;  // 50% ~ 75%：持续阶段；75% ~ 100%：收缩阶段
+
+        float r;
+        if (e.fin() < expandEnd) {
+            // 扩张：0 → maxR（pow2Out 初快后慢，蓄力感）
+            r = maxR * Interp.pow2Out.apply(e.fin() / expandEnd);
+        } else if (e.fin() < holdEnd) {
+            r = maxR;
+        } else {
+            // 收缩：maxR → 0（pow2In 初慢后快，收回干脆）
+            r = maxR * (1f - Interp.pow2In.apply((e.fin() - holdEnd) / (1f - holdEnd)));
+        }
+
+        color(NuColor.BloodColor);
+        stroke(2f * e.fout());            // 线宽随整体寿命淡出
+        Lines.circle(e.x, e.y, r);
+        Fill.circle(e.x, e.y, r * 0.15f); // 中心一个小光点（可选，不要可删）
+    });
+
+    // ========================================================
+    // reactorExplosion · 白色版（原版 Fx.reactorExplosion 改色）
+    //   原紫色 Pal.reactorPurple / Pal.reactorPurple2 / Pal.lighterOrange
+    //   全部替换为 Color.white
+    // ========================================================
+    public static Effect ExplosionWhite = new Effect(30, 500f, b -> {
+        float intensity = 6.8f;
+        float baseLifetime = 25f + intensity * 11f;
+        b.lifetime = 50f + intensity * 65f;
+
+        color(Color.white);       // 原版：Pal.reactorPurple2
+        alpha(0.7f);
+        for(int i = 0; i < 4; i++){
+            rand.setSeed(b.id*2 + i);
+            float lenScl = rand.random(0.4f, 1f);
+            int fi = i;
+            b.scaled(b.lifetime * lenScl, e -> {
+                randLenVectors(e.id + fi - 1, e.fin(Interp.pow10Out), (int)(2.9f * intensity), 22f * intensity, (x, y, in, out) -> {
+                    float fout = e.fout(Interp.pow5Out) * rand.random(0.5f, 1f);
+                    float rad = fout * ((2f + intensity) * 2.35f);
+
+                    Fill.circle(e.x + x, e.y + y, rad);
+                    Drawf.light(e.x + x, e.y + y, rad * 2.5f, Color.white, 0.5f);  // 原版：Pal.reactorPurple
+                });
+            });
+        }
+
+        b.scaled(baseLifetime, e -> {
+            Draw.color();
+            e.scaled(5 + intensity * 2f, i -> {
+                stroke((3.1f + intensity/5f) * i.fout());
+                Lines.circle(i.x, i.y, (3f + i.fin() * 14f) * intensity);
+                Drawf.light(i.x, i.y, i.fin() * 14f * 2f * intensity, Color.white, 0.9f * i.fout());
+            });
+
+            color(Color.white);       // 原版：color(Pal.lighterOrange, Pal.reactorPurple, e.fin())
+            stroke((2f * e.fout()));
+
+            Draw.z(Layer.effect + 0.001f);
+            randLenVectors(e.id + 1, e.finpow() + 0.001f, (int)(8 * intensity), 28f * intensity, (x, y, in, out) -> {
+                lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 1f + out * 4 * (4f + intensity));
+                Drawf.light(e.x + x, e.y + y, (out * 4 * (3f + intensity)) * 3.5f, Draw.getColor(), 0.8f);
+            });
+        });
+    });
+    public static Effect ExplosionNuclear = new Effect(30, 500f, b -> {
+        float intensity = 6.8f;
+        float s = 1.5f;
+        float baseLifetime = 25f + intensity * 11f;
+        b.lifetime = 50f + intensity * 65f;
+
+        color(NuColor.NuclearColor);       // 原版：Pal.reactorPurple2
+        alpha(0.7f);
+        for(int i = 0; i < 4; i++){
+            rand.setSeed(b.id*2 + i);
+            float lenScl = rand.random(0.4f, 1f);
+            int fi = i;
+            b.scaled(b.lifetime * lenScl, e -> {
+                randLenVectors(e.id + fi - 1, e.fin(Interp.pow10Out), (int)(2.9f * s * intensity), 22f * s * intensity, (x, y, in, out) -> {
+                    float fout = e.fout(Interp.pow5Out) * s * rand.random(0.5f, 1f);
+                    float rad = fout * ((2f + intensity) * 2.35f*s);
+
+                    Fill.circle(e.x + x, e.y + y, rad * s );
+                    Drawf.light(e.x + x, e.y + y, rad * 2.5f * s, NuColor.NuclearBackColor, 0.5f);  // 原版：Pal.reactorPurple
+                });
+            });
+        }
+
+        b.scaled(baseLifetime, e -> {
+            Draw.color();
+            e.scaled(5 + intensity * 2f*s, i -> {
+                stroke((3.1f + intensity/5f) * i.fout());
+                Lines.circle(i.x, i.y, (3f + i.fin() * 14f) * intensity*s);
+                Drawf.light(i.x, i.y, i.fin() * 14f * 2f * intensity*s, NuColor.NuclearColor, 0.9f * i.fout());
+            });
+
+            color(NuColor.NuclearColor);       // 原版：color(Pal.lighterOrange, Pal.reactorPurple, e.fin())
+            stroke((2f*s*e.fout()));
+
+            Draw.z(Layer.effect + 0.001f);
+            randLenVectors(e.id + 1, e.finpow() + 0.001f, (int)(8 * intensity), s*28f * intensity, (x, y, in, out) -> {
+                lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 1f + out * 4 * s *(4f + intensity));
+                Drawf.light(e.x + x, e.y + y, (out * 4 * (3f + intensity)) * s* 3.5f, Draw.getColor(), 0.8f);
+            });
+        });
+    });
+
+    // ========================================================
+    // neoplasiaSmoke · 白色版（原版 Fx.neoplasiaSmoke 改色）
+    //   原 Pal.neoplasmMid → Color.white
+    // ========================================================
+    public static Effect ConsumeSmoke = new Effect(280f, e -> {
+        color(Color.white);        // 原版：Pal.neoplasmMid
+        alpha(0.6f);
+
+        rand.setSeed(e.id);
+        for(int i = 0; i < 6; i++){
+            float len = rand.random(10f), rot = rand.range(120f) + e.rotation;
+
+            e.scaled(e.lifetime * rand.random(0.3f, 1f), b -> {
+                v.trns(rot, len * b.finpow());
+                Fill.circle(e.x + v.x, e.y + v.y, 3.3f * b.fslope() + 0.2f);
+            });
+        }
+    });
+    public static Effect NuclearConsumeSmoke = new Effect(280f, e -> {
+        color(NuColor.NuclearColor);        // 原版：Pal.neoplasmMid
+        alpha(0.6f);
+
+        rand.setSeed(e.id);
+        for(int i = 0; i < 6; i++){
+            float len = rand.random(10f), rot = rand.range(120f) + e.rotation;
+
+            e.scaled(e.lifetime * rand.random(0.3f, 1f), b -> {
+                v.trns(rot, len * b.finpow());
+                Fill.circle(e.x + v.x, e.y + v.y, 3.3f * b.fslope() + 0.2f);
+            });
+        }
+    });
+    public static Effect ThallideConsumeSmoke = new Effect(280f, e -> {
+        color(NuItems.thallide.color);        // 原版：Pal.neoplasmMid
+        alpha(0.6f);
+
+        rand.setSeed(e.id);
+        for(int i = 0; i < 6; i++){
+            float len = rand.random(10f), rot = rand.range(120f) + e.rotation;
+
+            e.scaled(e.lifetime * rand.random(0.3f, 1f), b -> {
+                v.trns(rot, len * b.finpow());
+                Fill.circle(e.x + v.x, e.y + v.y, 3.3f * b.fslope() + 0.2f);
+            });
+        }
+    });
+    // ========================================================
+    // CuneEffect 模块化示例 · 3 个常用预设
+    //   更多参数见 newSth/effects/CuneEffect.java 类注释
+    // ========================================================
+
+    /** ① 360° 全方位爆炸（24 颗圆形粒子，默认 fallback 圆 + 白→黄→红） */
+    public static CuneEffect cuneExplode = new CuneEffect(50f, 300f){{
+        particles        = 24;
+        velocityMin      = 1.8f;
+        velocityMax      = 4f;
+        lifetimeMin      = 18f;
+        lifetimeMax      = 42f;
+        sizeFrom         = 6f;
+        sizeTo           = 0.6f;
+        colorFrom        = Color.valueOf("FFE082");   // 浅黄
+        colorTo          = Color.valueOf("FF5252");   // 红
+        additive         = true;
+        lightRadius      = 160f;
+        lightColor       = Color.valueOf("FFB74D");
+        lightOpacity     = 0.65f;
+        lightScl         = 2.2f;
+    }};
+
+    /** ② 90° 锥形朝前喷射（比如炮口/喷射类武器的出焰） */
+    public static CuneEffect cuneConeFront = new CuneEffect(36f, 220f){{
+        particles        = 18;
+        baseAngleOffset  = 0f;                    // 0=右, 90=上, 180=左, 270=下, 配合 at(x,y,rotation) 用
+        spreadAngleRange = 90f;                   // ±45° 锥形
+        velocityMin      = 2.5f;
+        velocityMax      = 5f;
+        lifetimeMin      = 14f;
+        lifetimeMax      = 28f;
+        sizeFrom         = 5f;
+        sizeTo           = 0.5f;
+        colorFrom        = Color.valueOf("FFFFFF");   // 白
+        colorTo          = Color.valueOf("A470FF");   // 紫
+        additive         = true;
+    }};
+
+    /** ③ 等你画完贴图后用的"贴图碎片爆发"模板：把 spriteName 改成你的文件名即可。
+     *  例：spriteName = "cune_shard";  // 对应 assets/sprites/cune_shard.png */
+    public static CuneEffect cuneCustomSprite = new CuneEffect(60f, 320f){{
+        particles        = 20;
+        velocityMin      = 1.2f;
+        velocityMax      = 3.2f;
+        lifetimeMin      = 24f;
+        lifetimeMax      = 48f;
+        sizeFrom         = 10f;
+        sizeTo           = 1.5f;
+        colorFrom        = Color.white;
+        colorTo          = Color.white;
+        additive         = true;
+        spin             = 8f;     // 贴图自带自旋 8°/tick，破碎感更强
+        // ========== 你改这一行就行 ==========
+        // spriteName = "你的贴图文件名(不带.png)";
+    }};
 
     // —— 以后再加别的特效：在后面继续写 public static Effect xxx = new Effect(...); ——
 

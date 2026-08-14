@@ -66,7 +66,7 @@ import static mindustry.Vars.*;
 public class FederalUnitTypes{
     public static  UnitType
    //core's
-   survive,
+   survive,resurrection,
    //desp's
     vile,shame,loss,nonsense,
    //honor's
@@ -91,8 +91,9 @@ public class FederalUnitTypes{
             drawCell = true;
             circleTarget = true;
             itemCapacity = 45;
-            health = 2200;
+            health = 1200;
             speed = 4f;
+            trailLength = 8;
             researchCostMultiplier = 0.50f;
             flyingLayer = Layer.flyingUnit;
             armor = 14;
@@ -113,11 +114,13 @@ public class FederalUnitTypes{
                 range = 125f;
                 velocityRnd = 0.2f;
                 inaccuracy = 1f;
+                mirror = false;
                 shoot = new ShootSpread(3,4f);
                 shootY = 1f;
                 shootX = -1f;
                 recoil = 2.5f;
                 bullet = new MissileBulletType(5f,80f){{
+                    maxRange = 120f;
                     collides = true;
                     collidesAir = true;
                     collidesGround = true;
@@ -125,15 +128,16 @@ public class FederalUnitTypes{
                     height = 16f;
                     width = 15f;
                     lifetime = 25f;
+                    buildingDamageMultiplier = 0.01f;
                     hitEffect = despawnEffect = new WaveEffect(){{
-                       strokeFrom = 2.5f;
-                       strokeTo = 0f;
-                       colorFrom = NuColor.SurvivalColor;
-                       colorTo = NuColor.SurvivalBackColor;
-                       sizeFrom = 12f;
-                       sizeTo = 1f;
-                       lifetime =12f;
-                       sides = 12;
+                        strokeFrom = 2.5f;
+                        strokeTo = 0f;
+                        colorFrom = NuColor.SurvivalColor;
+                        colorTo = NuColor.SurvivalBackColor;
+                        sizeFrom = 12f;
+                        sizeTo = 1f;
+                        lifetime =12f;
+                        sides = 12;
                     }};
                     healAmount = 25f;
                     lightColor = frontColor = trailColor = NuColor.SurvivalColor;
@@ -158,6 +162,7 @@ public class FederalUnitTypes{
                 shootX = -1f;
                 recoil = 2.5f;
                 bullet = new MissileBulletType(5f,80f){{
+                    maxRange = 120f;
                     collides = true;
                     collidesAir = true;
                     collidesGround = true;
@@ -165,6 +170,7 @@ public class FederalUnitTypes{
                     height = 16f;
                     width = 15f;
                     lifetime = 25f;
+                    buildingDamageMultiplier = 0.01f;
                     hitEffect = despawnEffect = new WaveEffect(){{
                         strokeFrom = 2.5f;
                         strokeTo = 0f;
@@ -180,6 +186,151 @@ public class FederalUnitTypes{
                     backColor = hitColor = NuColor.BloodBackColor;
                     trailInterval = 2.5f;
                     trailEffect = NuFx.bloodEnergyTail;
+                }};
+            }});
+        }};
+        resurrection = new UnitType("resurrection"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            flying = true;
+            drawCell = true;
+            circleTarget = true;
+            itemCapacity = 70;
+            health = 2000;
+            speed = 4.5f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 16;
+            hitSize = 16f;
+            targetAir = true;
+            mineWalls = true;
+            mineTier = 4;
+            buildRange = 560f;
+            trailLength = 12;
+            drag = 0.1f;
+            buildSpeed = 4f;
+            mineSpeed = 5f;
+            isEnemy = true;
+            faceTarget = true;
+            abilities.add(new RepairFieldAbility(120f,120f,64f,0.5f));
+            abilities.add(new EnergyFieldAbility(30f,60f,80f){{
+                healEffect = Fx.heal;
+                hitEffect = Fx.hitLaserBlast;
+                damageEffect = Fx.chainLightning;
+                status = StatusEffects.shocked;
+                statusDuration = 60f*10f;
+                x = 0f;
+                y = 0f;
+                targetAir = true;
+                targetGround = true;
+                maxTargets = 80;
+                healPercent = 0.5f;
+                displayHeal = true;
+                effectRadius = 4f;
+                color = NuColor.CoreConColor;
+                rotateSpeed = 10f;
+                hitBuildings = false;
+            }});
+            weapons.add(new Weapon("laserOzne"){{
+                 x = 0f;
+                 y = 3f;
+                 top = true;
+                 range = 160f;
+                 reload = NuFx.LaserChargeSmallCore.lifetime * 2.1f;
+                 shootCone = 10f;
+                shootStatusDuration = NuFx.LaserChargeSmallCore.lifetime + 30f;
+                shootStatus = StatusEffects.unmoving;
+                shoot.firstShotDelay = NuFx.LaserChargeSmallCore.lifetime;
+                parentizeEffects = true;
+                bullet = new LaserBulletType(300f){{
+                    chargeEffect = NuFx.LaserChargeSmallCore;
+                    length = 170f;
+                    width = 30f;
+                    lifetime = 65f;
+                    largeHit = true;
+                    lightColor = lightningColor = NuColor.DespColor;
+                    healAmount = 60f;
+                    collidesTeam = true;
+                    sideAngle = 15f;
+                    sideWidth = 0f;
+                    sideLength = 0f;
+                    buildingDamageMultiplier = 0.01f;
+                    colors = new Color[]{NuColor.CoreColor,NuColor.CoreBackColor,Color.white};
+                }};
+            }});
+            weapons.add(new Weapon("hardShoot-l"){{
+                x = -9f;
+                y = 1.5f;
+                reload = NuFx.chargeRing.lifetime*1.5f;
+                shootCone = 120f;
+                shoot = new ShootPattern(){{
+                   shots = 4;
+                   shotDelay = NuFx.chargeRing.lifetime/6;
+                }};
+                mirror = false;
+                rotate = true;
+                range = 140f;
+                bullet = new BasicBulletType(4f,60f){{
+                    frontColor = lightColor = trailColor = NuColor.SurvivalColor;
+                    backColor = hitColor = NuColor.SurvivalBackColor;
+                    width = 12f;
+                    height = 12f;
+                    sprite = "circle-bullet";
+                    homingPower = 0.4f;
+                    homingRange = 80f;
+                    homingDelay = 10f;
+                    trailLength = 10;
+                    trailWidth = 4f;
+                    trailInterval = 4f;
+                    trailEffect  = NuFx.survivalEnergyTail;
+                    healAmount = damage*0.4f;
+                    hitEffect = despawnEffect = new WaveEffect(){{
+                        strokeFrom = 2.5f;
+                        strokeTo = 0f;
+                        colorFrom = NuColor.SurvivalColor;
+                        colorTo = NuColor.SurvivalBackColor;
+                        sizeFrom = 12f;
+                        sizeTo = 1f;
+                        lifetime =12f;
+                        sides = 12;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("hardShoot-r"){{
+                x = 9f;
+                y = 1.5f;
+                reload = NuFx.chargeRing.lifetime*1.5f;
+                shootCone = 120f;
+                shoot = new ShootPattern(){{
+                    shots = 4;
+                    shotDelay = NuFx.chargeRing.lifetime/6;
+                }};
+                mirror = false;
+                rotate = true;
+                range = 140f;
+                bullet = new BasicBulletType(4f,60f){{
+                    frontColor = lightColor = trailColor = NuColor.BloodColor;
+                    backColor = hitColor = NuColor.BloodBackColor;
+                    width = 12f;
+                    height = 12f;
+                    sprite = "circle-bullet";
+                    homingPower = 0.4f;
+                    homingRange = 80f;
+                    homingDelay = 10f;
+                    trailLength = 10;
+                    trailWidth = 4f;
+                    trailInterval = 4f;
+                    trailEffect  = NuFx.bloodEnergyTail;
+                    healAmount = damage*0.4f;
+                    hitEffect = despawnEffect = new WaveEffect(){{
+                        strokeFrom = 2.5f;
+                        strokeTo = 0f;
+                        colorFrom = NuColor.BloodColor;
+                        colorTo = NuColor.BloodBackColor;
+                        sizeFrom = 12f;
+                        sizeTo = 1f;
+                        lifetime =12f;
+                        sides = 12;
+                    }};
                 }};
             }});
         }};

@@ -10,7 +10,7 @@ public class ConsumeItemStability extends ConsumeItemEfficiency{
 
     public ConsumeItemStability(float minStability){
         this.minStability = minStability;
-        filter = item -> NewItemsType.stability >= this.minStability;
+        filter = item -> item instanceof NewItemsType ni && ni.stability >= this.minStability;
     }
 
     public ConsumeItemStability(){
@@ -19,7 +19,8 @@ public class ConsumeItemStability extends ConsumeItemEfficiency{
 
     @Override
     public float itemEfficiencyMultiplier(Item item){
-        return NewItemsType.stability;
+        if (item instanceof NewItemsType ni) return ni.stability;
+        return 0f;
     }
 
 }

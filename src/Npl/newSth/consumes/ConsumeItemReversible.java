@@ -10,7 +10,7 @@ public class ConsumeItemReversible extends ConsumeItemEfficiency{
 
     public ConsumeItemReversible(float minReversible){
         this.minReversible = minReversible;
-        filter = item -> NewItemsType.reversible >= this.minReversible;
+        filter = item -> item instanceof NewItemsType ni && ni.reversible >= this.minReversible;
     }
 
     public ConsumeItemReversible(){
@@ -19,6 +19,7 @@ public class ConsumeItemReversible extends ConsumeItemEfficiency{
 
     @Override
     public float itemEfficiencyMultiplier(Item item){
-        return NewItemsType.reversible;
+        if (item instanceof NewItemsType ni) return ni.reversible;
+        return 0f;
     }
 }

@@ -25,6 +25,7 @@ public class NuItems {
             cost=1.3f;
             alwaysUnlocked = true;
             healthScaling=0.01f;
+            reversible = 0.6f;
         }};
         Tcoal = new NewItemsType("Tcoal", Color.valueOf("9c9480")){{
             hardness = 2;
@@ -43,12 +44,11 @@ public class NuItems {
         monoSiliCrystal = new NewItemsType("monoSiliCrystal", Color.valueOf("616161")) {{
             alwaysUnlocked = false;
             cost = 0.7f;
-            reversible = 0.4f;
         }};
         magent = new NewItemsType("magent",Color.valueOf("b42828")){{
             alwaysUnlocked = false;
             cost = 0.6f;
-            reversible = 0.3f;
+            reversible = 0.9f;
             magentic = 0.6f;
             charge = 0.7f;
         }};
@@ -58,12 +58,14 @@ public class NuItems {
             hardness = 1;
             flammability = 0.4f;
             charge = 0.3f;
+            reversible = 1.4f;
         }};
         pumice = new NewItemsType("pumice",Color.valueOf("c8c8c8")){{
             alwaysUnlocked = false;
             cost = 1.3f;
             hardness = 3;
             charge = 0.6f;
+            reversible = 1.8f;
         }};
         oriRubber = new NewItemsType("oriRubber",Color.valueOf("956f4e")){{
             alwaysUnlocked = false;

@@ -68,9 +68,6 @@ public class nu extends Mod {
         NuItems.load();
         NuLiquid.load();
         Azer.load();
-        // ★ FederalUnitTypes 必须在 NuBlocks 之前加载：
-        //   NuBlocks 的 FederalJuniorCore.unitType = FederalUnitTypes.survive 需要 survive 先赋好值，
-        //   否则 CoreBlock.postInit() 里读 unitType.shownPlanets 会 NPE
         FederalUnitTypes.load();
         NuBlocks.load();
         NuStatus.load();

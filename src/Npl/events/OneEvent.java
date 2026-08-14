@@ -40,7 +40,7 @@ public class OneEvent {
     private static volatile boolean gzDeathFired = false;
 
     /** 目标预设地图名（groundZero = 原版「零点」战役地图）。 */
-    private static final String TARGET_PRESET = "frozenForest";
+    private static final String TARGET_PRESET = "crateredBattleground";
 
     /** 防止 OneEvent.load() 被多次调用时重复注册 Events。 */
     private static boolean loaded = false;
@@ -114,7 +114,7 @@ public class OneEvent {
     private static void onGroundZeroEnemyDeath(Unit deadEnemy) {
 
         // 示例：死掉的单位是 dagger（匕首）时，弹出视觉小说对话框
-        if (deadEnemy.type == UnitTypes.mace) {
+        if (deadEnemy.type == UnitTypes.dagger) {
             // ★ 暂停游戏：记录当前是否已暂停，关闭对话框时据此恢复
             dialogPausedGame = state.isPaused();
             state.set(GameState.State.paused);
@@ -198,6 +198,36 @@ public class OneEvent {
         /** 九宫格边距 {左, 右, 上, 下}，单位像素。仅 BG_9PATCH=true 时生效。 */
         private static final int[] BG_9PATCH_PAD = {12, 12, 12, 12};
 
+        // ====================== 🎨 角色图接口 ======================
+        // 两种用法，任选其一（优先级：单页临时覆盖 > 数组配置 > 默认常量）：
+        //
+        // 【用法一：按页码统一配，填下面 PAGE_CHAR_SPRITES 数组】
+        //   索引 = pageIdx，值 = 贴图名（assets/sprites/下的文件名，不含 .png）
+        //   null = 该页回退到下面的 CHAR_SPRITE 默认图
+        //   例：PAGE_CHAR_SPRITES = { "dagger_normal", "dagger_angry", null, "dagger_smile" };
+        //       → 第 0 页用"普通"，第 1 页用"生气"，第 2 页用默认，第 3 页用"笑"
+        //
+        // 【用法二：buildPageX() 里临时换表情（例如玩家做出选择后变脸）】
+        //   在对应 buildPage1()/buildPage2()/... 方法的开头写一行：
+        //       currentCharSprite = "dagger_surprised";
+        //   优先级比数组更高，进页面立刻生效。
+        //
+        // 贴图放置：把 PNG 放到 assets/sprites/ 下，文件名跟上面写的一致（不带 .png 后缀）。
+
+        /** 默认角色图（任何页没单独配置就用这个）。null = Icon.box 兜底。 */
+        private static final String CHAR_SPRITE = "nu-honor";
+
+        /** 按页配角色图。PAGE_CHAR_SPRITES[pageIdx] = 该页贴图名，null=用默认。扩页自己在后面补。 */
+        private static final String[] PAGE_CHAR_SPRITES = {
+            /* page 0 */ null,   // 初始页
+            /* page 1 */ null,   // 分支 1
+            /* page 2 */ null,   // 分支 2
+            /* page 3 */ null,   // 分支 3
+        };
+
+        /** 运行时当前页使用的角色图（实例级，buildPageX() 里可直接赋值临时覆盖）。 */
+        private String currentCharSprite = CHAR_SPRITE;
+
         // ========================================================================
         // 构造器：创建 → show → 锁定尺寸/位置 → 翻到 page 0
         // ========================================================================
@@ -249,6 +279,14 @@ public class OneEvent {
             // 清掉上一页残留的子节点（cont/buttons 两个容器本身保留引用，不清容器）
             this.cont.clearChildren();
             this.buttons.clearChildren();
+
+            // ===== 🎨 按页码选角色图：PAGE_CHAR_SPRITES[pageIdx] 有配置就用，没有用默认 CHAR_SPRITE =====
+            //   （buildPageX() 方法里还能再手动改 currentCharSprite，优先级更高）
+            if (pageIdx >= 0 && pageIdx < PAGE_CHAR_SPRITES.length && PAGE_CHAR_SPRITES[pageIdx] != null) {
+                this.currentCharSprite = PAGE_CHAR_SPRITES[pageIdx];
+            } else {
+                this.currentCharSprite = CHAR_SPRITE;
+            }
 
             switch (pageIdx) {
                 case 0: buildPage0(); break;
@@ -303,8 +341,12 @@ public class OneEvent {
         // 工具：单个角色图片（集中管理，以后换 sprite 只改这里）
         // ========================================================================
         private Element buildCharImg() {
-            // TODO：换成你的角色 sprite。示例：
-            //   return new Image(new TextureRegion(Core.atlas.find("你的角色名")));
+            // 优先级：currentCharSprite（当前页配置）→ CHAR_SPRITE（默认）→ Icon.box 兜底
+            String sprite = (currentCharSprite != null && !currentCharSprite.isEmpty())
+                    ? currentCharSprite : CHAR_SPRITE;
+            if (sprite != null && !sprite.isEmpty() && Core.atlas.has(sprite)) {
+                return new Image(Core.atlas.find(sprite));
+            }
             return new Image(Icon.box);
         }
         // ========================================================================
@@ -381,6 +423,8 @@ public class OneEvent {
         // Page 0 — 初始对话（你现在的那页：问"是什么让你..." + 3 个选项）
         // ========================================================================
         private void buildPage0() {
+            // ====== 🎨 本页角色表情：把 PNG 命名为 honor_normal.png 放 assets/sprites/ ======
+            currentCharSprite = "nu-honor";
             buildHeader(
                 "[white]月华",
                 "你叫什么名字？"
@@ -411,6 +455,8 @@ public class OneEvent {
         // Page 1 — 分支：选了「帝国已经忘记了我们最初来到这里的目的」
         // ========================================================================
         private void buildPage1() {
+            // ====== 🎨 本页角色表情：把 PNG 命名为 honor_angry.png 放 assets/sprites/ ======
+            currentCharSprite = "nu-honor";
             buildHeader(
                 "[white]月华",
                 "诶？怎么是个哑巴？"
@@ -432,6 +478,8 @@ public class OneEvent {
         // Page 2 — 分支：选了「我只是想找个能真正对抗污染的地方」
         // ========================================================================
         private void buildPage2() {
+            // ====== 🎨 本页角色表情：把 PNG 命名为 honor_puzzle.png 放 assets/sprites/ ======
+            currentCharSprite = "nu-honor";
             buildHeader(
                 "[white]月华",
                 "你，失忆了吗？"
@@ -449,6 +497,8 @@ public class OneEvent {
         // Page 3 — 分支：选了「私人原因，这很重要吗？」
         // ========================================================================
         private void buildPage3() {
+            // ====== 🎨 本页角色表情：把 PNG 命名为 honor_cold.png 放 assets/sprites/ ======
+            currentCharSprite = "nu-honor";
             buildHeader(
                 "[white]月华",
                 "……失忆了吗？"

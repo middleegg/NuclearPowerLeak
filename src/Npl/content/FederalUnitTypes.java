@@ -65,22 +65,22 @@ import static mindustry.Vars.*;
 
 public class FederalUnitTypes{
     public static  UnitType
-   //core's
+   //core's,存活，复生
    survive,resurrection,
-   //desp's
-    vile,shame,loss,nonsense,
-   //honor's
-    honor,proud,vanity,overPraise,
-   //sail's
-    sailor,cruise,wanderer,setsails,
-   //pale's Ground
-    pale,
-   //pale's Flying
-    mornLight,
-   //pale's Hovering
-    pureJade,
+   //desp's，卑劣，耻辱，迷失，妄言，懦叛，绝望
+    vile,shame,loss,nonsense,cowardTraitor,desperate,
+   //honor's，荣耀，高傲，虚荣，谬赞，愚忠，守权
+    honor,proud,vanity,overPraise,blindLoyalty,safeguardRights,
+   //sail's，水手，游弋，浪客，扬帆，船长，尼莫
+    sailor,cruise,wanderer,setsails,captain,nemo,
+   //pale's Ground，苍白，涟漪，禄途，忠挽，圣骑
+    pale,ripple,greatPath,loyalRequest,paladin,
+   //pale's Flying，晨光，日霞，黄昏，吞昼，月华
+    mornLight,sunsetGlow,dusk,swallowingDay,moonLight,
+   //pale's Hovering，纯玉，暗枫，辉鸦，圣徒，血莲
+    pureJade,darkMaple,brightCrow,saint,bloodLotus,
    //special
-    hometown,dragon;
+    hometown,amicable,confucianScholar,subjects,doc,jargon;
     public static Weapon truly;
     public static void load(){
 
@@ -810,6 +810,48 @@ public class FederalUnitTypes{
                     }};
                 }});
         }};
+        cowardTraitor = new UnitType("cowardTraitor"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            flying = true;
+            drawCell = true;
+            circleTarget = false;
+            health = 48000;
+            speed = 1.1f;
+            accel = 0.4f;
+            drag = 0.35f;
+            itemCapacity = 200;
+            researchCostMultiplier = 1.25f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 35;
+            hitSize = 38f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            fogRadius = 240f;
+            immunities.addAll(StatusEffects.burning, StatusEffects.wet);
+            targetFlags = new BlockFlag[]{BlockFlag.factory, BlockFlag.storage, BlockFlag.battery, null};
+        }};
+        desperate = new UnitType("desperate"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            flying = true;
+            drawCell = true;
+            circleTarget = false;
+            health = 110000;
+            speed = 0.9f;
+            accel = 0.6f;
+            drag = 0.5f;
+            itemCapacity = 345;
+            researchCostMultiplier = 1.25f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 50;
+            hitSize = 45f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            fogRadius = 240f;
+            immunities.addAll(StatusEffects.burning, StatusEffects.wet);
+            targetFlags = new BlockFlag[]{BlockFlag.factory, BlockFlag.storage, BlockFlag.battery, null};
+        }};
         honor = new UnitType("honor"){{
             constructor = MechUnit::create;
             EntityMapping.nameMap.put(name,constructor);
@@ -1192,6 +1234,28 @@ public class FederalUnitTypes{
                     }};
                 }};
             }});
+        }};
+        blindLoyalty = new UnitType("blindLoyalty"){{
+            constructor = MechUnit::create;
+            EntityMapping.nameMap.put(name,constructor);
+            researchCostMultiplier = 1f;
+            speed = 0.7f;
+            hitSize = 40f;
+            armor = 44f;
+            health = 53000;
+            alwaysUnlocked = false;
+            targetAir = true;
+        }};
+        safeguardRights = new UnitType("safeguardRights"){{
+            constructor = MechUnit::create;
+            EntityMapping.nameMap.put(name,constructor);
+            researchCostMultiplier = 1f;
+            speed = 0.6f;
+            hitSize = 48f;
+            armor = 68f;
+            health = 130000;
+            alwaysUnlocked = false;
+            targetAir = true;
         }};
         sailor = new UnitType("sailor"){{
             constructor =  UnitWaterMove::create;
@@ -1710,6 +1774,40 @@ public class FederalUnitTypes{
                  }};
             }});
         }};
+        captain = new UnitType("captain"){{
+            constructor =  UnitWaterMove::create;
+            EntityMapping.nameMap.put(name,constructor);
+            speed = 0.6f;
+            rotateSpeed = 3f;
+            health = 50000;
+            hitSize = 36f;
+            trailLength = 90;
+            waveTrailX = 30f;
+            waveTrailY = -30f;
+            researchCostMultiplier = 1.25f;
+            trailScl = 8f;
+            armor = 56f;
+            fogRadius = 240f;
+            lightRadius = 320f;
+            faceTarget = true;
+        }};
+        nemo = new UnitType("nemo"){{
+            constructor =  UnitWaterMove::create;
+            EntityMapping.nameMap.put(name,constructor);
+            speed = 0.65f;
+            rotateSpeed = 3f;
+            health = 120000;
+            hitSize = 43f;
+            trailLength = 120;
+            waveTrailX = 54f;
+            waveTrailY = -54f;
+            researchCostMultiplier = 1.25f;
+            trailScl = 12f;
+            armor = 75f;
+            fogRadius = 320f;
+            lightRadius = 400f;
+            faceTarget = true;
+        }};
         pale = new UnitType("pale"){{
             constructor = MechUnit::create;
             EntityMapping.nameMap.put(name,constructor);
@@ -1841,6 +1939,70 @@ public class FederalUnitTypes{
                 }};
             }});
         }};
+        ripple = new UnitType("ripple"){{
+            constructor = MechUnit::create;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 5600;
+            speed = 1.2f;
+            researchCostMultiplier = 0.75f;
+            armor = 25;
+            hitSize = 14f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 200;
+            abilities.add(new InterceptFieldAbility(40f, 6f, 30f, 1.2f, 8, 60f*2, 60f*10)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
+        greatPath = new UnitType("greatPath"){{
+            constructor = MechUnit::create;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 12600;
+            speed = 1.1f;
+            researchCostMultiplier = 1f;
+            armor = 32;
+            hitSize = 21f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 200;
+            abilities.add(new InterceptFieldAbility(48f, 6.5f, 38f, 1.4f, 10, 60f*2, 60f*10)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
+        loyalRequest = new UnitType("loyalRequest"){{
+            constructor = MechUnit::create;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 25000;
+            speed = 1f;
+            researchCostMultiplier = 1.25f;
+            armor = 52;
+            hitSize = 30f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 200;
+            abilities.add(new InterceptFieldAbility(64f, 5f, 80f, 1.6f, 12, 60f*2, 60f*10)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
+        paladin = new UnitType("paladin"){{
+            constructor = MechUnit::create;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 56000;
+            speed = 0.78f;
+            researchCostMultiplier = 1.50f;
+            armor = 86;
+            hitSize = 36f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 200;
+            abilities.add(new InterceptFieldAbility(80f, 6f, 106f, 2f, 15, 60f*2, 60f*10)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
         mornLight = new UnitType("mornLight"){{
             constructor = PayloadUnit::create;
             aiController = DefenderAI::new;
@@ -1919,6 +2081,91 @@ public class FederalUnitTypes{
                 }};
             }});
         }};
+        sunsetGlow = new UnitType("sunsetGlow"){{
+            constructor = PayloadUnit::create;
+            aiController = DefenderAI::new;
+            flying = true;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 5600;
+            speed = 1.25f;
+            researchCostMultiplier = 0.75f;
+            armor = 15;
+            hitSize = 12f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 100f;
+            payloadCapacity = 576f;
+            abilities.add(new InterceptFieldAbility(20f, 3.5f, 34f, 0.7f, 10, 60f*4, 60f*15)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
+        dusk = new  UnitType("dusk"){{
+            constructor = PayloadUnit::create;
+            aiController = DefenderAI::new;
+            flying = true;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 10800;
+            speed = 1.15f;
+            researchCostMultiplier = 1.00f;
+            armor = 21;
+            hitSize = 20f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 100f;
+            payloadCapacity = 1024f;
+            abilities.add(new InterceptFieldAbility(24f, 4f, 45f, 0.85f, 12, 60f*4, 60f*15)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
+        swallowingDay = new UnitType("swallowingDay"){{
+            constructor = PayloadUnit::create;
+            aiController = DefenderAI::new;
+            flying = true;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 23600;
+            speed = 1.0f;
+            researchCostMultiplier = 1.25f;
+            armor = 30;
+            hitSize = 28f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 100f;
+            payloadCapacity = 1600f;
+            abilities.add(new InterceptFieldAbility(32f, 6f, 75f, 0.9f, 18, 60f*4, 60f*15)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+        }};
+        moonLight = new UnitType("moonLight"){{
+            constructor = PayloadUnit::create;
+            aiController = DefenderAI::new;
+            flying = true;
+            EntityMapping.nameMap.put(name,constructor);
+            health = 59000;
+            speed = 0.9f;
+            researchCostMultiplier = 1.5f;
+            armor = 40;
+            hitSize = 36f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 100f;
+            payloadCapacity = 2304f;
+            abilities.add(new InterceptFieldAbility(40f, 7f,200f, 0.7f, 20, 60f*4, 60f*15)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+            abilities.add(new ResurrectionAbility(){{
+                healPercent         = 0.75f;                         // 回血
+                invincibleDuration  = 60f * 15;                       // 5 秒无敌
+                resurrectText       = "我不后悔";          // 自拟文本
+                resurrectColor      = NuColor.PaleColor;             // 和 Pale 单位同色
+                resurrectEffect     = NuFx.explosion2;               // 小爆炸 10 像素那个
+                floatTextDuration   = 60f * 4f;                    // 浮字 2.5 秒
+                showBottomHint      = true;                         // 玩家的 HUD 也弹大字
+            }});
+        }};
         pureJade = new UnitType("PureJade"){
             {
                 constructor = ElevationMoveUnit::create;
@@ -1926,7 +2173,6 @@ public class FederalUnitTypes{
                 health = 1550;
                 speed = 1.55f;
                 researchCostMultiplier = 0.50f;
-                // 拦截场：3 种简洁写法任选其一（都能正确变色，不再冗长）
                 armor = 12;
                 hitSize = 8f;
                 alwaysUnlocked = false;
@@ -2014,6 +2260,157 @@ public class FederalUnitTypes{
                     }};
                 }});
             }};
-
+        darkMaple = new UnitType("darkMaple"){{
+            constructor = ElevationMoveUnit::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 4550;
+            speed = 1.45f;
+            researchCostMultiplier = 0.75f;
+            armor = 24;
+            hitSize = 16f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 160f;
+            healColor = lightColor = NuColor.PaleColor;
+            engineOffset = -3;
+            engineSize = 8f;
+            lightRadius = 128f;
+            fogRadius = 120f;
+            targetAir = true;
+            targetGround = true;
+            lowAltitude = true;
+            hovering = true;
+            rotateMoveFirst = true;
+            healFlash = true;
+            forceMultiTarget = true;
+            canDrown = false;
+            shadowElevation = 0.1f;
+            moveSound = Sounds.loopExtract;
+            moveSoundVolume = 0.25f;
+            moveSoundPitchMin = 0.7f;
+            moveSoundPitchMax = 1.5f;
+            abilities.add(new InterceptFieldAbility(24f, 3.5f, 25f, 1.4f, 12, 60f * 2, 60f * 4)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+            abilities.add(new ForceFieldAbility(20f, 0.2f, 1200f, 60f * 10, 12, 36f));
+            abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
+                teamColor = true;
+            }});
+        }};
+        brightCrow = new UnitType("brightCrow"){{
+            constructor = ElevationMoveUnit::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 9500;
+            speed = 1.35f;
+            researchCostMultiplier = 1f;
+            armor = 32;
+            hitSize = 24f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 160f;
+            healColor = lightColor = NuColor.PaleColor;
+            engineOffset = -3;
+            engineSize = 16f;
+            lightRadius = 128f;
+            fogRadius = 120f;
+            targetAir = true;
+            targetGround = true;
+            lowAltitude = true;
+            hovering = true;
+            rotateMoveFirst = true;
+            healFlash = true;
+            forceMultiTarget = true;
+            canDrown = false;
+            shadowElevation = 0.1f;
+            moveSound = Sounds.loopExtract;
+            moveSoundVolume = 0.25f;
+            moveSoundPitchMin = 0.7f;
+            moveSoundPitchMax = 1.5f;
+            abilities.add(new InterceptFieldAbility(32f, 2f, 25f, 1.7f, 20, 60f * 2, 60f * 4)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+            abilities.add(new ForceFieldAbility(24f, 0.2f, 4500f, 60f * 10, 12, 36f));
+            abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
+                teamColor = true;
+            }});
+        }};
+        saint = new  UnitType("saint"){{
+            constructor = ElevationMoveUnit::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 25500;
+            speed = 1.05f;
+            researchCostMultiplier = 1.25f;
+            armor = 40;
+            hitSize = 32f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 160f;
+            healColor = lightColor = NuColor.PaleColor;
+            engineOffset = -3;
+            engineSize = 24f;
+            lightRadius = 320f;
+            fogRadius = 400f;
+            targetAir = true;
+            targetGround = true;
+            lowAltitude = true;
+            hovering = true;
+            rotateMoveFirst = true;
+            healFlash = true;
+            forceMultiTarget = true;
+            canDrown = false;
+            shadowElevation = 0.1f;
+            moveSound = Sounds.loopExtract;
+            moveSoundVolume = 0.25f;
+            moveSoundPitchMin = 0.7f;
+            moveSoundPitchMax = 1.5f;
+            abilities.add(new InterceptFieldAbility(48f, 7f, 98f, 2f, 24, 60f * 2, 60f * 4)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+            abilities.add(new ForceFieldAbility(48f, 0.2f, 10000f, 60f * 10, 12, 36f));
+            abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
+                teamColor = true;
+            }});
+        }};
+        bloodLotus = new  UnitType("bloodLotus"){{
+            constructor = ElevationMoveUnit::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 58000;
+            speed = 0.85f;
+            researchCostMultiplier = 1.5f;
+            armor = 48;
+            hitSize = 40f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 160f;
+            healColor = lightColor = NuColor.PaleColor;
+            engineOffset = -3;
+            engineSize = 32f;
+            lightRadius = 128f;
+            fogRadius = 120f;
+            targetAir = true;
+            targetGround = true;
+            lowAltitude = true;
+            hovering = true;
+            rotateMoveFirst = true;
+            healFlash = true;
+            forceMultiTarget = true;
+            canDrown = false;
+            shadowElevation = 0.1f;
+            moveSound = Sounds.loopExtract;
+            moveSoundVolume = 0.25f;
+            moveSoundPitchMin = 0.7f;
+            moveSoundPitchMax = 1.5f;
+            abilities.add(new InterceptFieldAbility(48f, 7f, 230f, 2.3f, 30, 60f * 2, 60f * 4)
+                    .color(NuColor.PaleColor)   // ★ 调用 .color() 会自动把 useShieldColor=false，不用再写开关！
+                    .sides(32)
+                    .rotation(0f));
+            abilities.add(new ForceFieldAbility(80f, 0.2f, 24000f, 60f * 10, 12, 36f));
+            abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
+                teamColor = true;
+            }});
+        }};
     }
 }

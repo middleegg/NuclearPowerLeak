@@ -6,6 +6,7 @@ import Npl.newSth.*;
 import Npl.newSth.walls.*;
 import Npl.content.*;
 import Npl.newSth.consumes.*;
+import Npl.newSth.assembler.*;
 import Npl.content.Azer;
 import arc.graphics.*;
 import arc.math.*;
@@ -71,10 +72,10 @@ public class NuBlocks {
             thallideWall,thallideLargeWall,uraniumWall,uraniumLargeWall,energyShield,Lotus,
             //transport
             bigIronDuct,bigIronRouter,bigIronOverFlow,bigIronUnderFlow,basicUnloader,bigIronJunction,bigIronBridge,
-            ThermalConductor,GaintThermalConductor,floatDuct,floatRouter,floatOverFlow,floatUnderFlow,floatJuction,
+            ThermalConductor,GaintThermalConductor,floatDuct,floatRouter,floatOverFlow,floatUnderFlow,floatJunction,
             floatBridge,UnitCarryingPoint,UnitUnloadingContainer,SwiftConveyor,UnifiedDrive,
             //liquid
-            bigIronPump,floatPump,OrganicConduit,OrganicJunction,OrganicRouter,OrganicBridge,FloatConduic,FloatJuntion,
+            bigIronPump,floatPump,nuclearPowerPump,OrganicConduit,OrganicJunction,OrganicRouter,OrganicBridge,FloatConduic,FloatJunction,
             FloatBridge,FloatRouter,FloatTank,
             //units
             ExperimentalMachineryUnitFactory,ExperimentalUnitReconstructionFactory,MechanicalAssemblyFactory,AirshipAssemblyFactory,
@@ -731,13 +732,13 @@ public class NuBlocks {
         FederalContainer = new StorageBlock("FederalContainer"){{
             requirements(Category.effect, with(NuItems.magent,150));
             size = 2;
-            itemCapacity = 1000;
+            itemCapacity = 500;
             scaledHealth = 500;
         }};
         FederalWarehouse = new StorageBlock("FederalWarehouse"){{
             requirements(Category.effect, with(NuItems.magent,300,NuItems.alkSliver,100));
             size = 3;
-            itemCapacity = 3500;
+            itemCapacity = 1500;
             scaledHealth = 800;
         }};
         JuniorMender = new RegenProjector("JuniorMender"){{
@@ -1153,21 +1154,22 @@ public class NuBlocks {
 
         bigIronWall = new Wall ("bigIronWall"){{
                 requirements(Category.defense, with(NuItems.bigIron, 6));
-                health = 540;
-                armor = 10f;
+                health = 1600;
+                armor = 10;
                 size = 1;
                 lightningChance = 0.02f;
             }};
         bigIronLargeWall = new Wall("bigIronLargeWall"){{
             requirements(Category.defense, with(NuItems.bigIron,24));
-            health = 540*4;
-            armor = 10f;
+            health = 1600*4;
+            armor = 10;
             size = 2;
             lightningChance = 0.025f;
         }};
         energyStorageWall = new EnergyShieldWall("energyStorageWall"){{
             requirements(Category.defense, with(NuItems.bigIron, 10, NuItems.monoSiliCrystal, 6));
-            health = 650;
+            health = 1750;
+            armor = 14;
             // ① 储电（consumePowerBuffered 自动充电+电网共享，无需手填充电速度）
             powerCapacity  = 2400f;
             // ② 满电自恢复（1=每秒回1HP，1:1 比例）
@@ -1181,7 +1183,8 @@ public class NuBlocks {
         energyStorageLargeWall = new EnergyShieldWall("energyStorageLargeWall"){{
             size = 2;
             requirements(Category.defense, with(NuItems.bigIron, 40, NuItems.monoSiliCrystal, 24));
-            health = 650 * 4;
+            health = 1750 * 4;
+            armor = 14;
             powerCapacity  = 2400f * 4;
             fullPowerRegenPerSec = 2f;
             shieldEnabled = false;
@@ -1189,26 +1192,28 @@ public class NuBlocks {
         }};
         IllusionGate = new AutoDoor("illusionGate"){{
             requirements(Category.defense, with(NuItems.bigIron, 5, NuItems.monoSiliCrystal,1));
-            health = 700;
-            armor = 18f;
+            health = 1700;
+            armor = 14;
             size = 1;
         }};
         IllusionLargeGate = new AutoDoor("illusionLargeGate"){{
             requirements(Category.defense, with(NuItems.bigIron, 20, NuItems.monoSiliCrystal,4));
-            health = 700*4;
-            armor = 18f;
+            health = 1700*4;
+            armor = 14;
             size = 2;
         }};
         frailPolyesterWall = new Wall("frailPolyesterWall"){{
             requirements(Category.defense, with(NuItems.frailPolyester, 6));
-            health = 600;
+            health = 1600;
+            armor  = 18;
             chanceDeflect = 1f;
             size = 1;
             flashHit = true;
         }};
         frailPolyesterLargeWall = new Wall("frailPolyesterLargeWall"){{
             requirements(Category.defense, with(NuItems.frailPolyester, 6));
-            health = 600*4;
+            health = 1600*4;
+            armor = 18;
             chanceDeflect = 1f;
             size = 2;
             flashHit = true;
@@ -1216,7 +1221,8 @@ public class NuBlocks {
         // ===================== 磁力墙（受击按概率吸引周围敌方单位）=====================
         magneticPullWall = new MagneticPullWall("magneticPullWall"){{
             requirements(Category.defense, with(NuItems.magent, 10, NuItems.bigIron, 8));
-            health = 520;
+            health = 1900;
+            armor = 24;
             lightningChance = 0.03f;  // 兼容原版 Wall 的闪电反击
             // 磁力参数
             pullChance   = 0.28f;     // 每次受击 28% 概率触发
@@ -1228,7 +1234,8 @@ public class NuBlocks {
         magneticPullLargeWall = new MagneticPullWall("magneticPullLargeWall"){{
             size = 2;
             requirements(Category.defense, with(NuItems.magent, 40, NuItems.bigIron, 32));
-            health = 520 * 4;
+            health = 1900 * 4;
+            armor = 24;
             lightningChance = 0.035f;
             pullChance   = 0.32f;
             pullRadius   = 220f;      // 27.5 格
@@ -1238,17 +1245,20 @@ public class NuBlocks {
         }};
         floatWall = new Wall("floatWall"){{
             requirements(Category.defense, with(NuItems.pumice, 6));
-            health = 1000;
+            health = 2400;
+            armor = 28;
             size = 1;
         }};
         floatLargeWall = new Wall("floatLargeWall"){{
             requirements(Category.defense, with(NuItems.pumice,24));
-            health = 1000*4;
+            health = 2400*4;
             size = 2;
+            armor = 28;
         }};
         rubberWall = new Wall("rubberWall"){{
             requirements(Category.defense, with(NuItems.rubber, 5, NuItems.frailPolyester, 2));
-            health = 750;
+            health = 2750;
+            armor = 32;
             size = 1;
             insulated = true;
             absorbLasers = true;
@@ -1256,7 +1266,8 @@ public class NuBlocks {
         }};
         rubberLargeWall = new Wall("rubberLargeWall"){{
             requirements(Category.defense,with(NuItems.rubber,20,NuItems.frailPolyester,8));
-            health = 750*4;
+            health = 2750*4;
+            armor = 32;
             size = 2;
             insulated = true;
             absorbLasers = true;
@@ -1264,7 +1275,8 @@ public class NuBlocks {
         }};
         alkSliverWall = new  PowerTurret("alkSliverWall"){{
             requirements(Category.defense,with(NuItems.alkSliver,6));
-            health = 1200;
+            health = 3000;
+            armor = 36;
             size = 1;
             range = 16f;
             shootCone = 360f;
@@ -1286,8 +1298,8 @@ public class NuBlocks {
                 }};
                 status = NuStatus.radiation;
                 statusDuration = 60f*30;
-                hitEffect = Fx.none;
-                despawnEffect = new RadialEffect(){{
+                despawnEffect = Fx.none;
+                hitEffect = new RadialEffect(){{
                     amount = 1;
                     rotationSpacing = 90f;
                     rotationOffset = 55f;
@@ -1298,7 +1310,8 @@ public class NuBlocks {
         }};
         alkSliverLargeWall = new PowerTurret("alkSliverLargeWall"){{
             requirements(Category.defense,with(NuItems.alkSliver,24));
-            health = 1200*4;
+            health = 3000*4;
+            armor = 36;
             size = 2;
             range = 24f;
             shootCone = 360f;
@@ -1321,8 +1334,8 @@ public class NuBlocks {
                 }};
                 status = NuStatus.radiation;
                 statusDuration = 60f*30;
-                hitEffect = Fx.none;
-                despawnEffect = new RadialEffect(){{
+                despawnEffect = Fx.none;
+                hitEffect = new RadialEffect(){{
                     amount = 1;
                     rotationSpacing = 90f;
                     rotationOffset = 55f;
@@ -1333,17 +1346,20 @@ public class NuBlocks {
         }};
         thallideWall = new Wall("thallideWall"){{
             requirements(Category.defense, with(NuItems.thallide,6));
-            health = 1800;
+            health = 3500;
+            armor = 45;
             size = 1;
         }};
         thallideLargeWall = new Wall("thallideLargeWall"){{
             requirements(Category.defense, with(NuItems.thallide,24));
-            health = 1800*4;
+            health = 3500*4;
+            armor = 45;
             size = 2;
         }};
         uraniumWall = new ShieldWall("uraniumWall"){{
             requirements(Category.defense, with(NuItems.uranium,6));
-            health = 2000;
+            health = 4000;
+            armor = 48;
             size = 1;
             shieldHealth = 1000;
             hasPower = true;
@@ -1352,7 +1368,8 @@ public class NuBlocks {
         }};
         uraniumLargeWall = new ShieldWall("uraniumLargeWall"){{
             requirements(Category.defense, with(NuItems.uranium,24));
-            health = 2000*4;
+            health = 4000*4;
+            armor = 48;
             size = 2;
             shieldHealth = 1000*4;
             hasPower = true;
@@ -1361,13 +1378,396 @@ public class NuBlocks {
         }};
         energyShield = new BaseShield("energyShield"){{
             size = 2;
+            armor = 40;
             requirements(Category.defense, with(NuItems.uranium,4, NuItems.thallide, 20));
-            health = 1600*4;
+            health = 3200*4;
             radius = 12f;
             consumePower(0.2f);
         }};
         Lotus = new Wall("Lotus"){{
             size = 2;
+        }};
+
+
+        bigIronDuct = new Duct("bigIronDuct"){{
+            requirements(Category.distribution, with(NuItems.bigIron,3));
+            health = 200;
+            speed = 3.5f;
+            researchCost = with(NuItems.bigIron,12);
+            bridgeReplacement = bigIronBridge;
+            junctionReplacement = bigIronJunction;
+        }};
+        bigIronRouter = new DuctRouter("bigIronRouter"){{
+            requirements(Category.distribution, with(NuItems.bigIron,12));
+            health = 200;
+            speed = 3.5f;
+            regionRotated1 = 1;
+            solid = false;
+            researchCost = with(NuItems.bigIron,64);
+        }};
+        bigIronOverFlow = new OverflowDuct("bigIronOverFlow"){{
+            requirements(Category.distribution, with(Items.graphite,8,NuItems.bigIron,8));
+            health = 200;
+            speed = 3.5f;
+            solid = false;
+            researchCostMultiplier = 1.5f;
+        }};
+        bigIronUnderFlow = new OverflowDuct("bigIronUnderFlow"){{
+            requirements(Category.distribution, with(Items.graphite,8,NuItems.bigIron,8));
+            health = 200;
+            speed = 3.5f;
+            solid = false;
+            researchCostMultiplier = 1.5f;
+            invert = true;
+        }};
+        bigIronJunction = new Junction("bigIronJunction"){{
+            requirements(Category.distribution, with(NuItems.bigIron, 3));
+            speed = 40;
+            capacity = 15;
+            health = 300;
+            buildCostMultiplier = 3f;
+        }};
+        bigIronBridge = new BufferedItemBridge("bigIronBridge"){{
+            requirements(Category.distribution, with(Items.graphite,6,NuItems.bigIron, 6));
+            fadeIn = moveArrows = false;
+            range = 4;
+            speed = 45f;
+            health = 300;
+            arrowSpacing = 6f;
+            bufferCapacity = 14;
+            crushFragile = true;
+        }};
+        basicUnloader = new DirectionalUnloader("basicUnloader"){{
+            requirements(Category.distribution, with(Items.graphite, 20, NuItems.monoSiliCrystal,20, NuItems.bigIron, 10));
+            health = 200;
+            speed = 2f;
+            solid = false;
+            underBullets = true;
+            regionRotated1 = 1;
+        }};
+        ThermalConductor = new HeatConductor("ThermalConductor"){{
+            requirements(Category.crafting, with(NuItems.pumice,40, Items.graphite,60));
+            researchCostMultiplier = 10f;
+            group = BlockGroup.heat;
+            size = 2;
+            drawer = new DrawMulti(new DrawDefault(), new DrawHeatOutput(){{
+                heatColor = NuColor.HeatColor;
+            }}, new DrawHeatInput("-heat"));
+            regionRotated1 = 1;
+        }};
+        GaintThermalConductor = new HeatConductor("GaintThermalConductor"){{
+            requirements(Category.crafting, with(NuItems.pumice,160, Items.graphite,100,NuItems.rubber,45));
+            researchCostMultiplier = 10f;
+            group = BlockGroup.heat;
+            size = 3;
+            drawer = new DrawMulti(new DrawDefault(), new DrawHeatOutput(){{
+                heatColor = NuColor.HeatColor;
+            }}, new DrawHeatInput("-heat"));
+            regionRotated1 = 1;
+        }};
+        floatDuct = new Duct("floatDuct"){{
+            requirements(Category.distribution, with(NuItems.pumice,3));
+            health = 700;
+            speed = 1.5f;
+            bridgeReplacement = floatBridge;
+            junctionReplacement = floatJunction;
+        }};
+        floatRouter = new DuctRouter("floatRouter"){{
+            requirements(Category.distribution, with(NuItems.pumice,12));
+            health = 700;
+            speed = 1.5f;
+            regionRotated1 = 1;
+            solid = false;
+        }};
+        floatJunction = new Junction("floatJuction"){{
+            requirements(Category.distribution, with(NuItems.pumice, 3));
+            speed = 60;
+            capacity = 30;
+            health = 700;
+            buildCostMultiplier = 3f;
+        }};
+        floatOverFlow = new OverflowDuct("floatOverFlow"){{
+            requirements(Category.distribution, with(NuItems.frailPolyester,8,NuItems.pumice,8));
+            health = 700;
+            speed = 1.5f;
+            solid = false;
+            researchCostMultiplier = 1.5f;
+        }};
+        floatUnderFlow = new OverflowDuct("floatUnderFlow"){{
+            requirements(Category.distribution, with(NuItems.frailPolyester,8,NuItems.pumice,8));
+            health = 700;
+            speed = 1.5f;
+            solid = false;
+            researchCostMultiplier = 1.5f;
+            invert = true;
+        }};
+        floatBridge = new BufferedItemBridge("floatBridge"){{
+            requirements(Category.distribution, with(NuItems.frailPolyester,10,NuItems.pumice, 6));
+            fadeIn = moveArrows = false;
+            range = 7;
+            speed = 20f;
+            health = 700;
+            itemCapacity = 25;
+            arrowSpacing = 6f;
+            bufferCapacity = 14;
+            crushFragile = true;
+        }};
+        UnitCarryingPoint = new UnitCargoLoader("UnitCarryingPoint"){{
+            requirements(Category.distribution, with(NuItems.monoSiliCrystal,80, NuItems.rubber, 50,NuItems.alkSliver, 20));
+            size = 2;
+            health = 1000;
+            unitBuildTime = 60f *8f;
+            consumePower(8f);
+            consumeLiquid(NuLiquid.strangeLiquid, 0.2f);
+            itemCapacity = 500;
+        }};
+        UnitUnloadingContainer = new UnitCargoUnloadPoint("UnitUnloadingContainer"){{
+            requirements(Category.distribution, with(NuItems.monoSiliCrystal,90, NuItems.pumice,130));
+            size = 2;
+            health = 1000;
+            itemCapacity = 200;
+            researchCost = with(Items.silicon, 3000, Items.oxide, 20);
+        }};
+        SwiftConveyor = new StackConveyor("SwiftConveyor"){{
+            requirements(Category.distribution, with(NuItems.uranium,2,NuItems.pumice,5));
+            health = 700;
+            speed = 0.2f;
+            itemCapacity = 50;
+            outputRouter = false;
+            hasPower = true;
+            consumesPower = true;
+            conductivePower = true;
+            underBullets = true;
+            baseEfficiency = 1f;
+            consumePower(0.2f);
+            researchCost = with(NuItems.uranium, 30, NuItems.pumice, 80);
+        }};
+        UnifiedDrive = new MassDriver("UnifiedDrive"){{
+            requirements(Category.distribution, with(
+                    NuItems.magent,30,
+                    NuItems.alkSliver,25,
+                    NuItems.monoSiliCrystal,30,
+                    NuItems.frailPolyester,60
+            ));
+            size = 1;
+            health = 500;
+            itemCapacity = 160;
+            reload = 1f;
+            rotateSpeed = 200f;
+            minDistribute = 15;
+            baseExplosiveness = 7.5f;
+            dumpTime = 1;
+            shootEffect = new MultiEffect(new WaveEffect(){{
+                colorFrom = NuColor.SurvivalColor;
+                colorTo = NuColor.SurvivalBackColor;
+                sizeFrom = 0f;
+                sizeTo = 12f;
+                strokeFrom =2.5f;
+                strokeTo = 0f;
+                sides = 4;
+                interp = Interp.circleOut;
+                lifetime = 60f;
+            }},new WaveEffect(){{
+                colorFrom = NuColor.SurvivalColor;
+                colorTo = NuColor.SurvivalBackColor;
+                sizeFrom = 0f;
+                sizeTo = 8f;
+                strokeFrom =2f;
+                strokeTo = 2f;
+                sides = 4;
+                interp = Interp.circleOut;
+                lifetime = 60f;
+            }},new ParticleEffect(){{
+                sizeFrom =2f;
+                sizeTo = 0f;
+                particles = 1;
+                length = 0;
+                baseLength = 0;
+                colorFrom = NuColor.SurvivalColor;
+                colorTo = NuColor.SurvivalBackColor;
+                lifetime = 60f;
+                interp = Interp.circleIn;
+            }});
+        }};
+
+
+        bigIronPump = new Pump("bigIronPump"){{
+            requirements(Category.liquid, with(NuItems.bigIron,40, NuItems.frailPolyester,15));
+            pumpAmount = 10f / 60f;
+            liquidCapacity = 50f;
+            size = 1;
+            health = 500;
+        }};
+        floatPump =new Pump("floatPump"){{
+            requirements(Category.liquid, with(NuItems.pumice,40, NuItems.monoSiliCrystal,15,NuItems.frailPolyester,60));
+            pumpAmount = 1.2f;
+            liquidCapacity = 160f;
+            consumePower(1f);
+            size = 2;
+            health = 1200;
+        }};
+        nuclearPowerPump =new Pump("nuclearPowerPump"){{
+            requirements(Category.liquid, with(NuItems.rubber,40, NuItems.uranium,15,NuItems.frailPolyester,120));
+            pumpAmount = 5f;
+            liquidCapacity = 1000f;
+            consumePower(2.5f);
+            size = 3;
+            health = 2000;
+        }};
+        OrganicConduit =new Conduit("OrganicConduit"){{
+            requirements(Category.liquid, with(NuItems.frailPolyester,2));
+            liquidCapacity =50f;
+            liquidPressure = 1.6f;
+            health = 200;
+            explosivenessScale = flammabilityScale = 1f;
+            junctionReplacement = OrganicJunction;
+            bridgeReplacement = OrganicBridge;
+        }};
+        OrganicJunction = new LiquidJunction("OrganicJunction"){{
+            requirements(Category.liquid, with(Items.graphite, 4, NuItems.frailPolyester,8));
+            solid = false;
+        }};
+        OrganicRouter = new  LiquidRouter("OrganicRouter"){{
+            requirements(Category.liquid, with(Items.graphite, 8, NuItems.frailPolyester, 4));
+            liquidCapacity = 300f;
+            liquidPadding = 2f;
+            researchCostMultiplier = 3;
+            underBullets = true;
+            solid = false;
+            health = 600;
+            explosivenessScale = flammabilityScale = 40f/15f;
+        }};
+        OrganicBridge = new LiquidBridge("OrganicBridge"){{
+            requirements(Category.liquid, with(Items.graphite, 4, NuItems.frailPolyester, 8));
+            floating = true;
+            fadeIn = moveArrows = false;
+            arrowSpacing = 6f;
+            range = 4;
+            hasPower = false;
+            liquidCapacity = 100f;
+            explosivenessScale = flammabilityScale = 20f/10f;
+        }};
+        FloatConduic = new Conduit("FloatConduit"){{
+            requirements(Category.liquid, with(NuItems.frailPolyester,4,NuItems.pumice,2));
+            liquidCapacity =140f;
+            liquidPressure = 4f;
+            health = 800;
+            explosivenessScale = flammabilityScale = 0.3f;
+            junctionReplacement = FloatJunction;
+            bridgeReplacement = FloatBridge;
+        }};
+        FloatJunction = new LiquidJunction("FloatJunction"){{
+            requirements(Category.liquid, with(NuItems.pumice,6, NuItems.frailPolyester,12));
+            solid = false;
+        }};
+        FloatRouter = new LiquidRouter("FloatRouter"){{
+            requirements(Category.liquid, with(Items.graphite,14, NuItems.frailPolyester,20,NuItems.pumice,4));
+            liquidCapacity = 600f;
+            liquidPadding = 5f;
+            researchCostMultiplier = 3;
+            underBullets = true;
+            solid = false;
+            health = 1000;
+            explosivenessScale = flammabilityScale = 4f/60f;
+        }};
+        FloatBridge = new LiquidBridge("FloatBridge"){{
+            requirements(Category.liquid, with(Items.graphite,12, NuItems.frailPolyester,15,NuItems.pumice,8));
+            floating = true;
+            fadeIn = moveArrows = false;
+            arrowSpacing = 6f;
+            range = 7;
+            hasPower = false;
+            liquidCapacity = 1000f;
+            explosivenessScale = flammabilityScale = 20f/240f;
+        }};
+        FloatTank = new LiquidRouter("FloatTank"){{
+            requirements(Category.liquid, with(Items.graphite,14, NuItems.frailPolyester,20,NuItems.pumice,4));
+            liquidCapacity = 4500f;
+            liquidPadding = 10f;
+            researchCostMultiplier = 3;
+            underBullets = true;
+            solid = false;
+            size = 2;
+            health = 2500;
+            explosivenessScale = flammabilityScale = 20f/60f;
+        }};
+
+
+        ExperimentalMachineryUnitFactory = new UnitFactory("ExperimentalMachineryUnitFactory"){{
+            requirements(Category.units, with(NuItems.bigIron,120, NuItems.monoSiliCrystal,120,Items.graphite,80));
+            plans = Seq.with(
+                    new UnitPlan(FederalUnitTypes.honor, 60f * 24, with(NuItems.monoSiliCrystal,45,NuItems.frailPolyester,25)),
+                    new UnitPlan(FederalUnitTypes.vile, 60f * 30, with(NuItems.monoSiliCrystal,50,Items.graphite,30)),
+                    new UnitPlan(FederalUnitTypes.sailor, 60f * 36, with(NuItems.monoSiliCrystal,65))
+            );
+            size = 3;
+            consumePower(4f);
+            researchCostMultiplier = 0.5f;
+        }};
+        ExperimentalUnitReconstructionFactory = new Reconstructor("ExperimentalUnitReconstruction"){{
+            requirements(Category.units, with(NuItems.pumice, 200, NuItems.magent, 120, NuItems.monoSiliCrystal, 90));
+            size = 3;
+            consumePower(10f);
+            consumeItems(with(NuItems.monoSiliCrystal,140,Items.graphite,90,NuItems.sulFurFrag,45));
+            consumeLiquid(NuLiquid.strangeLiquid,0.1f);
+            constructTime = 60f * 42f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.honor, FederalUnitTypes.proud},
+                    new UnitType[]{FederalUnitTypes.vile, FederalUnitTypes.shame},
+                    new UnitType[]{FederalUnitTypes.sailor, FederalUnitTypes.cruise}
+            );
+        }};
+        MechanicalAssemblyFactory = new UnitAssembler("MechanicalAssembly"){{
+            requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
+            regionSuffix = "-dark";
+            size = 5;
+            plans.add(
+                    new AssemblerUnitPlan(FederalUnitTypes.vanity, 60f * 50f, PayloadStack.list(FederalUnitTypes.honor,8, energyStorageLargeWall, 10)),
+                    new AssemblerUnitPlan(FederalUnitTypes.overPraise, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.proud,12, rubberLargeWall, 24))
+            );
+            areaSize = 13;
+            researchCostMultiplier = 0.4f;
+            consumePower(16f);
+            consumeLiquid(NuLiquid.liquidOxygen, 0.2f);
+        }};
+        AirshipAssemblyFactory = new UnitAssembler("AirshipAssemblyFactory"){{
+            requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
+            regionSuffix = "-dark";
+            size = 5;
+            plans.add(
+                    new AssemblerUnitPlan(FederalUnitTypes.loss, 60f * 50f, PayloadStack.list(FederalUnitTypes.vile,8, energyStorageLargeWall, 12)),
+                    new AssemblerUnitPlan(FederalUnitTypes.overPraise, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.nonsense,12, alkSliverLargeWall, 24))
+            );
+            areaSize = 13;
+            researchCostMultiplier = 0.4f;
+            consumePower(16f);
+            consumeLiquid(NuLiquid.liquidOxygen, 0.2f);
+        }};
+        ShipAssemblyFactory = new UnitAssembler("ShipAssemblyFactory"){{
+            requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
+            regionSuffix = "-dark";
+            size = 5;
+            plans.add(
+                    new AssemblerUnitPlan(FederalUnitTypes.wanderer, 60f * 50f, PayloadStack.list(FederalUnitTypes.sailor,8, energyStorageLargeWall, 8)),
+                    new AssemblerUnitPlan(FederalUnitTypes.setsails, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.cruise,12, alkSliverLargeWall, 20))
+            );
+            areaSize = 13;
+            researchCostMultiplier = 0.4f;
+            consumePower(16f);
+            consumeLiquid(NuLiquid.liquidOxygen, 0.2f);
+        }};
+        ParadoxUnitAssemblyFactory = new ClickSwitchAssembler("ParadoxUnitAssemblyFactory"){{
+            size = 6;
+        health = 10000;
+        areaSize = 20;                 // 装配区（格）
+        droneType = UnitTypes.assemblyDrone;
+        dronesCreated = 4;
+        plans.add(new AssemblerUnitPlan(UnitTypes.dagger,
+                                120f, PayloadStack.list(Blocks.copperWallLarge, 4, Blocks.siliconSmelter, 1)));
+         plans.add(new AssemblerUnitPlan(UnitTypes.crawler,
+                                240f, PayloadStack.list(Blocks.copperWallLarge, 8, Blocks.siliconSmelter, 2)));
+         consumePower(5f);
+         requirements(Category.units, with(Items.copper, 400, Items.silicon, 200));
         }};
 
 

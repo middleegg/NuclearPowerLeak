@@ -139,6 +139,17 @@ public class NuFx {
         randLenVectors(e.id, 15, 14f * e.fout(),
                 (x, y) -> Fill.square(e.x + x, e.y + y, e.fin() * 2.2f, 45f));
     });
+    public static Effect ChargeDesp = new Effect(80f, 100f, e -> {
+        color(NuColor.DespColor);
+        stroke(e.fin() * 5f);
+        Lines.circle(e.x, e.y, 4f + e.fout() * 100f);
+        Fill.circle(e.x, e.y, e.fin() * 20f);
+        color(NuColor.PaleColor);
+        Fill.circle(e.x, e.y, e.fin() * 20f);
+        color(Color.white);
+        randLenVectors(e.id, 15, 14f * e.fout(),
+                (x, y) -> Fill.square(e.x + x, e.y + y, e.fin() * 2.2f, 45f));
+    });
 
     /** 原版 Fx.greenLaserChargeSmall 的白色版（lifetime 50 / clip 60，整体缩小 40%）。
      *  适合小口径/速射激光的蓄力视觉。 */
@@ -166,6 +177,21 @@ public class NuFx {
         randLenVectors(e.id, 9, s*8.4f * e.fout(),           // 14 * 0.6 = 8.4；15→9
                 (x, y) -> Fill.square(e.x + x, e.y + y, e.fin() * s *1.32f, 45f)); // 2.2 * 0.6 = 1.32
     });
+    public static Effect LaserChargeHonor = new Effect(80f, 100f, e -> {
+        float s = 2f;
+        color(NuColor.HonorConColor);
+        stroke(e.fin() * 1.5f*s);
+        Lines.circle(e.x, e.y, 4f + e.fout() * 60f*s);   // 4 * 0.6 = 2.4；100 * 0.6 = 60
+        Fill.circle(e.x, e.y, e.fin() * 12f*s);              // 20 * 0.6 = 12
+        randLenVectors(e.id, 20, s*24f * e.fout(),           // 40 * 0.6 = 24；粒子数 20→12
+                (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, e.fin() * 2.5f*s);
+            Drawf.light(e.x + x, e.y + y, e.fin() * 17.5f, NuColor.HonorConColor, 0.7f);
+                });   // 3 * 0.6 = 1.8
+        color(Color.white);
+        Fill.circle(e.x, e.y, e.fin() * 10);
+        Drawf.light(e.x, e.y, e.fin() * 20f, NuColor.HonorConColor, 0.7f);
+    }).followParent(true).rotWithParent(true);
 
     /** 蓄力光圈：从中心向外扩张到 maxR，持续一段时间，再缩回。
      *  调用：chargeRing.at(x, y); */
@@ -200,7 +226,6 @@ public class NuFx {
         float intensity = 6.8f;
         float baseLifetime = 25f + intensity * 11f;
         b.lifetime = 50f + intensity * 65f;
-
         color(Color.white);       // 原版：Pal.reactorPurple2
         alpha(0.7f);
         for(int i = 0; i < 4; i++){
@@ -217,7 +242,6 @@ public class NuFx {
                 });
             });
         }
-
         b.scaled(baseLifetime, e -> {
             Draw.color();
             e.scaled(5 + intensity * 2f, i -> {
@@ -225,10 +249,8 @@ public class NuFx {
                 Lines.circle(i.x, i.y, (3f + i.fin() * 14f) * intensity);
                 Drawf.light(i.x, i.y, i.fin() * 14f * 2f * intensity, Color.white, 0.9f * i.fout());
             });
-
             color(Color.white);       // 原版：color(Pal.lighterOrange, Pal.reactorPurple, e.fin())
             stroke((2f * e.fout()));
-
             Draw.z(Layer.effect + 0.001f);
             randLenVectors(e.id + 1, e.finpow() + 0.001f, (int)(8 * intensity), 28f * intensity, (x, y, in, out) -> {
                 lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 1f + out * 4 * (4f + intensity));
@@ -241,7 +263,6 @@ public class NuFx {
         float s = 1.5f;
         float baseLifetime = 25f + intensity * 11f;
         b.lifetime = 50f + intensity * 65f;
-
         color(NuColor.NuclearColor);       // 原版：Pal.reactorPurple2
         alpha(0.7f);
         for(int i = 0; i < 4; i++){
@@ -252,13 +273,11 @@ public class NuFx {
                 randLenVectors(e.id + fi - 1, e.fin(Interp.pow10Out), (int)(2.9f * s * intensity), 22f * s * intensity, (x, y, in, out) -> {
                     float fout = e.fout(Interp.pow5Out) * s * rand.random(0.5f, 1f);
                     float rad = fout * ((2f + intensity) * 2.35f*s);
-
                     Fill.circle(e.x + x, e.y + y, rad * s );
                     Drawf.light(e.x + x, e.y + y, rad * 2.5f * s, NuColor.NuclearBackColor, 0.5f);  // 原版：Pal.reactorPurple
                 });
             });
         }
-
         b.scaled(baseLifetime, e -> {
             Draw.color();
             e.scaled(5 + intensity * 2f*s, i -> {
@@ -266,10 +285,8 @@ public class NuFx {
                 Lines.circle(i.x, i.y, (3f + i.fin() * 14f) * intensity*s);
                 Drawf.light(i.x, i.y, i.fin() * 14f * 2f * intensity*s, NuColor.NuclearColor, 0.9f * i.fout());
             });
-
             color(NuColor.NuclearColor);       // 原版：color(Pal.lighterOrange, Pal.reactorPurple, e.fin())
             stroke((2f*s*e.fout()));
-
             Draw.z(Layer.effect + 0.001f);
             randLenVectors(e.id + 1, e.finpow() + 0.001f, (int)(8 * intensity), s*28f * intensity, (x, y, in, out) -> {
                 lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 1f + out * 4 * s *(4f + intensity));
@@ -277,7 +294,78 @@ public class NuFx {
             });
         });
     });
-
+    public static Effect RightsExplosion = new Effect(30, 500f, b -> {
+        float intensity = 6.8f;
+        float s = 0.6f;
+        float baseLifetime = 25f + intensity * 11f;
+        b.lifetime = 50f + intensity * 65f;
+        color(NuColor.HonorColor);       // 原版：Pal.reactorPurple2
+        alpha(0.7f);
+        for(int i = 0; i < 4; i++){
+            rand.setSeed(b.id*2 + i);
+            float lenScl = rand.random(0.4f, 1f);
+            int fi = i;
+            b.scaled(b.lifetime * lenScl, e -> {
+                randLenVectors(e.id + fi - 1, e.fin(Interp.pow10Out), (int)(2.9f * s * intensity), 22f * s * intensity, (x, y, in, out) -> {
+                    float fout = e.fout(Interp.pow5Out) * s * rand.random(0.5f, 1f);
+                    float rad = fout * ((2f + intensity) * 2.35f*s);
+                    Fill.circle(e.x + x, e.y + y, rad * s );
+                    Drawf.light(e.x + x, e.y + y, rad * 2.5f * s, NuColor.NuclearBackColor, 0.5f);  // 原版：Pal.reactorPurple
+                });
+            });
+        }
+        b.scaled(baseLifetime, e -> {
+            Draw.color();
+            e.scaled(5 + intensity * 2f*s, i -> {
+                stroke((3.1f + intensity/5f) * i.fout());
+                Lines.circle(i.x, i.y, (3f + i.fin() * 14f) * intensity*s);
+                Drawf.light(i.x, i.y, i.fin() * 14f * 2f * intensity*s, NuColor.NuclearColor, 0.9f * i.fout());
+            });
+            color(NuColor.HonorColor);       // 原版：color(Pal.lighterOrange, Pal.reactorPurple, e.fin())
+            stroke((2f*s*e.fout()));
+            Draw.z(Layer.effect + 0.001f);
+            randLenVectors(e.id + 1, e.finpow() + 0.001f, (int)(8 * intensity), s*28f * intensity, (x, y, in, out) -> {
+                lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 1f + out * 4 * s *(4f + intensity));
+                Drawf.light(e.x + x, e.y + y, (out * 4 * (3f + intensity)) * s* 3.5f, Draw.getColor(), 0.8f);
+            });
+        });
+    });
+    public static Effect DespExplosion = new Effect(30, 500f, b -> {
+        float intensity = 6.8f;
+        float s = 0.25f;
+        float baseLifetime = 25f + intensity * 11f;
+        b.lifetime = 50f + intensity * 65f;
+        color(NuColor.NuclearColor);       // 原版：Pal.reactorPurple2
+        alpha(0.7f);
+        for(int i = 0; i < 4; i++){
+            rand.setSeed(b.id*2 + i);
+            float lenScl = rand.random(0.4f, 1f);
+            int fi = i;
+            b.scaled(b.lifetime * lenScl, e -> {
+                randLenVectors(e.id + fi - 1, e.fin(Interp.pow10Out), (int)(2.9f * s * intensity), 22f * s * intensity, (x, y, in, out) -> {
+                    float fout = e.fout(Interp.pow5Out) * s * rand.random(0.5f, 1f);
+                    float rad = fout * ((2f + intensity) * 2.35f*s);
+                    Fill.circle(e.x + x, e.y + y, rad * s );
+                    Drawf.light(e.x + x, e.y + y, rad * 2.5f * s, NuColor.NuclearBackColor, 0.5f);  // 原版：Pal.reactorPurple
+                });
+            });
+        }
+        b.scaled(baseLifetime, e -> {
+            Draw.color();
+            e.scaled(5 + intensity * 2f*s, i -> {
+                stroke((3.1f + intensity/5f) * i.fout());
+                Lines.circle(i.x, i.y, (3f + i.fin() * 14f) * intensity*s);
+                Drawf.light(i.x, i.y, i.fin() * 14f * 2f * intensity*s, NuColor.NuclearColor, 0.9f * i.fout());
+            });
+            color(NuColor.NuclearColor);       // 原版：color(Pal.lighterOrange, Pal.reactorPurple, e.fin())
+            stroke((2f*s*e.fout()));
+            Draw.z(Layer.effect + 0.001f);
+            randLenVectors(e.id + 1, e.finpow() + 0.001f, (int)(8 * intensity), s*28f * intensity, (x, y, in, out) -> {
+                lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 1f + out * 4 * s *(4f + intensity));
+                Drawf.light(e.x + x, e.y + y, (out * 4 * (3f + intensity)) * s* 3.5f, Draw.getColor(), 0.8f);
+            });
+        });
+    });
     // ========================================================
     // neoplasiaSmoke · 白色版（原版 Fx.neoplasiaSmoke 改色）
     //   原 Pal.neoplasmMid → Color.white
@@ -436,6 +524,18 @@ public class NuFx {
         smokeFrom    = 2f; smokeTo = 12f;
         alphaMul     = 1f;
     }};
+    public static Effect HonorEnergyTail = new BulletTailEffect(){{
+        colorFrom    = NuColor.HonorColor;
+        colorTo      = NuColor.HonorBackColor;
+        particles    = 12;
+        particleShape = 3;     // 圆形粒子
+        particleSpread = 8f;
+        coreFrom     = 5f; coreTo = 0.5f;
+        coreGlowMul  = 1.4f;
+        smokeLayers  = 1;
+        smokeFrom    = 2f; smokeTo = 12f;
+        alphaMul     = 1f;
+    }};
     public static Effect despEnergyTail = new BulletTailEffect(){{
         colorFrom    = NuColor.DespColor;
         colorTo      = NuColor.DespBackColor;
@@ -457,6 +557,35 @@ public class NuFx {
         particles    = 2;
         particleSpread = 3f;
         drawCore     = false;   // 尾焰核心关掉，只要烟
+        smokeLayers  = 2;
+        smokeFrom    = 2.5f; smokeTo = 9f;
+        smokeAlphaMul = 0.45f;
+        ringCount    = 1;
+        ringStroke   = 1.4f;
+        alphaMul     = 1.1f;
+    }};
+    public static Effect FireTail = new BulletTailEffect(){{
+        colorFrom    = NuColor.HonorColor;
+        colorTo      = NuColor.HonorBackColor;
+        additive     = true;   // 烟不用叠加发光（叠加会亮得像发光粉）
+        particles    = 4;
+        particleSpread = 9f;
+        drawCore     = true;   // 尾焰核心关掉，只要烟
+        smokeLayers  = 2;
+        smokeFrom    = 2.5f; smokeTo = 9f;
+        smokeColor = NuColor.HonorSmokeColor;
+        smokeAlphaMul = 0.45f;
+        ringCount    = 1;
+        ringStroke   = 1.4f;
+        alphaMul     = 1.1f;
+    }};
+    public static Effect DespSmokeTail = new BulletTailEffect(){{
+        colorFrom    = NuColor.DespColor;
+        colorTo      = NuColor.DespBackColor;
+        additive     = true;   // 烟不用叠加发光（叠加会亮得像发光粉）
+        particles    = 3;
+        particleSpread = 3f;
+        drawCore     = true;   // 尾焰核心关掉，只要烟
         smokeLayers  = 2;
         smokeFrom    = 2.5f; smokeTo = 9f;
         smokeAlphaMul = 0.45f;
@@ -607,6 +736,21 @@ public class NuFx {
         particleSizeTo   = 0.3f;
         flyDistanceTo    = 80f;
         lightColor  = Color.valueOf("FF8C00");
+        lightScl    = 4f;
+        lightOpacity = 1f;
+    }};
+    public static expEffect DespBoom = new expEffect(){{
+        lifetime    = 25f;
+        sizeTo      = 64f;
+        strokeFrom  = 5f;
+        strokeTo    = 0.8f;
+        colorFrom   = NuColor.DespColor;
+        colorTo     = NuColor.DespBackColor;
+        particles   = 24;
+        particleSizeFrom = 2.5f;
+        particleSizeTo   = 0.3f;
+        flyDistanceTo    = 80f;
+        lightColor  = NuColor.BombColor;
         lightScl    = 4f;
         lightOpacity = 1f;
     }};
@@ -961,4 +1105,328 @@ public class NuFx {
         useShadow        = true;
         fadeStart        = 0.55f;
     }};
+
+    // ========================================================
+    // 火焰系列移植（原版 Fx.shootSmallFlame / hitFlameSmall 改色为 PaleColor）
+    // ========================================================
+
+    /** 原版 Fx.shootSmallFlame 的 Pale 色（射弹出焰，32f lifetime / 80f clip） */
+    public static Effect FlamePale = new Effect(32f, 80f, e -> {
+        color(NuColor.PaleColor, NuColor.PaleBackColor, Color.gray, e.fin());
+
+        randLenVectors(e.id, 12, e.finpow() * 60f, e.rotation, 10f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 0.65f + e.fout() * 1.5f);
+        });
+    }).followParent(false);
+    public static Effect HonorFlame = new Effect(32f, 140f, e -> {
+        float s = 160f / 60f; // 视觉大小=160，对应 Layer1: 60f*s=160f
+        color(NuColor.HonorColor, NuColor.HonorBackColor, Color.gray, e.fin());
+        randLenVectors(e.id, 35, e.finpow() * 60f*s, e.rotation, 10f*s, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 1.2f + e.fout() * 2.5f * s);
+        });
+        color(NuColor.PaleConColor, NuColor.PaleColor, e.fin());
+        randLenVectors(e.id + 1, 14, e.finpow() * 90f, e.rotation, 15f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 2.5f + e.fout() * 5f);
+        });
+        color(NuColor.HonorConColor, NuColor.HonorColor, e.fin());
+        randLenVectors(e.id + 2, 28, e.finpow() * 40f*s, e.rotation, 8f*s, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 0.8f + e.fout() * 2f * s);
+        });
+    }).followParent(false);
+    /** 原版 Fx.hitFlameSmall 的 Pale 色（命中火焰，14f lifetime） */
+    public static Effect hitFlamePale = new Effect(14, e -> {
+        color(NuColor.PaleColor, NuColor.PaleBackColor, e.fin());
+        stroke(0.5f + e.fout());
+
+        randLenVectors(e.id, 2, 1f + e.fin() * 15f, e.rotation, 50f, (x, y) -> {
+            float ang = Mathf.angle(x, y);
+            lineAngle(e.x + x, e.y + y, ang, e.fout() * 3 + 1f);
+        });
+    });
+    public static Effect hitFlameHonor = new Effect(20, 60f, e -> {
+        float s = 3f;
+        color(NuColor.HonorColor, NuColor.HonorBackColor, e.fin());
+        stroke(0.5f + e.fout()*s);
+
+        // Layer 1: 主火苗（12条粗线，匹配旋转）
+        randLenVectors(e.id, 12, 1f + e.fin() * 15f*s, e.rotation, 50f*s, (x, y) -> {
+            float ang = Mathf.angle(x, y);
+            lineAngle(e.x + x, e.y + y, ang, e.fout()* 6 + 2f);
+        });
+        // Layer 2: 亮色粗火星（匹配旋转）
+        color(NuColor.PaleConColor, NuColor.PaleColor, e.fin());
+        stroke(1.5f + e.fout() * 2f);
+        randLenVectors(e.id + 1, 8, 1f + e.fin() * 25f, e.rotation, 70f, (x, y) -> {
+            lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), e.fout() * 7 + 3f);
+        });
+        // Layer 3: 近核细火星（密集短线）
+        color(NuColor.HonorConColor, NuColor.HonorColor, e.fin());
+        stroke(0.8f + e.fout());
+        randLenVectors(e.id + 2, 15, 1f + e.fin() * 10f*s, e.rotation, 40f*s, (x, y) -> {
+            lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), e.fout() * 3 + 1f);
+        });
+    });
+
+    // ========================================================
+    // 激光/闪电系列移植（原版 Fx.hitLaserBlast / chainLightning 照搬）
+    // ========================================================
+
+    /** 原版 Fx.hitLaserBlast（激光命中爆破，12f lifetime） */
+    public static Effect BlastHit = new Effect(12, e -> {
+        color(e.color);
+        stroke(e.fout() * 1.5f);
+
+        randLenVectors(e.id, 8, e.finpow() * 17f, (x, y) -> {
+            float ang = Mathf.angle(x, y);
+            lineAngle(e.x + x, e.y + y, ang, e.fout() * 4 + 1f);
+        });
+    });
+    public static Effect HonorBlastHit = new Effect(12, e -> {
+        color(e.color);
+        stroke(e.fout() * 1.5f);
+
+        randLenVectors(e.id, 8, e.finpow() * 17f, (x, y) -> {
+            float ang = Mathf.angle(x, y);
+            lineAngle(e.x + x, e.y + y, ang, e.fout() * 4 + 1f);
+        });
+    });
+    /**
+     *
+     */
+    public static Effect HollyFire = new Effect(75f, e -> {
+        color(NuColor.PaleColor, NuColor.PaleBackColor, e.fin());
+        randLenVectors(e.id, 3, 2f + e.fin() * 7f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 0.1f + e.fout() * 1.4f);
+            Fill.circle(e.x + x, e.y + y, 0.1f + e.fout() * 4f);
+        });
+    });
+    /** 原版 Fx.chainLightning（连锁闪电，20f lifetime / 300f clip，需 at(x,y,rotation,color,Position)）
+     *  用法：NuFx.chainLightning.at(x1, y1, 0f, color, new Position(){...目标点...});
+     *  或直接传 Building/Unit（它们都实现了 Position） */
+    public static Effect HonorChain = new Effect(20f, 300f, e -> {
+        if(!(e.data instanceof Position p)) return;
+        float tx = p.getX(), ty = p.getY(), dst = Mathf.dst(e.x, e.y, tx, ty);
+        Tmp.v1.set(p).sub(e.x, e.y).nor();
+        float normx = Tmp.v1.x, normy = Tmp.v1.y;
+        float range = 6f;
+        int links = Mathf.ceil(dst / range);
+        float spacing = dst / links;
+        Lines.stroke(2.5f * e.fout());
+        Draw.color(NuColor.HonorColor, e.color, e.fin());
+        Lines.beginLine();
+        Lines.linePoint(e.x, e.y);
+        rand.setSeed(e.id);
+        for(int i = 0; i < links; i++){
+            float nx, ny;
+            if(i == links - 1){
+                nx = tx;
+                ny = ty;
+            }else{
+                float len = (i + 1) * spacing;
+                Tmp.v1.setToRandomDirection(rand).scl(range/2f);
+                nx = e.x + normx * len + Tmp.v1.x;
+                ny = e.y + normy * len + Tmp.v1.y;
+            }
+            Lines.linePoint(nx, ny);
+        }
+        Lines.endLine();
+    }).followParent(false).rotWithParent(false);
+    public static Effect chainLightning = new Effect(20f, 300f, e -> {
+        if(!(e.data instanceof Position p)) return;
+        float tx = p.getX(), ty = p.getY(), dst = Mathf.dst(e.x, e.y, tx, ty);
+        Tmp.v1.set(p).sub(e.x, e.y).nor();
+        float normx = Tmp.v1.x, normy = Tmp.v1.y;
+        float range = 6f;
+        int links = Mathf.ceil(dst / range);
+        float spacing = dst / links;
+        Lines.stroke(2.5f * e.fout());
+        Draw.color(Color.white, e.color, e.fin());
+        Lines.beginLine();
+        Lines.linePoint(e.x, e.y);
+        rand.setSeed(e.id);
+        for(int i = 0; i < links; i++){
+            float nx, ny;
+            if(i == links - 1){
+                nx = tx;
+                ny = ty;
+            }else{
+                float len = (i + 1) * spacing;
+                Tmp.v1.setToRandomDirection(rand).scl(range/2f);
+                nx = e.x + normx * len + Tmp.v1.x;
+                ny = e.y + normy * len + Tmp.v1.y;
+            }
+
+            Lines.linePoint(nx, ny);
+        }
+
+        Lines.endLine();
+    }).followParent(false).rotWithParent(false);
+
+    // ========================================================
+    // 轨道炮系列移植（原版 Fx.instTrail / instShoot / instHit 照搬）
+    // ========================================================
+
+    /** 原版 Fx.instTrail（轨道炮子弹拖尾，30f lifetime） */
+    public static Effect HonorInstTrail = new Effect(30, e -> {
+        for(int i = 0; i < 2; i++){
+            color(i == 0 ? NuColor.HonorBackColor : NuColor.HonorColor);
+
+            float m = i == 0 ? 1f : 0.5f;
+
+            float rot = e.rotation + 180f;
+            float w = 15f * e.fout() * m;
+            Drawf.tri(e.x, e.y, w, (30f + Mathf.randomSeedRange(e.id, 15f)) * m, rot);
+            Drawf.tri(e.x, e.y, w, 10f * m, rot + 180f);
+        }
+
+        Drawf.light(e.x, e.y, 60f, Pal.bulletYellowBack, 0.6f * e.fout());
+    });
+
+    /** 原版 Fx.instShoot（轨道炮开火，24f lifetime） */
+    public static Effect HonorInstShoot = new Effect(24f, e -> {
+        e.scaled(10f, b -> {
+            color(NuColor.PaleColor, NuColor.HonorBackColor, b.fin());
+            stroke(b.fout() * 3f + 0.2f);
+            Lines.circle(b.x, b.y, b.fin() * 50f);
+        });
+
+        color(NuColor.HonorColor);
+
+        for(int i : Mathf.signs){
+            Drawf.tri(e.x, e.y, 13f * e.fout(), 85f, e.rotation + 90f * i);
+            Drawf.tri(e.x, e.y, 13f * e.fout(), 50f, e.rotation + 20f * i);
+        }
+
+        Drawf.light(e.x, e.y, 180f, Pal.bulletYellowBack, 0.9f * e.fout());
+    });
+
+    /** 原版 Fx.instHit（轨道炮命中，20f lifetime / 200f clip） */
+    public static Effect HonorInstHit = new Effect(20f, 200f, e -> {
+        color(NuColor.HonorColor);
+
+        for(int i = 0; i < 2; i++){
+            color(i == 0 ? NuColor.HonorColor : NuColor.HonorBackColor);
+
+            float m = i == 0 ? 1f : 0.5f;
+
+            for(int j = 0; j < 5; j++){
+                float rot = e.rotation + Mathf.randomSeedRange(e.id + j, 50f);
+                float w = 23f * e.fout() * m;
+                Drawf.tri(e.x, e.y, w, (80f + Mathf.randomSeedRange(e.id + j, 40f)) * m, rot);
+                Drawf.tri(e.x, e.y, w, 20f * m, rot + 180f);
+            }
+        }
+
+        e.scaled(10f, c -> {
+            color(NuColor.HonorColor);
+            stroke(c.fout() * 2f + 0.2f);
+            Lines.circle(e.x, e.y, c.fin() * 30f);
+        });
+
+        e.scaled(12f, c -> {
+            color(Pal.bulletYellowBack);
+            randLenVectors(e.id, 25, 5f + e.fin() * 80f, e.rotation, 60f, (x, y) -> {
+                Fill.square(e.x + x, e.y + y, c.fout() * 3f, 45f);
+            });
+        });
+    });
+
+    // ========================================================
+    // 黑洞坍缩特效：膨胀→环形稳定→加速坍缩消失
+    // 阶段 1 (0 ~ 60f)：实心圆不断膨胀至最大半径 maxR
+    // 阶段 2 (60f ~ 80f)：出现外环轮廓，粒子以箭头方向飞向外环后消失，
+    //              实心圆与外环同步等比收缩
+    // 阶段 3 (80f ~ 120f)：收缩速度加快（坍缩加速），最终一起消失
+    // ========================================================
+
+    /** 黑洞坍缩特效（重写版），270f lifetime
+     *  阶段 1 (0 ~ 60f)：实心圆膨胀至 maxR
+     *  阶段 2 (60f ~ 180f)：外环轮廓出现，核心+外环缓慢收缩到 25%，
+     *              随机角度粒子从核心向外逸散，越过轮廓继续飞
+     *  阶段 3 (180f ~ 270f)：加速收缩到 1%，期间粒子持续逸散，
+     *              到达 1% 时整体消失（无淡出） */
+    public static Effect blackHoleCollapse = new Effect(270f, 480f, e -> {
+        float t = e.time;
+        float maxR = 60f;
+        float particleSize = 4f;
+        float ringWidth = 10f;
+        float gap = maxR * 0.6f;
+        float outlineMaxR = maxR + gap;
+        // ====== 阶段 1：膨胀 0 ~ 60f ======
+        float coreR, currentOutlineR;
+        if(t <= 60f){
+            float s = t / 60f;
+            coreR = maxR * s;
+            currentOutlineR = 0f;
+        }
+        // ====== 阶段 2：收缩到 25% (60f ~ 180f) ======
+        else if(t <= 180f){
+            float s = (t - 60f) / 120f;
+            float scale = 1f - 0.75f * s; // 1 -> 0.25
+            coreR = maxR * scale;
+            currentOutlineR = outlineMaxR * scale;
+        }
+        // ====== 阶段 3：加速坍缩 180f ~ 270f ======
+        else{
+            float s = (t - 180f) / 90f;
+            float scale = 0.25f * (1f - s * s) + 0.01f * s;
+            coreR = maxR * scale;
+            currentOutlineR = outlineMaxR * scale;
+            if(scale <= 0.015f) return;
+        }
+
+        // ---- 核心实心圆 ----
+        color(NuColor.DespColor);
+        Fill.circle(e.x, e.y, coreR);
+
+        // ---- 外环轮廓（阶段 2 起出现）----
+        if(currentOutlineR > 0.1f){
+            stroke(ringWidth);
+            color(NuColor.DespBackColor);
+            Lines.circle(e.x, e.y, currentOutlineR);
+
+            Drawf.light(e.x, e.y, currentOutlineR * 1.3f, NuColor.DespBackColor,
+                0.6f * Math.min(currentOutlineR / outlineMaxR, 1f));
+        }
+
+        // ====== 阶段 2 + 3：随机角度逸散粒子 ======
+        if(t > 60f){
+            int pcount = 24;
+            float cycleDur = 40f;
+
+            for(int i = 0; i < pcount; i++){
+                float birthOffset = (i / (float)pcount) * cycleDur;
+                float localT = ((t - 60f) + birthOffset) % cycleDur;
+                if(localT < 0f) localT += cycleDur;
+
+                float prog = localT / cycleDur;
+
+                // 随机角度（seed 固定，方向不变）
+                float seed = Mathf.randomSeed((long)e.id + i * 131L);
+                float angle = seed * Mathf.PI * 2f;
+
+                // 从核心边缘 → 越过轮廓 + gap*2
+                float startR = coreR;
+                float endR = currentOutlineR + gap * 2f;
+                float r = startR + (endR - startR) * prog;
+
+                float px = e.x + Mathf.cos(angle) * r;
+                float py = e.y + Mathf.sin(angle) * r;
+
+                // 最后 20% 淡出消失
+                float visibleT = 0.8f;
+                float alpha;
+                if(prog < visibleT){
+                    alpha = 1f;
+                }else{
+                    alpha = 1f - (prog - visibleT) / (1f - visibleT);
+                }
+
+                if(alpha > 0.01f){
+                    color(NuColor.DespBackColor, alpha);
+                    Fill.circle(px, py, particleSize * alpha);
+                }
+            }
+        }
+    });
 }

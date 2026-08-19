@@ -8,6 +8,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import mindustry.entities.bullet.*;
 
 /**
  * 基于速度的伤害判定子弹类型。
@@ -26,12 +27,12 @@ import mindustry.graphics.*;
  *   {@link BulletAcceleratorBlock.AcceleratedTag}），则在每帧 update 中做
  *   「抗衰减补偿」——保证经过加速器叠加的永久速度不会被 drag 慢慢抵消。
  */
-public class SpeedDamageBulletType extends mindustry.entities.bullet.BasicBulletType {
+public class SpeedDamageBulletType extends BasicBulletType {
     /* ===================== 可配置参数 ===================== */
     /** 伤害增加量级 i */
     public float damageIncrease = 0f;
     /** 速度阈值（默认 3.2），超过此阈值触发高次幂伤害加成 */
-    public float speedThreshold = 4f;
+    public float speedThreshold = 3.2f;
     /** 速度指数（默认 1.2），用户若有需要也可以改 */
     public float speedPower = 1.2f;
     /** 是否启用抗衰减补偿（true = 被加速器加速后永久保持那个速度） */

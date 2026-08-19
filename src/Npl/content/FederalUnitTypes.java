@@ -21,10 +21,8 @@ import arc.util.Time;
 import arc.util.Tmp;
 import mindustry.Vars;
 import mindustry.ai.UnitCommand;
-import mindustry.ai.types.BuilderAI;
-import mindustry.ai.types.DefenderAI;
-import mindustry.ai.types.FlyingAI;
-import mindustry.ai.types.MinerAI;
+import mindustry.ai.types.*;
+import mindustry.ai.*;
 import mindustry.audio.SoundLoop;
 import mindustry.content.Fx;
 import mindustry.content.Items;
@@ -50,8 +48,7 @@ import mindustry.type.StatusEffect;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
 import mindustry.type.unit.*;
-import mindustry.type.weapons.PointDefenseWeapon;
-import mindustry.type.weapons.RepairBeamWeapon;
+import mindustry.type.weapons.*;
 import mindustry.world.meta.BlockFlag;
 import mindustry.world.meta.Env;
 import Npl.content.*;
@@ -80,10 +77,9 @@ public class FederalUnitTypes{
    //pale's Hovering，纯玉，暗枫，辉鸦，圣徒，血莲
     pureJade,darkMaple,brightCrow,saint,bloodLotus,
    //special
-    hometown,amicable,confucianScholar,subjects,doc,jargon;
+    hometown,amicable,confucianScholar,subjects,doc,jargon,humorous;
     public static Weapon truly;
     public static void load(){
-
         survive = new UnitType("survive"){{
             constructor =  UnitEntity::create;
             EntityMapping.nameMap.put(name,constructor);
@@ -96,6 +92,7 @@ public class FederalUnitTypes{
             trailLength = 8;
             researchCostMultiplier = 0.50f;
             flyingLayer = Layer.flyingUnit;
+            mineItems = Seq.with(NuItems.bigIron,NuItems.frailPolyester,NuItems.sulFurFrag);
             armor = 14;
             hitSize = 12f;
             mineTier = 3;
@@ -210,6 +207,7 @@ public class FederalUnitTypes{
             buildSpeed = 4f;
             mineSpeed = 5f;
             isEnemy = true;
+            mineItems = Seq.with(NuItems.bigIron,NuItems.frailPolyester,NuItems.sulFurFrag,NuItems.pumice);
             faceTarget = true;
             abilities.add(new RepairFieldAbility(120f,120f,64f,0.5f));
             abilities.add(new EnergyFieldAbility(30f,60f,80f){{
@@ -244,7 +242,7 @@ public class FederalUnitTypes{
                 bullet = new LaserBulletType(300f){{
                     chargeEffect = NuFx.LaserChargeSmallCore;
                     length = 170f;
-                    width = 30f;
+                    width = 15f;
                     lifetime = 65f;
                     largeHit = true;
                     lightColor = lightningColor = NuColor.DespColor;
@@ -595,22 +593,22 @@ public class FederalUnitTypes{
             immunities.addAll(StatusEffects.burning, StatusEffects.wet);
             targetFlags = new BlockFlag[]{BlockFlag.factory, BlockFlag.storage, BlockFlag.battery, null};
             maxRange = 480f;
-            abilities.add(new EnergyFieldAbility(500f,30f,240f){{
+            abilities.add(new EnergyFieldAbility(200f,90f,240f){{
                 status = StatusEffects.burning;
                 statusDuration = 60f*12f;
                 x = 0f;
                 y = 0f;
                 targetAir = true;
                 targetGround = true;
-                hitBuildings = true;
+                hitBuildings = false;
                 hitUnits = true;
-                healPercent = 0.25f;
+                healPercent = 0.05f;
                 maxTargets = 240;
                 color = NuColor.DespColor;
             }});
             abilities.add(new RegenAbility(){{
-                percentAmount = 0.01f;
-                amount = 5f;
+                percentAmount = 0f;
+                amount = 2f;
             }});
                 weapons.add(new Weapon("something for nothing") {{
                     reload = 60;
@@ -722,7 +720,7 @@ public class FederalUnitTypes{
                             lowAltitude = true;
                             lifetime = 108f;
                             maxRange = 2f;
-                            abilities.add(new EnergyFieldAbility(160f,20f,160f){{
+                            abilities.add(new EnergyFieldAbility(200f,10f,160f){{
                                 status =  StatusEffects.shocked;
                                 statusDuration = 1200f;
                                 x = 0f;
@@ -825,11 +823,124 @@ public class FederalUnitTypes{
             flyingLayer = Layer.flyingUnit;
             armor = 35;
             hitSize = 38f;
+            faceTarget = true;
             alwaysUnlocked = false;
             targetAir = true;
             fogRadius = 240f;
+            faceTarget = true;
             immunities.addAll(StatusEffects.burning, StatusEffects.wet);
             targetFlags = new BlockFlag[]{BlockFlag.factory, BlockFlag.storage, BlockFlag.battery, null};
+            weapons.add(new Weapon("foreverVile"){{
+                reload = 120f;
+                x = 20f;
+                y = -5f;
+                mirror = true;
+                rotate = true;
+                shake = 0.3f;
+                recoil = -0.5f;
+                range = 480f;
+                shootStatus = StatusEffects.slow;
+                shootStatusDuration = bullet.lifetime*1.5f;
+                shootSound = Sounds.shootMalign;
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    shotDelay = 10f;
+                    spread = 10f;
+                    barrels =3;
+                }};
+                bullet = new BasicBulletType(4f,600f){{
+                    maxRange = 480f;
+                    knockback = 2.4f;
+                    lifetime = 40f;
+                    accel = 0.35f;
+                    frontColor = lightColor = trailColor = NuColor.DespColor;
+                    backColor = hitColor = NuColor.DespBackColor;
+                    trailInterval = 3f;
+                    width = 18f;
+                    height = 24f;
+                    homingDelay = 10f;
+                    homingPower = 0.8f;
+                    homingRange = 320f;
+                    buildingDamageMultiplier = 1.55f;
+                    trailEffect = new SeqEffect(new WaveEffect(){{
+                        interp = Interp.circleOut;
+                        lifetime = 16f;
+                        sizeFrom = 1f;
+                        sizeTo = 8f;
+                        strokeFrom=2f;
+                        strokeTo=0f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }}, new ParticleEffect(){{
+                        particles = 4;
+                        sizeFrom = 5f;
+                        sizeTo = 1f;
+                        length =7f;
+                        baseLength = 3f;
+                        lifetime = 13f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }});
+                    fragBullets = 4;
+                    fragRandomSpread = 60f;
+                    fragBullet = new BasicBulletType(18f,100f){{
+                        lifetime = 20f;
+                        accel = 1f;
+                        drag = 0.45f;
+                        width = 14f;
+                        height = 18f;
+                        targetAir = true;
+                        targetGround = true;
+                        frontColor = lightColor = trailColor = NuColor.DespColor;
+                        backColor = hitColor = NuColor.DespBackColor;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("endless-hard"){{
+                x = 0f;
+                y = 0f;
+                reload = 660f;
+                mirror = false;
+                rotate = false;
+                top = true;
+                shake = 8f;
+                recoil = -0.5f;
+                range = 560f;
+                shoot = new ShootPattern(){{
+                    shots = 2;
+                    shotDelay = 240f;
+                    firstShotDelay = 120f;
+                }};
+                bullet = new BasicBulletType(5f,3000f){{
+                    width = 48f;
+                    height = 48f;
+                    sprite = "circle-bullet";
+                    pierce = true;
+                    pierceCap = 9;
+                    pierceArmor = true;
+                    lifetime = 115f;
+                    lightColor = trailColor = NuColor.DespColor;
+                    hitColor = NuColor.DespBackColor;
+                    maxRange = 560f;
+                    knockback = -15f;
+                    status = NuStatus.paralysis;
+                    statusDuration = 60f*3;
+                    intervalBullets = 6;
+                    intervalRandomSpread = 360f;
+                    despawnEffect = hitEffect =NuFx.blackHoleCollapse;
+                    despawnShake = hitShake = 8f;
+                    bulletInterval = 5f;
+                    intervalBullet = new LightningBulletType(){{
+                        lifetime = 5f;
+                        damage = 430;
+                        status = StatusEffects.shocked;
+                        statusDuration = 60f*3;
+                        lightningLength = 6;
+                        lightningLengthRand = 2;
+                        lightningColor = NuColor.DespColor;
+                    }};
+                }};
+            }});
         }};
         desperate = new UnitType("desperate"){{
             constructor =  UnitEntity::create;
@@ -851,6 +962,212 @@ public class FederalUnitTypes{
             fogRadius = 240f;
             immunities.addAll(StatusEffects.burning, StatusEffects.wet);
             targetFlags = new BlockFlag[]{BlockFlag.factory, BlockFlag.storage, BlockFlag.battery, null};
+            weapons.add(new Weapon("despireKnife-l"){{
+                x = 8f;
+                y = 9f;
+                reload = 48f;
+                mirror = false;
+                rotate = true;
+                recoil = -0.5f;
+                range = 640f;
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    shotDelay = 5f;
+                    spread = 6f;
+                    barrels =2;
+                }};
+                bullet  = new SpeedDamageBulletType(4f,600f){{
+                    damageIncrease = 50f;
+                    width = 8f;
+                    height = 36f;
+                    accel = 0.15f;
+                    frontColor = lightColor = trailColor = NuColor.DespColor;
+                    backColor = hitColor = NuColor.DespBackColor;
+                    lifetime = 80f;
+                    homingRange = 800f;
+                    homingPower = 2.5f;
+                    maxRange = 640f;
+                    despawnEffect = hitEffect = new WaveEffect(){{
+                        sizeFrom = 10f; sizeTo = 0f;
+                        strokeFrom = 1f; strokeTo = 5f;   // 越收越粗
+                        interp = Interp.reverse;
+                        sides = 4; rotation = 15f;        //
+                        lifetime = 4f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }};
+                    fragBullets = 3;
+                    fragBullet = new ExplosionBulletType(90f,16){{
+                        killShooter = false;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("despireKnife-r"){{
+                x = -8f;
+                y = 9f;
+                reload = 48f;
+                mirror = false;
+                rotate = true;
+                recoil = -0.5f;
+                range = 640f;
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    shotDelay = 5f;
+                    spread = 6f;
+                    barrels =2;
+                }};
+                bullet  = new SpeedDamageBulletType(4f,600f){{
+                    damageIncrease = 50f;
+                    width = 8f;
+                    height = 36f;
+                    accel = 0.15f;
+                    frontColor = lightColor = trailColor = NuColor.DespColor;
+                    backColor = hitColor = NuColor.DespBackColor;
+                    lifetime = 80f;
+                    homingRange = 800f;
+                    homingPower = 2.5f;
+                    maxRange = 640f;
+                    despawnEffect = hitEffect = new WaveEffect(){{
+                        sizeFrom = 32f; sizeTo = 0f;
+                        strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
+                        interp = Interp.reverse;
+                        sides = 4; rotation = 15f;        //
+                        lifetime = 12f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }};
+                    fragBullets = 1;
+                    fragBullet = new ExplosionBulletType(90f,16){{
+                        killShooter = false;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("despireKnifeHard-l"){{
+                x = 18f;
+                y = -9f;
+                reload = 60f;
+                mirror = false;
+                rotate = true;
+                recoil = -0.5f;
+                range = 640f;
+                shoot = new ShootAlternate(){{
+                    shots = 12;
+                    shotDelay = 5f;
+                    spread = 6f;
+                    barrels =2;
+                }};
+                bullet  = new SpeedDamageBulletType(4f,200f){{
+                    damageIncrease = 25f;
+                    width = 8f;
+                    height = 16f;
+                    accel = 0.15f;
+                    frontColor = lightColor = trailColor = NuColor.DespColor;
+                    backColor = hitColor = NuColor.DespBackColor;
+                    lifetime = 80f;
+                    homingRange = 800f;
+                    homingPower = 2.5f;
+                    maxRange = 640f;
+                    status = NuStatus.paralysis;
+                    statusDuration = 60f*3;
+                    despawnEffect = hitEffect = new ParticleEffect() {{
+                        line = true;
+                        strokeFrom = 2f; strokeTo = 0.5f;
+                        lenFrom = 8f; lenTo = 3f;
+                        cone = 90f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("despireKnifeHard-r"){{
+                x = -18f;
+                y = -9f;
+                reload = 60f;
+                mirror = false;
+                rotate = true;
+                recoil = -0.5f;
+                range = 640f;
+                shoot = new ShootAlternate(){{
+                    shots = 12;
+                    shotDelay = 5f;
+                    spread = 6f;
+                    barrels =2;
+                }};
+                bullet  = new SpeedDamageBulletType(4f,200f){{
+                    damageIncrease = 25f;
+                    width = 8f;
+                    height = 16f;
+                    accel = 0.15f;
+                    frontColor = lightColor = trailColor = NuColor.DespColor;
+                    backColor = hitColor = NuColor.DespBackColor;
+                    lifetime = 80f;
+                    homingRange = 800f;
+                    homingPower = 2.5f;
+                    maxRange = 640f;
+                    status = NuStatus.paralysis;
+                    statusDuration = 60f*3;
+                    despawnEffect = hitEffect =new ParticleEffect() {{
+                        line = true;
+                        strokeFrom = 2f; strokeTo = 0.5f;
+                        lenFrom = 8f; lenTo = 3f;
+                        cone = 90f;
+                        colorFrom = NuColor.DespColor;
+                        colorTo = NuColor.DespBackColor;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("kate"){{
+                x = 12f;
+                y = 0f;
+                reload = 150f;
+                mirror = true;
+                rotate = false;
+                recoil = 0.5f;
+                range = 640f;
+                top = true;
+                shoot = new ShootPattern(){{
+                   shots = 2;
+                   shotDelay = 40f;
+                }};
+                bullet = new PointBulletType(){{
+                    trailSpacing = 3f;
+                    trailInterval = 2f;
+                    trailEffect = NuFx.DespSmokeTail;
+                    buildingDamageMultiplier = 0.2f;
+                    damage = 2500f;
+                    maxRange = 640f;
+                    lifetime = 40f;
+                    speed = 14f;
+                    healPercent = 0.01f;
+                    healAmount = 30f;
+                    splashDamageRadius = 24f;
+                    splashDamage = 56f;
+                    status = NuStatus.lack;
+                    statusDuration = 60f*3;
+                    despawnEffect = hitEffect = new MultiEffect(NuFx.DespBoom,new ExplosionEffect(){{
+                        waveColor=smokeColor=sparkColor= NuColor.DespColor;
+                        waveLife = 30f;
+                        waveStroke = 3f;
+                        waveRad = 64f;
+                        waveRadBase = 30f;
+                        sparkStroke = 6f;
+                        sparkRad = 64f;
+                        sparkLen = 24f;
+                        smokeSize = 12f;
+                        smokeSizeBase = 2f ;
+                        smokeRad = 64f;
+                        smokes = 12;
+                        sparks = 24;
+                    }});
+                    fragBullets = 2;
+                    fragBullet = new ExplosionBulletType(1250f,64f){{
+                        killShooter = false;
+                        status = NuStatus.lack;
+                        statusDuration = 60f*3;
+                        buildingDamageMultiplier = 0.2f;
+                    }};
+                }};
+            }});
         }};
         honor = new UnitType("honor"){{
             constructor = MechUnit::create;
@@ -1041,7 +1358,6 @@ public class FederalUnitTypes{
                         lightningDamage = 5f;
                         lightningColor = NuColor.HonorColor;
                     }};
-
                 }};
             }});
             weapons.add(new Weapon("move"){{
@@ -1088,7 +1404,7 @@ public class FederalUnitTypes{
                 slurpEffect = Fx.neoplasmHeal;
             }});
             abilities.add(new ArmorPlateAbility(){{
-                healthMultiplier = 0.8f;
+                healthMultiplier = 0.3f;
             }});
             mechStepParticles = true;
             stepShake = 0.75f;
@@ -1125,61 +1441,7 @@ public class FederalUnitTypes{
                     pierceArmor = true;
                     pierceCap =3;
                     knockback = 1f;
-                    timescaleDamage = true;
-                }};
-            }});
-            weapons.add(new Weapon("nu-scattering60"){{
-                top = true;
-                reload=90f;
-                recoil = -1f;
-                x = 15f;
-                y = -10f;
-                mirror = true;
-                rotate =  true;
-                range = 400;
-                maxRange = 400;
-                shoot = new ShootSpread(8, 90f);
-                bullet = new BasicBulletType(5f,0f){{
-                    lifetime = 4f;
-                    width = 12f;
-                    height = 15f;
-                    maxRange = 400f;
-                    frontColor = Color.valueOf("ffffff");
-                    trailColor = lightColor = NuColor.HonorElseColor;
-                    backColor=hitColor=NuColor.HonorBackColor;
-                    trailLength = 25;
-                    shootEffect = smokeEffect = Fx.sparkShoot;
-                    fragBullets = 4;
-                    fragRandomSpread =60f;
-                    fragBullet = new BasicBulletType(5.25f,400f){{
-                        hitColor = NuColor.HonorConColor;
-                        lifetime = 80f;
-                        width = 12f;
-                        height = 15f;
-                        frontColor = Color.valueOf("ffffff");
-                        trailColor = lightColor = NuColor.HonorElseColor;
-                        backColor=hitColor=NuColor.HonorBackColor;
-                        trailLength = 25;
-                        splashDamage = 60f;
-                        splashDamageRadius = 24f;
-                        homingPower = 1f;
-                        homingRange = 280f;
-                        homingDelay = 10f;
-                        despawnHit =true;
-                        despawnEffect = hitEffect =new MultiEffect(Fx.hitBulletColor, new SeqEffect(new WaveEffect(){{
-                            lightColor=colorTo=NuColor.HonorConColor;
-                            sizeTo = 16f;
-                            sizeFrom =24f;
-                            strokeFrom = 4f;
-                            lifetime = 16f;
-                        }},new WaveEffect(){{
-                            lightColor=colorTo=NuColor.HonorConColor;
-                            sizeTo = 12f;
-                            sizeFrom =24f;
-                            strokeFrom = 4f;
-                            lifetime = 16f;
-                        }}));
-                    }};
+                    timescaleDamage = false;
                 }};
             }});
             weapons.add(new Weapon("nu-Sound Of Overpraise"){{
@@ -1238,24 +1500,326 @@ public class FederalUnitTypes{
         blindLoyalty = new UnitType("blindLoyalty"){{
             constructor = MechUnit::create;
             EntityMapping.nameMap.put(name,constructor);
-            researchCostMultiplier = 1f;
+            researchCostMultiplier = 1.75f;
             speed = 0.7f;
             hitSize = 40f;
             armor = 44f;
             health = 53000;
             alwaysUnlocked = false;
             targetAir = true;
+            canBoost = true;
+            boostMultiplier = 1f;
+            mechStepParticles = true;
+            faceTarget = true;
+            stepShake = 1.5f;
+            drownTimeMultiplier = 4f;
+            mechFrontSway = 4f;
+            mechSideSway = 1.6f;
+            stepSound = Sounds.mechStepHeavy;
+            stepSoundPitch = 1.9f;
+            stepSoundVolume = 0.9f;
+            immunities.addAll(StatusEffects.burning, StatusEffects.melting);
+            abilities.add(new RegenAbility(){{
+                percentAmount = 3f;
+                amount = 10f;
+            }});
+            weapons.add(new Weapon("momentRain"){{
+                x = 0f;
+                y = -5f;
+                mirror = false;
+                rotate =  true;
+                range = 400f;
+                reload = 150f;
+                shake = 2f;
+                recoil = 3.5f;
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    spread = 4f;
+                    barrels = 5;
+                }};
+                bullet = new  FlakBulletType(5f,900F){{
+                    width = 20f;
+                    height = 20f;
+                    maxRange = 400f;
+                    collidesAir = true;
+                    collidesGround = true;
+                    collides = true;
+                    sprite="large-bomb";
+                    lifetime = 10f;
+                    trailColor = lightColor = NuColor.HonorElseColor;
+                    backColor=hitColor=NuColor.HonorBackColor;
+                    trailLength = 3;
+                    despawnEffect=hitEffect =new MultiEffect(Fx.magmasmoke,new ExplosionEffect(){{
+                        waveColor=smokeColor=sparkColor= NuColor.HonorElseColor;
+                        waveLife = 6f;
+                        waveStroke = 3f;
+                        waveRad = 15f;
+                        waveRadBase = 2f;
+                        sparkStroke = 1f;
+                        sparkRad = 23f;
+                        sparkLen = 3f;
+                        smokeSize = 4f;
+                        smokeSizeBase = 0.5f ;
+                        smokeRad = 23f;
+                        smokes = 5 ;
+                        sparks = 4;
+                    }});
+                    fragBullets = 5;
+                    fragRandomSpread = 40f;
+                    fragBullet = new FlakBulletType(5f,180f){{
+                        collidesAir = true;
+                        collidesGround = true;
+                        collides = true;
+                        width = 12f;
+                        height = 12f;
+                        sprite = "large-orb";
+                        lifetime = 10f;
+                        trailColor = lightColor = NuColor.HonorElseColor;
+                        backColor=hitColor=NuColor.HonorBackColor;
+                        despawnEffect=hitEffect = Fx.flakExplosion;
+                        trailLength=10;
+                        fragBullets = 5;
+                        fragRandomSpread = 40f;
+                        fragBullet = new FlakBulletType(5f,36f){{
+                            collidesAir = true;
+                            collidesGround = true;
+                            collides = true;
+                            accel = 3f;
+                            drag = 0.3f;
+                            width = 12f;
+                            height = 12f;
+                            homingPower = 0.4f;
+                            homingRange = 300f;
+                            sprite = "large-orb";
+                            lifetime = 45f;
+                            trailColor = lightColor = NuColor.HonorElseColor;
+                            backColor=hitColor=NuColor.HonorBackColor;
+                            despawnEffect=hitEffect = Fx.flakExplosion;
+                            trailLength=10;
+                        }};
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("genius"){{
+                x = 6f;
+                y = -5f;
+                mirror = true;
+                rotate = false;
+                top = true;
+                range = 160f;
+                reload = 10f;
+                shake = 3.5f;
+                recoil = 2.5f;
+                shootY = 15f;
+                bullet = new BulletType(5f, 1240f){{
+                    hitSize = 24f;
+                    lifetime = 48f;
+                    pierce = true;
+                    pierceBuilding = true;
+                    pierceCap = 90;
+                    statusDuration = 60f * 5;
+                    shootEffect = NuFx.HonorFlame;
+                    hitEffect = NuFx.hitFlameHonor;
+                    despawnEffect = Fx.none;
+                    status = StatusEffects.burning;
+                    keepVelocity = false;
+                    hittable = false;
+                }};
+            }});
+            weapons.add(new Weapon("fake"){{
+                x = 14f;
+                y = 5f;
+                mirror = true;
+                rotate = false;
+                range = 560f;
+                reload = 20f;
+                shake = 4.5f;
+                recoil = 2.5f;
+                shoot.shots = 2;
+                shoot.shotDelay = 8f;
+                bullet = new PointBulletType(){{
+                    trailSpacing = 3f;
+                    trailInterval = 2f;
+                    trailEffect = NuFx.HonorEnergyTail;
+                    buildingDamageMultiplier = 0.7f;
+                    damage = 200f;
+                    maxRange = 560f;
+                    lifetime = 40f;
+                    speed = 14f;
+                    healPercent = 0.01f;
+                    healAmount = 30f;
+                    splashDamageRadius = 24f;
+                    splashDamage = 56f;
+                    status = NuStatus.paralysis;
+                    statusDuration = 60f*3;
+                    despawnEffect = hitEffect = Fx.hitLaserBlast;
+                }};
+            }});
         }};
         safeguardRights = new UnitType("safeguardRights"){{
             constructor = MechUnit::create;
             EntityMapping.nameMap.put(name,constructor);
-            researchCostMultiplier = 1f;
+            researchCostMultiplier = 2f;
             speed = 0.6f;
             hitSize = 48f;
             armor = 68f;
             health = 130000;
             alwaysUnlocked = false;
             targetAir = true;
+            faceTarget = true;
+            abilities.add(new ShieldRegenFieldAbility(2500f, 30000f, 180f, 180f));
+            weapons.add(new Weapon("Rights"){{
+                top = true;
+                x = 10f;
+                y = 0f;
+                mirror = true;
+                rotate = true;
+                reload = 140f;
+                shake = 5.5f;
+                range = 560f;
+                recoil = 5f;
+                rotateSpeed = 10f;
+                cooldownTime = reload;
+                shootCone = 2f;
+                shootSound = Sounds.shootForeshadow;
+                bullet = new RailBulletType(){{
+                    maxRange = 560f;
+                    shootEffect = NuFx.HonorInstShoot;
+                    hitEffect = NuFx.HonorInstHit;
+                    pierceEffect = Fx.railHit;
+                    smokeEffect = Fx.smokeCloud;
+                    pointEffect = NuFx.HonorInstTrail;
+                    despawnEffect = NuFx.RightsExplosion;
+                    pointEffectSpace = 20f;
+                    damage = 4500;
+                    length = 560;
+                    buildingDamageMultiplier = 0.7f;
+                    pierceDamageFactor = 1f;
+                    hitShake = 6f;
+                    fragBullets = 6;
+                    fragRandomSpread = 360f;
+                    lightningColor = lightColor = hitColor = NuColor.HonorColor;
+                    splashDamage = 1200f;
+                    splashDamageRadius = 40f;
+                    scaledSplashDamage = true;
+                    makeFire = true;
+                    despawnShake = 8f;
+                    hitShake = 6.5f;
+                    status = NuStatus.radiation;
+                    statusDuration = 60f*4;
+                    fragBullet = new LightningBulletType(){{
+                        lifetime = 25f;
+                        damage = 250;
+                        status = StatusEffects.shocked;
+                        lightningLength = 36;
+                        lightningLengthRand = 2;
+                        lightningColor = NuColor.HonorConColor;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("gurad"){{
+                x = 3f;
+                y = 4f;
+                mirror = true;
+                rotate = false;
+                range = 560f;
+                reload = NuFx.LaserChargeHonor.lifetime * 2.4f;
+                shootCone = 10f;
+                shootStatusDuration = NuFx.LaserChargeHonor.lifetime + 30f;
+                shootStatus = StatusEffects.unmoving;
+                shoot.firstShotDelay = NuFx.LaserChargeHonor.lifetime*2f;
+                parentizeEffects = true;
+                cooldownTime =  NuFx.LaserChargeHonor.lifetime * 0.5f;
+                bullet = new LaserBulletType(4000f){{
+                    chargeEffect = NuFx.LaserChargeHonor;
+                    length = 560f;
+                    width = 50f;
+                    lifetime = 80f;
+                    largeHit = true;
+                    lightColor = lightningColor = NuColor.HonorColor;
+                    collidesTeam = true;
+                    sideAngle = 15f;
+                    sideWidth = 0f;
+                    sideLength = 0f;
+                    colors = new Color[]{NuColor.HonorColor,NuColor.HonorBackColor,NuColor.PaleColor};
+                }};
+            }});
+            weapons.add(new Weapon("loyalty"){{
+                x =  13f;
+                y =  0f;
+                reload = 40f;
+                range = 480f;
+                mirror = false;
+                rotate = false;
+                recoil = 2f;
+                shootCone = 120f;
+                shoot = new ShootAlternate(){{
+                    shots = 6;
+                    shotDelay = 6f;
+                    spread = 8f;
+                    barrels = 5;
+                }};
+                bullet = new BasicBulletType(2f,1000f){{
+                    maxRange = 480f;
+                    width = 36f;
+                    height = 36f;
+                    accel = 1f;
+                    lifetime = 22.5f;
+                    drag = 0.2f;
+                    frontColor = trailColor = lightColor = NuColor.HonorColor;
+                    backColor=hitColor=NuColor.HonorBackColor;
+                    trailLength = 3;
+                    shootEffect = Fx.shootBig;
+                    hitEffect = despawnEffect= Fx.blastExplosion;
+                    fragBullets = 2;
+                    fragRandomSpread = 0f;
+                    fragBullet = new BasicBulletType(0f,1500f){{
+                        width = 28f;
+                        height = 28f;
+                        lifetime = 90f;
+                        pierce = true;
+                        pierceArmor = true;
+                        pierceCap =15;
+                        frontColor = trailColor = lightColor = NuColor.HonorColor;
+                        backColor=hitColor=NuColor.HonorBackColor;
+                        hitEffect = despawnEffect= Fx.blastExplosion;
+                        fragBullets = 3;
+                        fragRandomSpread = 60f;
+                        fragBullet = new BasicBulletType(4f,750f){{
+                            width = 21f;
+                            height = 21f;
+                            trailEffect = NuFx.HonorEnergyTail;
+                            trailInterval = 2.5f;
+                            lifetime = 57.5f;
+                            accel = 0.1f;
+                            drag = -0.001f;
+                            frontColor = trailColor = lightColor = NuColor.HonorColor;
+                            backColor=hitColor=NuColor.HonorBackColor;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                strokeFrom = 2.5f;
+                                strokeTo = 0f;
+                                colorFrom = NuColor.HonorColor;
+                                colorTo = NuColor.HonorBackColor;
+                                sizeFrom = 20f;
+                                sizeTo = 1f;
+                                lifetime =24f;
+                                sides = 12;
+                            }};
+                            intervalBullets = 2;
+                            intervalRandomSpread = 30f;
+                            bulletInterval = 5f;
+                            intervalBullet = new LightningBulletType(){{
+                                lifetime = 25f;
+                                damage = 25;
+                                status = StatusEffects.shocked;
+                                lightningLength = 11;
+                                lightningLengthRand = 2;
+                                lightningColor = NuColor.HonorConColor;
+                            }};
+                        }};
+                    }};
+                }};
+            }});
         }};
         sailor = new UnitType("sailor"){{
             constructor =  UnitWaterMove::create;
@@ -1451,7 +2015,6 @@ public class FederalUnitTypes{
                         sparks = 4;
                     }};
                     despawnEffect = hitEffect = NuFx.sailArcHit;
-
                 }};
             }});
         }};
@@ -1790,12 +2353,151 @@ public class FederalUnitTypes{
             fogRadius = 240f;
             lightRadius = 320f;
             faceTarget = true;
+            weapons.add(new Weapon("nu-scattering60"){{
+                top = true;
+                reload=90f;
+                recoil = -1f;
+                x = 15f;
+                y = -10f;
+                mirror = true;
+                rotate =  true;
+                range = 400;
+                maxRange = 400;
+                shoot = new ShootSpread(8, 90f);
+                bullet = new BasicBulletType(5f,0f){{
+                    lifetime = 4f;
+                    width = 12f;
+                    height = 15f;
+                    maxRange = 480f;
+                    frontColor = Color.valueOf("ffffff");
+                    trailColor = lightColor = NuColor.HonorElseColor;
+                    backColor=hitColor=NuColor.HonorBackColor;
+                    trailLength = 25;
+                    shootEffect = smokeEffect = Fx.sparkShoot;
+                    fragBullets = 4;
+                    fragRandomSpread =60f;
+                    fragBullet = new SpeedDamageBulletType(3f,350f){{
+                        damageIncrease = 25f;
+                        accel =0.075f;
+                        lifetime = 80f;
+                        width = 12f;
+                        height = 15f;
+                        frontColor = Color.valueOf("ffffff");
+                        trailColor = lightColor = NuColor.SailColor;
+                        backColor=hitColor=NuColor.SailBackColor;
+                        trailLength = 25;
+                        trailWidth = 5f;
+                        splashDamage = 240f;
+                        splashDamageRadius = 40f;
+                        homingPower = 2.5f;
+                        homingRange = 480f;
+                        homingDelay = 10f;
+                        despawnHit =true;
+                        despawnEffect = hitEffect =new MultiEffect(Fx.hitBulletColor, new SeqEffect(new WaveEffect(){{
+                            lightColor=colorTo=NuColor.SailColor;
+                            sizeTo = 16f;
+                            sizeFrom =40f;
+                            strokeFrom = 4f;
+                            lifetime = 16f;
+                        }},new WaveEffect(){{
+                            lightColor=colorTo=NuColor.SailBackColor;
+                            sizeTo = 12f;
+                            sizeFrom =40f;
+                            strokeFrom = 4f;
+                            lifetime = 16f;
+                        }}));
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("steal chous"){{
+                x = 8f;
+                y = 9f;
+                mirror = true;
+                rotate = true;
+                reload = 15f;
+                range = 480f;
+                rotateSpeed = 10f;
+                bullet = new BasicBulletType(3f,120f){{
+                    maxRange = 160f;
+                    accel = 0.15f;
+                    lifetime = 60f;
+                    sprite = "mine-bullet";
+                    width = 24f;
+                    height = 24f;
+                    weaveMag = 5f;
+                    weaveScale = 4f;
+                    homingPower = 1f;
+                    homingRange = 100f;
+                    collideFloor = true;
+                    splashDamage = 540f;
+                    splashDamageRadius = 16f;
+                    layer = 45f;
+                    shootEffect = Fx.shootTitan;
+                    healAmount = damage*0.85f;
+                    frontColor = lightColor = trailColor = NuColor.SailColor;
+                    backColor = hitColor = NuColor.SailBackColor;
+                    underwater = true;
+                    collidesAir = false;
+                    collidesTeam = true;
+                    hitSound = Sounds.explosionPlasmaSmall;
+                    hitEffect = despawnEffect = new MultiEffect(NuFx.sailArcHit,NuFx.SailSmoke);
+                    fragBullets = 10;
+                    fragRandomSpread = 20f;
+                    fragBullet = new BasicBulletType(9f,240f){{
+                        width = 18f;
+                        height = 18f;
+                        accel = -0.3f;
+                        lifetime = 20f;
+                        homingPower =1f;
+                        homingRange = 130f;
+                        homingDelay =5f;
+                        splashDamage = 240f;
+                        splashDamageRadius = 64f;
+                        frontColor = lightColor = trailColor = NuColor.SailColor;
+                        backColor = hitColor = NuColor.SailBackColor;
+                        trailLength = 25;
+                        trailWidth =15f;
+                        underwater = true;
+                        collidesAir = false;
+                        collideFloor = true;
+                        hitSound = Sounds.explosionPlasmaSmall;
+                        hitEffect = despawnEffect = new MultiEffect(NuFx.sailArcHit,Fx.blastExplosion,Fx.greenCloud);
+                        fragBullets = 1;
+                        fragRandomSpread = 0f;
+                        fragBullet = new BasicBulletType(0f,600f){{
+                            lifetime = 20f;
+                            hitSound = Sounds.explosionPlasmaSmall;
+                            hitEffect = despawnEffect = new MultiEffect(NuFx.sailArcHit,Fx.blastExplosion,Fx.greenCloud);
+                            collidesAir = false;
+                            collideFloor = true;
+                            splashDamage = 180f;
+                            splashDamageRadius = 64f;
+                            frontColor = lightColor = trailColor = NuColor.SailColor;
+                            backColor = hitColor = NuColor.SailBackColor;
+                        }};
+                    }};
+                }};
+            }});
+            weapons.add(new RepairBeamWeapon("sercue"){{
+                x = 0f;
+                y = -8f;
+                mirror = true;
+                shootCone = 90f;
+                repairSpeed = 9f;
+                targetBuildings = true;
+                targetUnits = true;
+                controllable = false;
+                aiControllable = true;
+                autoTarget = true;
+                rotate = true;
+                bullet.maxRange = 480f;
+            }});
         }};
         nemo = new UnitType("nemo"){{
             constructor =  UnitWaterMove::create;
             EntityMapping.nameMap.put(name,constructor);
             speed = 0.65f;
-            rotateSpeed = 3f;
+            rotateSpeed = 10f;
             health = 120000;
             hitSize = 43f;
             trailLength = 120;
@@ -1807,6 +2509,94 @@ public class FederalUnitTypes{
             fogRadius = 320f;
             lightRadius = 400f;
             faceTarget = true;
+            weapons.add(new PointDefenseWeapon("Kefana"){{
+                x = 12.5f;
+                y = 12f;
+                reload = 0.1f;
+                targetInterval = 1f;
+                targetSwitchInterval = 1f;
+                range = 640f;
+                predictTarget = true;
+                color = NuColor.SailColor;
+                bullet = new BulletType(){{
+                    shootEffect = Fx.sparkShoot;
+                    hitEffect = Fx.pointHit;
+                    maxRange = 640f;
+                    damage = 5000f;
+                }};
+            }});
+            weapons.add(new PointDefenseWeapon("Liy"){{
+                x = 12.5f;
+                y = -12f;
+                reload = 0.1f;
+                targetInterval = 1f;
+                targetSwitchInterval = 1f;
+                range = 640f;
+                predictTarget = true;
+                color = NuColor.SailColor;
+                bullet = new BulletType(){{
+                    shootEffect = Fx.sparkShoot;
+                    hitEffect = Fx.pointHit;
+                    maxRange = 640f;
+                    damage = 5000f;
+                }};
+            }});
+            weapons.add(new Weapon("Ops"){{
+                x = 10f;
+                y = 0f;
+                top = true;
+                mirror = true;
+                rotate = true;
+                reload = 90f;
+                range = 720f;
+                rotateSpeed = 5f;
+                shoot = new ShootAlternate(){{
+                    shots = 12;
+                    shotDelay = 5f;
+                    spread = 12f;
+                    barrels =3;
+                }};
+                bullet = new SpeedDamageBulletType(3f,200f){{
+                    damageIncrease = 50f;
+                    accel = 0.1125f;
+                    width = 10f;
+                    height = 18f;
+                    lifetime = 80f;
+                    maxRange = 720f;
+                    frontColor = lightColor = trailColor = NuColor.SailColor;
+                    backColor = hitColor = NuColor.SailBackColor;
+                    trailLength = 20;
+                    trailWidth = 12f;
+                    despawnEffect = hitEffect = new WaveEffect(){{
+                        sizeFrom = 40f; sizeTo = 8f;
+                        strokeFrom = 2f; strokeTo = 10f;   // 越收越粗
+                        interp = Interp.reverse;
+                        sides = 4; rotation = 15f;        //
+                        lifetime = 12f;
+                        colorFrom = NuColor.SailColor;
+                        colorTo = NuColor.SailBackColor;
+                    }};
+                    homingPower = 0.1f;
+                    homingRange = 120f;
+                    homingDelay = 10f;
+                    fragBullets = 4;
+                    fragRandomSpread = 90f;
+                    fragBullet = new SpeedDamageBulletType(9f,450f){{
+                        damageIncrease = 10f;
+                        accel = 0.75f;
+                        width = 12f;
+                        height = 28f;
+                        lifetime = 20f;
+                        frontColor = lightColor = trailColor = NuColor.SailColor;
+                        backColor = hitColor = NuColor.SailBackColor;
+                        trailLength = 20;
+                        trailWidth = 12f;
+                        homingPower = 1f;
+                        homingRange = 240f;
+                        homingDelay = 5f;
+                    }};
+                }};
+            }});
         }};
         pale = new UnitType("pale"){{
             constructor = MechUnit::create;
@@ -2083,7 +2873,6 @@ public class FederalUnitTypes{
         }};
         sunsetGlow = new UnitType("sunsetGlow"){{
             constructor = PayloadUnit::create;
-            aiController = DefenderAI::new;
             flying = true;
             EntityMapping.nameMap.put(name,constructor);
             health = 5600;
@@ -2102,7 +2891,6 @@ public class FederalUnitTypes{
         }};
         dusk = new  UnitType("dusk"){{
             constructor = PayloadUnit::create;
-            aiController = DefenderAI::new;
             flying = true;
             EntityMapping.nameMap.put(name,constructor);
             health = 10800;
@@ -2121,7 +2909,6 @@ public class FederalUnitTypes{
         }};
         swallowingDay = new UnitType("swallowingDay"){{
             constructor = PayloadUnit::create;
-            aiController = DefenderAI::new;
             flying = true;
             EntityMapping.nameMap.put(name,constructor);
             health = 23600;
@@ -2140,7 +2927,6 @@ public class FederalUnitTypes{
         }};
         moonLight = new UnitType("moonLight"){{
             constructor = PayloadUnit::create;
-            aiController = DefenderAI::new;
             flying = true;
             EntityMapping.nameMap.put(name,constructor);
             health = 59000;
@@ -2166,8 +2952,7 @@ public class FederalUnitTypes{
                 showBottomHint      = true;                         // 玩家的 HUD 也弹大字
             }});
         }};
-        pureJade = new UnitType("PureJade"){
-            {
+        pureJade = new UnitType("PureJade"){{
                 constructor = ElevationMoveUnit::create;
                 EntityMapping.nameMap.put(name, constructor);
                 health = 1550;
@@ -2411,6 +3196,169 @@ public class FederalUnitTypes{
             abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
                 teamColor = true;
             }});
+        }};
+        hometown = new UnitType("hometown"){{
+            constructor=LegsUnit::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 12000;
+            speed = 0.85f;
+            researchCostMultiplier = 1f;
+            armor = 48;
+            hitSize = 24f;
+            legCount = 6;
+            legMoveSpace = 1.45f;
+            lockLegBase = true;
+            legContinuousMove = true;
+            legGroupSize = 3;
+            legPairOffset = 5f;
+            legLength = 40;
+            legExtension = -6f;
+            legBaseOffset = 15f;
+            legSpeed = 3f;
+            legLengthScl = 1.5f;
+            stepShake = 1.5f;
+            rippleScale = 1.25f;
+            legSplashDamage = 85f;
+            legSplashRange  = 24f;
+            hovering = true;
+            legPhysicsLayer = true;
+            rotateMoveFirst = true;
+            healFlash = true;
+            shadowElevation = 0.7f;
+            drownTimeMultiplier = 2f;
+            targetAir = true;
+            targetGround = true;
+            weapons.add(new Weapon("real-knife"){{
+                x = -18f;
+                y = 0f;
+                reload = 135f;
+                shoot = new ShootAlternate(){{
+                    shots = 18;
+                    shotDelay =5f;
+                    spread = 3f;
+                    barrels =3;
+                }};
+                rotate = false;
+                range = 175f;
+                mirror = true;
+                shake = 5f;
+                bullet = new BasicBulletType(0f,0f){{
+                   maxRange = 160f;
+                   instantDisappear = true;
+                   fragBullets = 2;
+                   fragRandomSpread = 40f;
+                   fragLifeMax = 1.5f;
+                   fragLifeMin = 0.8f;
+                   fragBullet = new FlakBulletType(6f,50f){{
+                       lifetime = 30f;
+                       width = 9f;
+                       height = 60f;
+                       pierceBuilding = true;
+                       pierce = true;
+                       pierceCap = 5;
+                       frontColor = lightColor = trailColor = NuColor.SpecialPurpleColor;
+                       backColor = hitColor = NuColor.SpecialPurpleBackColor;
+                       homingPower = 2f;
+                       homingRange = 160f;
+                       homingDelay = 2f;
+                       splashDamage = 12f;
+                       splashDamageRadius = 24f;
+                       intervalBullets = 2;
+                       bulletInterval = 4f;
+                       intervalRandomSpread = 45f;
+                       intervalBullet = new LightningBulletType(){{
+                           lifetime = 12f;
+                           damage = 9f;
+                           status = StatusEffects.shocked;
+                           lightningLength = 10;
+                           lightningLengthRand = 2;
+                           lightningColor = NuColor.SpecialPurpleColor;
+                       }};
+                   }};
+                }};
+            }});
+            weapons.add(new Weapon("knife1"){{
+                reload = 10f;
+                x = 8f;
+                y = 0f;
+                shootSound = Sounds.shootSap;
+                range = 120f;
+                mirror = true;
+                shake = 5f;
+                bullet = new SapBulletType(){{
+                    damage = 400f;
+                    length = 135;
+                    width = 0.6f;
+                    lifetime = 30f;
+                    knockback = -1f;
+                    lightColor = trailColor = NuColor.SpecialPurpleColor;
+                    hitColor = NuColor.SpecialPurpleBackColor;
+                    shootEffect = new WaveEffect(){{
+                        strokeFrom = 2.5f;
+                        strokeTo = 0f;
+                        colorFrom = NuColor.SpecialPurpleColor;
+                        colorTo = NuColor.SpecialPurpleBackColor;
+                        sizeFrom = 8f;
+                        sizeTo = 1f;
+                        lifetime =20f;
+                        sides = 12;
+                    }};
+                }};
+            }});
+            weapons.add(new Weapon("knife2"){{
+                reload = 5f;
+                x = 8f;
+                y = 5f;
+                shootSound = Sounds.shootSap;
+                range = 100f;
+                mirror = true;
+                shake = 5f;
+                bullet = new SapBulletType(){{
+                    damage = 340f;
+                    length = 115;
+                    width = 0.6f;
+                    lifetime = 10f;
+                    knockback = -1f;
+                    lightColor = trailColor = NuColor.SpecialPurpleColor;
+                    hitColor = NuColor.SpecialPurpleBackColor;
+                    shootEffect = new WaveEffect(){{
+                        strokeFrom = 2.5f;
+                        strokeTo = 0f;
+                        colorFrom = NuColor.SpecialPurpleColor;
+                        colorTo = NuColor.SpecialPurpleBackColor;
+                        sizeFrom = 8f;
+                        sizeTo = 1f;
+                        lifetime =20f;
+                        sides = 12;
+                    }};
+                }};
+            }});
+        }};
+        humorous = new ErekirUnitType("humorous"){{
+            constructor = BuildingTetherPayloadUnit::create;
+            EntityMapping.nameMap.put(name, constructor);
+            health = 2000;
+            armor = 1000;
+            speed = 4f;
+            flying = true;
+            targetable = true;
+            engineSize = 2f;
+            hitSize = 4f;
+            buildSpeed = 5f;
+            drag = 0.058f;
+            accel = 0.1f;
+            itemCapacity = 45;
+            alwaysUnlocked = true;
+            useUnitCap = false;
+            logicControllable = false;
+            playerControllable = false;
+            allowedInPayloads = false;
+            buildBeamOffset = 10f;
+            createWreck = false;
+            controller = u -> new AssemblerAI();
+            hidden = true;
+            isEnemy = false;
+            killable = false;
         }};
     }
 }

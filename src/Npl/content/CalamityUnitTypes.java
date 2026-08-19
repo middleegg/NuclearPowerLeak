@@ -43,7 +43,7 @@ import Npl.newSth.Type.SegmentWormEntity;
  * <p>WormAI 继承 FlyingAI，重写 updateMovement() 让单位待机时静止，
  * 不像默认 FlyingAI 会自动朝最近 spawn 移动。
  */
-public class CalamityUnitType {
+public class CalamityUnitTypes {
 
     /** 多节单位 UnitType 字段：每个虫子有「头部」和「段身」两个 UnitType */
     public static UnitType

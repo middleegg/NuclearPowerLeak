@@ -19,7 +19,7 @@ import Npl.content.*;
 import Npl.newSth.*;
 
 public class NuStatus{
-    public static OriStatus chaos,paralysis,lack,radiation;
+    public static OriStatus chaos,paralysis,lack,radiation,divineWrath;
     public static void load(){
         chaos = new OriStatus("chaos"){{
             color = NuColor.ChaosColor;
@@ -48,8 +48,8 @@ public class NuStatus{
         }};
         lack = new OriStatus("lack"){{
             color = NuColor.LackColor;
-            injuredMultiplier = 1.5f;
-            armorPercent = -1f;
+            injuredMultiplier = 1.25f;
+            armorPercent = -0.5f;
             show = true;
         }};
         radiation = new OriStatus("radiation"){{
@@ -58,6 +58,16 @@ public class NuStatus{
             healthMultiplier = 0.75f;
             injuredMultiplier = 2f;
             show = true;
+        }};
+        divineWrath = new OriStatus("divineWrath"){{
+            color = NuColor.PaleColor;
+            effect = NuFx.HollyFire;
+            intervalDamage = 20f;
+            intervalDamageTime = 1f;
+            armorPercent = -0.5f;
+            healthMultiplier = 0.75f;
+            injuredMultiplier = 1.4f;
+            transitionDamage = 900f;
         }};
     }
 }

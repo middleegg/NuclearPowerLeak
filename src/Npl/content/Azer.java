@@ -32,7 +32,7 @@ public class Azer {
             accessible = true;            // 可点击进入
             alwaysUnlocked = true;        // 始终解锁（不需要科技树）
             iconColor = Color.valueOf("E2FF6D");  // 星图上的颜色
-
+            defaultCore = NuBlocks.FederalJuniorCore;
             // ===== 地形生成 =====
             // 使用六边形网格（标准行星）
             meshLoader = () -> new HexMesh(this, 6);

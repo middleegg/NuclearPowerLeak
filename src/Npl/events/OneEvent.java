@@ -167,9 +167,11 @@ public class OneEvent {
         /** 对话框宽度（像素） */
         private static final float POPUP_W = 700f;
         /** 对话框高度（像素） */
-        private static final float POPUP_H = 520f;
-        /** 左侧角色图片边长（像素） */
-        private static final float CHAR_SIZE = 180f;
+        private static final float POPUP_H = 600f;
+        /** 左侧角色图片宽度（像素） — 按角色图实际宽高比设定 */
+        private static final float CHAR_W = 200f;
+        /** 左侧角色图片高度（像素） — 按角色图实际宽高比设定 */
+        private static final float CHAR_H = 600f;
 
         // ===== 🎨 背景图接口：你画完图之后只改下面这 1-3 行即可 =====
         //
@@ -327,9 +329,9 @@ public class OneEvent {
         private Table buildBottomWithChoices() {
             Table bottomRow = this.cont.table().growX().get();
 
-            // 左：角色图片（Icon.box 占位，换 sprite 改这里）
+            // 左：角色图片（按角色图实际宽高比显示，不再强制正方形）
             bottomRow.add(buildCharImg())
-                     .size(CHAR_SIZE)
+                     .size(CHAR_W, CHAR_H)
                      .pad(10f).get();
 
             // 右：选项按钮容器
@@ -362,7 +364,7 @@ public class OneEvent {
                     if (onContinue != null) onContinue.run();
                     this.close();          // 关对话框 → 自动恢复游戏
                 }
-            ).size(160f, 50f).pad(10f);
+            ).size(200f, 60f).pad(10f);
         }
 
         // ========================================================================
@@ -424,7 +426,7 @@ public class OneEvent {
         // ========================================================================
         private void buildPage0() {
             // ====== 🎨 本页角色表情：把 PNG 命名为 honor_normal.png 放 assets/sprites/ ======
-            currentCharSprite = "nu-honor";
+            currentCharSprite = "nu-moonLightHad";
             buildHeader(
                 "[white]月华",
                 "你叫什么名字？"
@@ -436,19 +438,19 @@ public class OneEvent {
                 "...",
                 Styles.flatt,
                 () -> showPage(1)                 // ← 跳分支 1，不关
-            ).width(280f).padBottom(8f).row();
+            ).size(380f, 60f).padBottom(10f).row();
 
             choices.button(
                 "(摇头)不知道",
                 Styles.flatt,
                 () -> showPage(2)                 // ← 跳分支 2，不关
-            ).width(280f).padBottom(8f).row();
+            ).size(380f, 60f).padBottom(10f).row();
 
             choices.button(
                 "我忘了",
                 Styles.flatt,
                 () -> showPage(3)                 // ← 跳分支 3，不关
-            ).width(280f).row();
+            ).size(380f, 60f).row();
         }
 
         // ========================================================================
@@ -456,7 +458,7 @@ public class OneEvent {
         // ========================================================================
         private void buildPage1() {
             // ====== 🎨 本页角色表情：把 PNG 命名为 honor_angry.png 放 assets/sprites/ ======
-            currentCharSprite = "nu-honor";
+            currentCharSprite = "nu-moonLightHad";
             buildHeader(
                 "[white]月华",
                 "诶？怎么是个哑巴？"
@@ -479,7 +481,7 @@ public class OneEvent {
         // ========================================================================
         private void buildPage2() {
             // ====== 🎨 本页角色表情：把 PNG 命名为 honor_puzzle.png 放 assets/sprites/ ======
-            currentCharSprite = "nu-honor";
+            currentCharSprite = "nu-moonLightPuzzled";
             buildHeader(
                 "[white]月华",
                 "你，失忆了吗？"
@@ -498,7 +500,7 @@ public class OneEvent {
         // ========================================================================
         private void buildPage3() {
             // ====== 🎨 本页角色表情：把 PNG 命名为 honor_cold.png 放 assets/sprites/ ======
-            currentCharSprite = "nu-honor";
+            currentCharSprite = "nu-moonLightAngry";
             buildHeader(
                 "[white]月华",
                 "……失忆了吗？"

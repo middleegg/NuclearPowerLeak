@@ -56,9 +56,9 @@ public class envBlocks {
     desert,desertWall,yellowStone,yellowStoneWall,brownStone,brownStoneWall,rubberTree,rubberFloor,
     hollyFloor,hollyWall,glossy,darkness,altar,hollyTree,lossLiquid,huiye,harborWater,uranCrystalWall,crystalCune,
     //ores
-    bigIronOre,coalHill,sulfurFragOre,frailPolyesterOre,pumiceMegaOre,
+    bigIronOre,coalHill,sulfurFragOre,frailPolyesterOre,pumiceMegaOre,thalliumOre,prismCrystalOre,
     //WallOres
-    bigIronWores,coalHillOre,sulfurFragWores,frailPolyesterWores,pumiceMegaWores;
+    bigIronWores,coalHillOre,sulfurFragWores,frailPolyesterWores,pumiceMegaWores,thalliumWores,prismCrystalWores;
     public static void load(){
         desert = new Floor("desert"){{
             itemDrop = Items.sand;
@@ -214,7 +214,18 @@ public class envBlocks {
             oreScale = 25.380953f;
             variants = 2;
         }};
-
+        thalliumOre = new OreBlock("thalliumOre",NuItems.thallium){{
+            oreDefault = true;
+            oreThreshold = 0.882f;
+            oreScale = 25.380953f;
+            variants = 2;
+        }};
+        prismCrystalOre = new OreBlock("prismCrystalOre",NuItems.prismCrystal){{
+            oreDefault = true;
+            oreThreshold = 0.864f;
+            oreScale = 24.904762f;
+            variants = 3;
+        }};
         //wallores
 
         bigIronWores = new OreBlock("bigIronWores", NuItems.bigIron){{
@@ -235,6 +246,15 @@ public class envBlocks {
         }};
         pumiceMegaWores = new OreBlock("pumiceMegaWores", NuItems.pumice){{
             wallOre = true;
+            variants = 2;
+        }};
+        thalliumWores = new OreBlock("thalliumWores",NuItems.thallium){{
+            wallOre = true;
+            variants = 2;
+        }};
+        prismCrystalWores = new OreBlock("prismCrystalWores",NuItems.prismCrystal){{
+            wallOre = true;
+            variants = 4;
         }};
     }
 

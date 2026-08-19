@@ -244,3 +244,75 @@ setsails' old weapons
                     }};
                 }};
             }});
+something need catch her
+ weapons.add(new Weapon("endless-hard"){{
+                x = 0f;
+                y = 0f;
+                reload = 660f;
+                mirror = false;
+                rotate = false;
+                top = true;
+                shake = 8f;
+                recoil = -0.5f;
+                range = 560f;
+                shoot = new ShootPattern(){{
+                    shots = 2;
+                    shotDelay = 240f;
+                    firstShotDelay = 120f;
+                }};
+                bullet = new BasicBulletType(5f,2800f){{
+                    width = 48f;
+                    height = 48f;
+                    sprite = "circle-bullet";
+                    pierce = true;
+                    pierceCap = 9;
+                    pierceArmor = true;
+                    lifetime = 115f;
+                    lightColor = trailColor = NuColor.DespColor;
+                    hitColor = NuColor.DespBackColor;
+                    maxRange = 560f;
+                    knockback = -15f;
+                    status = NuStatus.paralysis;
+                    statusDuration = 60f*3;
+                    intervalBullets = 6;
+                    intervalRandomSpread = 360f;
+                    despawnEffect = hitEffect =NuFx.blackHoleCollapse;
+                    despawnShake = hitShake = 8f;
+                    bulletInterval = 5f;
+                    intervalBullet = new LightningBulletType(){{
+                        lifetime = 5f;
+                        damage = 430;
+                        status = StatusEffects.shocked;
+                        statusDuration = 60f*3;
+                        lightningLength = 6;
+                        lightningLengthRand = 2;
+                        lightningColor = NuColor.DespColor;
+                    }};
+                    fragBullets = 1;
+                    fragRandomSpread = 0f;
+                    fragBullet = new BasicBulletType(0f,900f){{
+                       pierce = true;
+                       pierceCap = 90;
+                       pierceArmor = true;
+                       pierceBuilding = true;
+                       width = 10f;
+                       height = 10f;
+                       drawSize = 0f;
+                       lifetime = 200f;
+                       lightColor = trailColor = NuColor.DespColor;
+                       hitColor = NuColor.DespBackColor;
+                       intervalBullets = 24;
+                       intervalRandomSpread = 360f;
+                       bulletInterval = 4f;
+                       intervalBullet = new BasicBulletType(4.5f,120f){{
+                           width = 21f;
+                           height = 21f;
+                           sprite = "circle-bullet";
+                           lightColor = trailColor = NuColor.DespColor;
+                           hitColor = NuColor.DespBackColor;
+                           lifetime = 40f;
+                           despawnEffect = hitEffect = Fx.none;
+                       }};
+                    }};
+                }};
+            }});

@@ -26,51 +26,59 @@ public class SweepBulletType extends BulletType {
 
     /** 扇形总角度（度），如 90 = 以瞄准方向为中心 ±45° 的扇形 */
     public float fieldAngle = 90f;
-
     /** 扫描半径（像素） */
     public float scanRadius = 80f;
-
     /** 扫描领域颜色（描边 + 亮线 + 中心点） */
     public Color scanColor = Color.valueOf("4FC3F7");
-
     /** 扫描领域填充颜色（扇形填充，null = 用 scanColor） */
     public Color fillColor = null;
-
     /** 友方治疗颜色 */
     public Color healColor = Color.valueOf("66BB6A");
-
     /** 命中特效（敌人，每 tick 触发） */
     public Effect hitEffect = NuFx.arcHit;
-
     /** 治疗特效（友方，每 tick 触发） */
     public Effect healEffect = Fx.heal;
-
     /** 友方每 tick 治疗量 */
     public float heal = 0f;
-
+    /** 满血友方单位每 tick（实际每 damageInterval 触发）护盾增加量，0 = 关闭。
+     *  直接累加到 unit.shield；对拥有力场能力（ForceFieldAbility）的单位会形成可吸收子弹的护盾。 */
+    public float shield = 0f;
+    /** 护盾上限比例（相对单位 maxHealth），如 0.5 = 最多 50% 最大血量的护盾 */
+    public float maxShieldRatio = 0.5f;
+    /** 护盾施加特效（满血友方，每次触发） */
+    public Effect shieldEffect = Fx.absorb;
     /** 是否画同心弧网格（雷达圈线） */
     public boolean drawRadarRings = true;
-
     /** 同心弧圈数 */
     public int radarRingCount = 3;
-
     /** 伤害/治疗触发间隔（tick），每隔这么多帧触发一次伤害和治疗。默认 5 */
     public float damageInterval = 5f;
-
     /** 填充透明度（0~1，越大扇形越亮） */
     public float fillAlpha = 0.15f;
-
     /** 呼吸脉冲速度（0 = 关闭脉冲，越大闪得越快） */
     public float pulseSpeed = 0f;
-
     /** 呼吸脉冲幅度（0~1，透明度波动范围） */
     public float pulseMagnitude = 0.1f;
-
     /** 是否自动瞄准受伤友军（true = 扫描场自动转向血量最低的受伤友军） */
     public boolean autoHealTarget = false;
-
     /** 友军血量低于多少比例才被锁定（0~1，0.99 = 只要不满血就锁） */
     public float healThreshold = 0.99f;
+
+    /* =============== PointDefense（对飞弹拦截） =============== */
+    /** 每 damageInterval 内可对 1 颗敌弹造成的削减伤害（HP 扣减），0 = 关闭。
+     *  每颗敌弹在扫描场内被按 damageInterval 频率削减，HP 归零直接消失。*/
+    public float pdDamage = 0f;
+
+    /** 是否也拦截非 absorbable（不可被力场吸收）的子弹（比如 pierce 穿透弹）。
+     *  true = 只要是敌方子弹进入扇形场都削，false = 只削 absorbable。 */
+    public boolean pdKnockoutNonAbsorbable = true;
+
+    /** 是否只拦截飞射朝向与扫描场中心方向"对向"的子弹（接近扫描原点的）。
+     *  开了可以避免把已经飞远的敌弹再浪费次数削掉。*/
+    public boolean pdOnlyClosestFacing = false;
+
+    /** 子弹拦截特效 */
+    public Effect pdHitEffect = Fx.absorb;
 
     /* ===================== 构造 ===================== */
 
@@ -96,7 +104,9 @@ public class SweepBulletType extends BulletType {
     @Override
     public void update(Bullet b) {
         // ———— 跟随发射者：子弹位置同步到 owner 单位 ————
-        if (b.owner instanceof Unit u && !u.dead) {
+        // 注意：炮塔/方块单位（BlockUnitc）的位置不实时更新且本身不移动，跳过同步让子弹留在发射点；
+        //       只有真实单位（武器挂载）才需要跟随其位置移动。
+        if (b.owner instanceof Unit u && !u.dead && !(u instanceof BlockUnitc)) {
             b.set(u.x, u.y);
         }
 
@@ -124,13 +134,15 @@ public class SweepBulletType extends BulletType {
                 // 扫描场转向受伤友军
                 float targetAng = Angles.angle(b.x, b.y, bestTarget[0].x, bestTarget[0].y);
                 b.rotation(targetAng);
-            } else if (b.owner instanceof Unit u && !u.dead) {
+            } else if (b.owner instanceof Unit u && !u.dead && !(u instanceof BlockUnitc)) {
                 // 没有受伤友军时，跟随单位朝向
                 b.rotation(u.rotation());
             }
-        } else if (b.owner instanceof Unit u && !u.dead) {
+            // 否则保持子弹发射角度（炮塔/建筑发射的子弹，瞄准方向即射击方向）
+        } else if (b.owner instanceof Unit u && !u.dead && !(u instanceof BlockUnitc)) {
             b.rotation(u.rotation());   // 非自动治疗模式：跟随单位朝向
         }
+        // 否则保持子弹发射角度（炮塔/建筑发射）
 
         float centerAng = b.rotation();
         float halfAngle = fieldAngle / 2f;
@@ -153,10 +165,21 @@ public class SweepBulletType extends BulletType {
 
                 // 在扇形范围内
                 if (u.team == b.team) {
-                    // 友方：每 tick 治疗
-                    if (heal > 0f) {
-                        u.heal(heal);
-                        healEffect.at(u.x, u.y, unitAng);
+                    if (u.health < u.maxHealth) {
+                        // 受伤友方：治疗
+                        if (heal > 0f) {
+                            u.heal(heal);
+                            healEffect.at(u.x, u.y, unitAng);
+                        }
+                    } else {
+                        // 满血友方单位：缓慢施加护盾（上限 = maxShieldRatio × maxHealth）
+                        if (shield > 0f) {
+                            float maxShield = u.maxHealth * maxShieldRatio;
+                            if (u.shield < maxShield) {
+                                u.shield = Math.min(maxShield, u.shield + shield);
+                                shieldEffect.at(u.x, u.y, unitAng);
+                            }
+                        }
                     }
                 } else {
                     // 敌方：每 tick 伤害
@@ -181,6 +204,47 @@ public class SweepBulletType extends BulletType {
                 hitEffect.at(build.x, build.y, buildAng);
             });
         } catch (NullPointerException ignored) {}
+
+        // ———— PointDefense：扇形场内削减敌方子弹（按 damageInterval 频率）————
+        if (pdDamage > 0f) {
+            final float[] bestD = {Float.MAX_VALUE};
+            final Bullet[] bestB = {null};
+            try {
+                Groups.bullet.intersect(b.x - scanRadius, b.y - scanRadius, scanRadius * 2f, scanRadius * 2f, bl -> {
+                    if (bl == null) return;
+                    if (bl.team == b.team) return;
+                    if (!pdKnockoutNonAbsorbable && !bl.type.absorbable) return;
+
+                    float d = Mathf.dst(b.x, b.y, bl.x, bl.y);
+                    if (d > scanRadius) return;
+
+                    float blAng = Angles.angle(b.x, b.y, bl.x, bl.y);
+                    if (Angles.angleDist(blAng, centerAng) > halfAngle) return;
+
+                    if (pdOnlyClosestFacing) {
+                        // 要求敌弹速度方向朝向扫描原点附近（飞来 → 攻击方方向）
+                        float vlen = bl.vel.len();
+                        if (vlen > 0.001f) {
+                            float incomingAng = Angles.angle(bl.vel.x, bl.vel.y);
+                            // 敌弹"往原点飞"：敌弹方向 ≈ 原点→敌弹角度 的反向 180°
+                            if (Angles.angleDist(incomingAng, blAng + 180f) > 90f) return;
+                        }
+                    }
+
+                    if (d < bestD[0]) {
+                        bestD[0] = d;
+                        bestB[0] = bl;
+                    }
+                });
+            } catch (NullPointerException ignored) {}
+            if (bestB[0] != null) {
+                Bullet target = bestB[0];
+                // 直接削减敌弹自身血量（damage 字段），归零就 absorb
+                target.damage -= pdDamage;
+                pdHitEffect.at(target.x, target.y, 0f);
+                if (target.damage <= 0f) target.absorb();
+            }
+        }
     }
 
     /* ===================== 渲染：固定扇形扫描场 ===================== */

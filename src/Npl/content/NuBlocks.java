@@ -80,14 +80,19 @@ public class NuBlocks {
             //units
             ExperimentalMachineryUnitFactory,ExperimentalUnitReconstructionFactory,MechanicalAssemblyFactory,AirshipAssemblyFactory,
             ShipAssemblyFactory,ParadoxUnitAssemblyFactory,TerminalUnitAssemblyFactory,bigIronUnitConveyor,floatUnitConvryor,
-            floatUnitRouter,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts,
-            ThalliumAssemblyParts,BuildingConstructor,SpecialUnitFactory,PaleUnitFactory,
+            floatUnitRouter,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts, ThalliumAssemblyParts,
+            GodForsakenParts,FatedParts,StandaloneParts,CalamityParts,
+            AssemblyPlantModule,BuildingConstructor,SpecialUnitFactory,PaleUnitFactory,PaleNumberReconstruction,PaleMultiplyReconstruction,
+            PaleExponentReconstruction,PaleImmeasurableReconstruction,
             //logic
-
-            //turret
-            however,
+            //turret,胜天，立地，万诺，焚毁，欢悦，溯源，库兰，核磁，未见，牵引，息壤，灼伤,浊气，牵越，群山，烟霞
+            //熔断，间压，神乾，秽罪，常胜，游龙
+            DefeatGod,StandingGround,Wanuo,Incinerate,Joy,TraceSource,Kurao,MPI,NonSeen,Traction,
+            BreathSoil,BurnInjured,TurbidAir,CrossTractor,Mountains,MistRosy,CircuitBreak,IntermittentPressure,
+            DivineCreation,FilthySin,EverVictorious,SoarDragon,multiTurret,
             //production
-            bigIronDrills,rubberCrusher;
+            bigIronDrill,floatDrill,nuclearDrill,hotMeltDrill,waterSamplingDevice,wallCrusher,
+            rubberCrusher,uranCrystalCrusher,fifthCoagulator;
     public static void load() {
 
         MagnetPurifier = new GenericCrafter("MagentPurifier") {{
@@ -425,7 +430,7 @@ public class NuBlocks {
             researchCostMultiplier = 0.5f;
             outputItem = new ItemStack(NuItems.thallide,3);
             consumePower(12f);
-            consumeItems(ItemStack.with(NuItems.sulFurFrag,6,NuItems.Tcoal,5));
+            consumeItems(ItemStack.with(NuItems.thallium,6,NuItems.sulFurFrag,3));
             craftEffect = new MultiEffect(new RadialEffect(){{
                 amount = 4;
                 rotationSpacing = 90f;
@@ -1696,8 +1701,8 @@ public class NuBlocks {
         ExperimentalMachineryUnitFactory = new UnitFactory("ExperimentalMachineryUnitFactory"){{
             requirements(Category.units, with(NuItems.bigIron,120, NuItems.monoSiliCrystal,120,Items.graphite,80));
             plans = Seq.with(
-                    new UnitPlan(FederalUnitTypes.honor, 60f * 24, with(NuItems.monoSiliCrystal,45,NuItems.frailPolyester,25)),
-                    new UnitPlan(FederalUnitTypes.vile, 60f * 30, with(NuItems.monoSiliCrystal,50,Items.graphite,30)),
+                    new UnitPlan(FederalUnitTypes.honor, 60f * 24, with(NuItems.monoSiliCrystal,45,NuItems.dirtyCoagulum,25)),
+                    new UnitPlan(FederalUnitTypes.vile, 60f * 30, with(NuItems.monoSiliCrystal,50,NuItems.Tcoal,30)),
                     new UnitPlan(FederalUnitTypes.sailor, 60f * 36, with(NuItems.monoSiliCrystal,65))
             );
             size = 3;
@@ -1720,6 +1725,7 @@ public class NuBlocks {
         MechanicalAssemblyFactory = new UnitAssembler("MechanicalAssembly"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
+            droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.vanity, 60f * 50f, PayloadStack.list(FederalUnitTypes.honor,8, energyStorageLargeWall, 10)),
@@ -1733,6 +1739,7 @@ public class NuBlocks {
         AirshipAssemblyFactory = new UnitAssembler("AirshipAssemblyFactory"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
+            droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.loss, 60f * 50f, PayloadStack.list(FederalUnitTypes.vile,8, energyStorageLargeWall, 12)),
@@ -1746,6 +1753,7 @@ public class NuBlocks {
         ShipAssemblyFactory = new UnitAssembler("ShipAssemblyFactory"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
+            droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.wanderer, 60f * 50f, PayloadStack.list(FederalUnitTypes.sailor,8, energyStorageLargeWall, 8)),
@@ -1756,37 +1764,1598 @@ public class NuBlocks {
             consumePower(16f);
             consumeLiquid(NuLiquid.liquidOxygen, 0.2f);
         }};
+        NuclearAssemblyParts = new Wall("NuclearAssemblyParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.uranium,40,NuItems.monoSiliCrystal,100,NuItems.frailPolyester,150));
+            health = 10000;
+            armor = 25;
+        }};
+        AbsurdAssemblyParts = new Wall("AbsurdAssemblyParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.sacredIron,40,NuItems.monoSiliCrystal,100,NuItems.pumice,150));
+            health = 10000;
+            armor = 25;
+        }};
+        ThalliumAssemblyParts = new Wall("ThalliumAssemblyParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.thallide,40,NuItems.monoSiliCrystal,100,Items.graphite,150));
+            health = 10000;
+            armor = 25;
+        }};
+        AssemblyPlantModule = new UnitAssemblerModule("AssemblyPlantModule"){{
+            requirements(Category.units, with(
+                    NuItems.rubber, 300,
+                    NuItems.pumice, 500,
+                    NuItems.magent, 250,
+                    NuItems.monoSiliCrystal, 400));
+            consumePower(6f);
+            regionSuffix = "-dark";
+            researchCostMultiplier = 0.75f;
+            size = 3;
+        }};
         ParadoxUnitAssemblyFactory = new ClickSwitchAssembler("ParadoxUnitAssemblyFactory"){{
             size = 6;
-        health = 10000;
-        areaSize = 20;                 // 装配区（格）
-        droneType = UnitTypes.assemblyDrone;
+        health = 100000;
+        areaSize = 18;                 // 装配区（格）
+        droneType = FederalUnitTypes.humorous;
         dronesCreated = 4;
-        plans.add(new AssemblerUnitPlan(UnitTypes.dagger,
-                                120f, PayloadStack.list(Blocks.copperWallLarge, 4, Blocks.siliconSmelter, 1)));
-         plans.add(new AssemblerUnitPlan(UnitTypes.crawler,
-                                240f, PayloadStack.list(Blocks.copperWallLarge, 8, Blocks.siliconSmelter, 2)));
-         consumePower(5f);
-         requirements(Category.units, with(Items.copper, 400, Items.silicon, 200));
+        plans.add(new AssemblerUnitPlan(FederalUnitTypes.blindLoyalty,
+                                60f*60f*5, PayloadStack.list(FederalUnitTypes.vanity,4,ThalliumAssemblyParts,5)));
+        plans.add(new AssemblerUnitPlan(FederalUnitTypes.cowardTraitor,
+                                60*60f*5, PayloadStack.list(FederalUnitTypes.loss,4,AbsurdAssemblyParts,5)));
+        plans.add(new AssemblerUnitPlan(FederalUnitTypes.captain,
+                    60*60f*5, PayloadStack.list(FederalUnitTypes.wanderer,4,NuclearAssemblyParts,5)));
+         consumePower(40f);
+         consumeLiquid(NuLiquid.prismLiquid,0.4f);
+         requirements(Category.units, with(NuItems.uranium,250,
+                 NuItems.monoSiliCrystal,800,
+                 NuItems.rubber,300,
+                 NuItems.alkSliver,240,
+                 NuItems.thallide,200
+         ));
+        }};
+        TerminalUnitAssemblyFactory = new ClickSwitchAssembler("TerminalUnitAssemblyFactory"){{
+            size = 8;
+            health = 1000000;
+            areaSize = 25;                 // 装配区（格）
+            droneType = FederalUnitTypes.humorous;
+            dronesCreated = 8;
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.safeguardRights,
+                    60f*60f*12, PayloadStack.list(FederalUnitTypes.overPraise,6,ThalliumAssemblyParts,12)));
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.desperate,
+                    60*60f*12, PayloadStack.list(FederalUnitTypes.nonsense,6,AbsurdAssemblyParts,12)));
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.nemo,
+                    60*60f*12, PayloadStack.list(FederalUnitTypes.setsails,6,NuclearAssemblyParts,12)));
+            consumePower(75f);
+            consumeLiquid(NuLiquid.divineTears,0.8f);
+            requirements(Category.units, with(NuItems.uranium,2500,
+                    NuItems.monoSiliCrystal,2000,
+                    NuItems.rubber,1000,
+                    NuItems.alkSliver,1300,
+                    NuItems.thallide,1500,
+                    NuItems.remakeSource,1000,
+                    NuItems.sacredIron,900
+            ));
+        }};
+        bigIronUnitConveyor = new PayloadConveyor("bigIronUnitConveyor"){{
+            requirements(Category.units, with(Items.graphite,45, NuItems.bigIron,25));
+            canOverdrive = true;
+        }};
+        floatUnitConvryor = new PayloadConveyor("floatUnitConvryor"){{
+            requirements(Category.units, with(Items.graphite,90, NuItems.pumice,45));
+            canOverdrive = true;
+            payloadLimit = 6f;
+            size = 5;
+        }};
+        floatUnitRouter = new PayloadRouter("floatUnitRouter"){{
+            requirements(Category.units, with(Items.graphite, 90,NuItems.pumice,45));
+            canOverdrive = true;
+            payloadLimit = 6f;
+            size = 5;
+        }};
+        ParadoxAssemblyModule = new Wall("ParadoxAssemblyModule"){{
+            size = 5;
+            requirements(Category.units, with(NuItems.prismCrystal,300,NuItems.monoSiliCrystal,500,NuItems.rubber,350));
+            health = 50000;
+            armor = 45;
+        }};
+        TerminalAssemblyModule = new Wall("TerminalAssemblyModule"){{
+            size = 5;
+            requirements(Category.units, with(NuItems.remakeSource,450,NuItems.monoSiliCrystal,900,NuItems.sacredIron,560));
+            health = 50000;
+            armor = 45;
+        }};
+        GodForsakenParts = new Wall("GodForsakenParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.remakeSource,40,NuItems.monoSiliCrystal,100,NuItems.magent,150));
+            health = 10000;
+            armor = 25;
+        }};
+        FatedParts = new Wall("FatedParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.remakeSource,40,NuItems.monoSiliCrystal,100,NuItems.prismCrystal,150));
+            health = 10000;
+            armor = 25;
+        }};
+        StandaloneParts = new Wall("StandaloneParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.remakeSource,40,NuItems.monoSiliCrystal,100,NuItems.thallium,150));
+            health = 10000;
+            armor = 25;
+        }};
+        CalamityParts = new Wall("CalamityParts"){{
+            size = 5;
+            requirements(Category.units, with(NuItems.thallide,450,NuItems.monoSiliCrystal,900,NuItems.uranium,300));
+            health = 50000;
+            armor = 45;
+        }};
+        BuildingConstructor = new Constructor("BuildingConstructor"){{
+            requirements(Category.units, with(NuItems.monoSiliCrystal,120, Items.graphite,75,NuItems.pumice,120));
+            regionSuffix = "-dark";
+            hasPower = true;
+            buildSpeed = 1.2f;
+            consumePower(4f);
+            size = 3;
+            filter = Seq.with(
+                    bigIronWall,bigIronLargeWall,energyStorageWall,energyStorageLargeWall,IllusionGate,IllusionLargeGate,
+                    frailPolyesterWall,frailPolyesterLargeWall,magneticPullWall,magneticPullLargeWall,
+                    floatWall,floatLargeWall,rubberWall,rubberLargeWall,alkSliverWall,alkSliverLargeWall,
+                    thallideWall,thallideLargeWall,uraniumWall,uraniumLargeWall,energyShield,Lotus,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts,
+                    ThalliumAssemblyParts,GodForsakenParts,FatedParts,StandaloneParts,CalamityParts
+            );
+        }};
+        SpecialUnitFactory = new ClickSwitchAssembler("SpecialUnitFactory"){{
+            consumePower(15f);
+            consumeLiquid(NuLiquid.strangeLiquid,2f);
+            requirements(Category.units, with(NuItems.alkSliver,50,
+                    NuItems.monoSiliCrystal,200,
+                    NuItems.rubber,100
+            ));
+            size = 7;
+            health = 100000;
+            areaSize = 50;                 // 装配区（格）
+            droneType = FederalUnitTypes.humorous;
+            dronesCreated = 4;
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.hometown,
+                    60f*30f, PayloadStack.list(FederalUnitTypes.honor,10)));
+        }};
+        PaleUnitFactory = new UnitFactory("PaleUnitFactory"){{
+            requirements(Category.units, with(NuItems.prismCrystal,450, NuItems.monoSiliCrystal,240,NuItems.rubber,80));
+            plans = Seq.with(
+                    new UnitPlan(FederalUnitTypes.pale, 60f *36, with(NuItems.monoSiliCrystal,120,NuItems.pumice,75)),
+                    new UnitPlan(FederalUnitTypes.mornLight, 60f *45, with(NuItems.monoSiliCrystal,100,NuItems.prismCrystal,30)),
+                    new UnitPlan(FederalUnitTypes.pureJade, 60f*32, with(NuItems.magent,60,NuItems.monoSiliCrystal,90))
+            );
+            size = 3;
+            consumePower(7f);
+            researchCostMultiplier = 0.5f;
+        }};
+        PaleNumberReconstruction = new Reconstructor("PaleNumberLvReconstruction"){{
+            requirements(Category.units, with(NuItems.pumice, 200, NuItems.prismCrystal, 120, NuItems.monoSiliCrystal, 90));
+            size = 3;
+            consumePower(10f);
+            consumeItems(with(NuItems.monoSiliCrystal,210,Items.graphite,200,NuItems.sacredIron,85));
+            consumeLiquid(NuLiquid.strangeLiquid,0.2f);
+            constructTime = 60f * 54f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.pale, FederalUnitTypes.ripple},
+                    new UnitType[]{FederalUnitTypes.mornLight, FederalUnitTypes.sunsetGlow},
+                    new UnitType[]{FederalUnitTypes.pureJade, FederalUnitTypes.darkMaple}
+            );
+        }};
+        PaleMultiplyReconstruction = new Reconstructor("PaleMultiplyReconstruction"){{
+            requirements(Category.units, with(
+                    NuItems.pumice,450,
+                    NuItems.prismCrystal,350,
+                    NuItems.monoSiliCrystal,560,
+                    NuItems.rubber,350
+            ));
+            size = 5;
+            consumePower(15f);
+            consumeItems(with(NuItems.monoSiliCrystal,450,NuItems.magent,300,NuItems.sacredIron,430));
+            consumeLiquid(NuLiquid.strangeLiquid,0.5f);
+            constructTime = 60f * 60f * 1.5f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.ripple, FederalUnitTypes.greatPath},
+                    new UnitType[]{FederalUnitTypes.sunsetGlow, FederalUnitTypes.dusk},
+                    new UnitType[]{FederalUnitTypes.darkMaple, FederalUnitTypes.brightCrow}
+            );
+        }};
+        PaleExponentReconstruction = new Reconstructor("PaleExponentReconstruction"){{
+            requirements(Category.units, with(
+                    NuItems.sacredIron,700,
+                    NuItems.prismCrystal,600,
+                    NuItems.monoSiliCrystal,1200,
+                    NuItems.rubber,700,
+                    NuItems.thallium,560
+            ));
+            size = 7;
+            consumePower(21f);
+            consumeItems(with(NuItems.monoSiliCrystal,900,NuItems.thallium,650,NuItems.rubber,350));
+            consumeLiquid(NuLiquid.liquidOxygen,0.4f);
+            constructTime = 60f * 60f * 1.5f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.greatPath, FederalUnitTypes.loyalRequest},
+                    new UnitType[]{FederalUnitTypes.dusk, FederalUnitTypes.swallowingDay},
+                    new UnitType[]{FederalUnitTypes.brightCrow, FederalUnitTypes.saint}
+            );
+        }};
+        PaleImmeasurableReconstruction = new ClickSwitchAssembler("PaleImmeasurableReconstruction"){{
+            requirements(Category.units, with(
+                    NuItems.sacredIron,1400,
+                    NuItems.prismCrystal,1000,
+                    NuItems.monoSiliCrystal,2500,
+                    NuItems.rubber,1500,
+                    NuItems.thallide,900,
+                    NuItems.remakeSource,600
+            ));
+            size = 9;
+            areaSize = 20;                 // 装配区（格）
+            droneType = FederalUnitTypes.humorous;
+            dronesCreated = 4;
+            consumePower(27f);
+            consumeLiquid(NuLiquid.divineTears,0.5f);
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.paladin,
+                    60f*60f*12, PayloadStack.list(FederalUnitTypes.greatPath,10,StandaloneParts,12)));
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.moonLight,
+                    60*60f*12, PayloadStack.list(FederalUnitTypes.dusk,10,FatedParts,12)));
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.bloodLotus,
+                    60*60f*12, PayloadStack.list(FederalUnitTypes.brightCrow,10,GodForsakenParts,12,Lotus,10)));
         }};
 
 
-        however = new ItemTurret("however"){{
-            requirements(Category.turret, with(NuItems.bigIron, 35));
+        multiTurret = new MultiPowerTurret("multiTurret"){{
+        requirements(Category.turret, with(
+            NuItems.bigIron, 120,
+            NuItems.monoSiliCrystal, 80,
+            Items.graphite, 60
+                           ));
+        size = 2;
+        health = 2000;
+        range = 160f;
+        reload = 60f;
+        consumePower(6f);
+        // —— 注册多种攻击模式 ——
+        modes = Seq.with(
+                               new Mode("standard", new BasicBulletType(3f, 80f){{
+                lifetime = 60f; width = 8f; height = 16f;
+            }}, NuItems.bigIron),
+            new Mode("laser", new LaserBulletType(){{
+                damage = 200f; length = 200f; lifetime = 24f;
+            }}, Items.graphite),
+            new Mode("heal", new SweepBulletType(0f){{
+                heal = 2f; scanRadius = 120f; fieldAngle = 90f;
+            }}, NuItems.thallide)
+                           );
+    }};
+        DefeatGod = new ItemTurret("DefeatGod"){{
+            size = 1;
+            health = 1000;
+            armor = 12;
+            shake = 2f;
+            reload = 90f;
+            ammoPerShot = 1;
+            maxAmmo = 20;
+            shootCone = 5f;
+            rotateSpeed = 9f;
+            range = 160f;
+            targetGround = true;
+            targetAir =true;
+            requirements(Category.turret,with(NuItems.bigIron,100));
+            shoot = new ShootBarrel(){{
+                barrels = new float[]{
+                        4f, 0f, 0f,
+                        -4f,0f, 0f
+                };
+                shots = 12;
+                shotDelay = 4.5f;
+            }};
             ammo(
-                    NuItems.bigIron,new SpeedDamageBulletType(1.5f, 30){{
-                        damageIncrease = 90f;
+              NuItems.bigIron,new BasicBulletType(5f,76f){{
+                  frontColor = lightColor = trailColor = NuColor.PaleColor;
+                  backColor = hitColor = NuItems.bigIron.color;
+                  lifetime = 32f;
+                  trailLength = 4;
+                  trailWidth = 3f;
+                  width = 18f;
+                  height = 24f;
+                  despawnEffect = hitEffect = new WaveEffect(){{
+                      sizeFrom = 16f; sizeTo = 4f;
+                      strokeFrom = 0.5f; strokeTo = 4f;   // 越收越粗
+                      interp = Interp.reverse;
+                      sides = 3; rotation = 15f;        //
+                      lifetime = 12f;
+                      colorFrom = NuColor.PaleColor;
+                      colorTo = NuItems.bigIron.color;
+                  }};
+                    }},
+             Items.graphite,new BasicBulletType(5f,130f){{
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = hitColor = Items.graphite.color;
+                        lifetime = 32f;
+                        trailLength = 4;
+                        trailWidth = 3f;
+                        width = 18f;
+                        height = 24f;
+                        reloadMultiplier = 1.3f;
+                        despawnEffect = hitEffect = new WaveEffect(){{
+                            sizeFrom = 16f; sizeTo = 4f;
+                            strokeFrom = 0.5f; strokeTo = 4f;   // 越收越粗
+                            interp = Interp.reverse;
+                            sides = 3; rotation = 15f;        //
+                            lifetime = 16f;
+                            colorFrom = Color.white;
+                            colorTo = Items.graphite.color;
+                        }};
+                    }},
+            NuItems.monoSiliCrystal,new BasicBulletType(5f,90f){{
+                        frontColor = lightColor = trailColor = NuItems.monoSiliCrystal.color;
+                        backColor = hitColor = Items.silicon.color;
+                        lifetime = 40f;
+                        trailLength = 6;
+                        trailWidth = 3f;
+                        width = 18f;
+                        height = 24f;
+                        reloadMultiplier = 0.75f;
+                        homingPower = 1.5f;
+                        homingRange = 100f;
+                        rangeChange = 40f;
+                        despawnEffect = hitEffect = new WaveEffect(){{
+                            sizeFrom = 16f; sizeTo = 4f;
+                            strokeFrom = 0.5f; strokeTo = 4f;   // 越收越粗
+                            interp = Interp.reverse;
+                            sides = 3; rotation = 15f;        //
+                            lifetime = 16f;
+                            colorFrom = Items.silicon.color;
+                            colorTo = NuItems.monoSiliCrystal.color;
+                        }};
+                    }},
+                    NuItems.magent,new BasicBulletType(5f,230f){{
+                        frontColor = lightColor = trailColor = NuItems.magent.color;
+                        backColor = hitColor = Color.white;
+                        lifetime = 48f;
+                        trailLength = 12;
+                        trailWidth = 3f;
+                        width = 18f;
+                        height = 24f;
+                        reloadMultiplier = 1.5f;
+                        rangeChange = 80f;
+                        knockback = 0.5f;
+                        despawnEffect = hitEffect = new WaveEffect(){{
+                            sizeFrom = 24f; sizeTo = 8f;
+                            strokeFrom = 1f; strokeTo = 5.5f;   // 越收越粗
+                            interp = Interp.reverse;
+                            sides = 3; rotation = 60f;        //
+                            lifetime = 25f;
+                            colorFrom = Color.white;
+                            colorTo = NuItems.magent.color;
+                        }};
+                        fragBullets = 3;
+                        fragBullet = new ExplosionBulletType(45f,16f){{
+                            killShooter = false;
+                        }};
+                    }}
+            );
+        }};
+        StandingGround = new ItemTurret("StandingGround"){{
+            size = 1;
+            health = 1000;
+            armor = 12;
+            shake = 2.5f;
+            reload = 60f;
+            ammoPerShot = 1;
+            maxAmmo = 15;
+            shootCone = 5f;
+            rotateSpeed = 9f;
+            range = 200f;
+            requirements(Category.turret,with(NuItems.bigIron,150,Items.graphite,50));
+            targetAir = true;
+            targetGround = false;
+            shoot = new ShootPattern(){{
+               shots = 12;
+               shotDelay = 2f;
+            }};
+            ammo(
+                    Items.sand,new FlakBulletType(5f,25f){{
+                        lifetime = 40f;
+                        knockback = 0.25f;
+                        reloadMultiplier = 1.55f;
+                        width = 16f;
+                        height = 24f;
+                        splashDamage = 10f;
+                        splashDamageRadius = 24f;
+                        trailLength = 5;
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = lightColor = Items.sand.color;
+                        despawnEffect = hitEffect = new MultiEffect(new ParticleEffect(){{
+                            line = true;
+                            strokeFrom = 1f; strokeTo = 3.5f;
+                            lenFrom = 3f; lenTo = 16f;
+                            cone = 90f;
+                            colorFrom = Items.sand.color;
+                            colorTo = Color.white;
+                        }},new ParticleEffect(){{
+                            strokeFrom = 1f; strokeTo = 3.5f;
+                            sizeFrom = 2.5f; sizeTo = 6.5f;
+                            interp = Interp.pow5Out;            // 先飞爆冲出去
+                            cone = 360f;                          // 60° 左右散开
+                            length = 40f;
+                            sizeInterp = Interp.slope;           // 到中间再缩回去
+                            particles = 3;
+                            colorFrom = Color.white;
+                            colorTo = Items.sand.color;
+                        }});
+                        trailLength = 5;
+                    }},
+                    NuItems.frailPolyester,new FlakBulletType(5f,48f){{
+                        lifetime = 40f;
+                        knockback = 0.75f;
+                        width = 20f;
+                        height = 28f;
+                        splashDamage = 21f;
+                        splashDamageRadius = 16f;
+                        status = StatusEffects.burning;
+                        statusDuration = 60*5.5f;
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = lightColor = NuItems.frailPolyester.color;
+                        trailLength = 6;
+                        despawnEffect = hitEffect = new MultiEffect(new ParticleEffect(){{
+                            line = true;
+                            strokeFrom = 1f; strokeTo = 3.5f;
+                            lenFrom = 3f; lenTo = 16f;
+                            cone = 90f;
+                            colorFrom = NuItems.frailPolyester.color;
+                            colorTo = NuColor.SurvivalColor;
+                        }},new ParticleEffect(){{
+                            strokeFrom = 1f; strokeTo = 3.5f;
+                            sizeFrom = 2.5f; sizeTo = 6.5f;
+                            interp = Interp.pow5Out;            // 先飞爆冲出去
+                            cone = 360f;                          // 60° 左右散开
+                            length = 40f;
+                            sizeInterp = Interp.slope;           // 到中间再缩回去
+                            particles = 5;
+                            colorFrom = NuItems.frailPolyester.color;
+                            colorTo = NuColor.SurvivalColor;
+                        }});
+                    }},
+                    NuItems.monoSiliCrystal,new FlakBulletType(5f,56f){{
+                        width = 18f;
+                        height = 25f;
+                        lifetime = 40f;
+                        knockback = 1.5f;
+                        reloadMultiplier = 0.75f;
+                        splashDamage = 25f;
+                        splashDamageRadius = 30f;
+                        homingPower = 0.6f;
+                        homingRange = 50f;
+                        frontColor = lightColor = trailColor = Items.silicon.color;
+                        backColor = lightColor = NuItems.monoSiliCrystal.color;
+                        despawnEffect = hitEffect = new MultiEffect(new ParticleEffect(){{
+                            line = true;
+                            strokeFrom = 1f; strokeTo = 3.5f;
+                            lenFrom = 3f; lenTo = 8f;
+                            lifetime = 12f;
+                            cone = 90f;
+                            colorFrom = NuItems.monoSiliCrystal.color;
+                            colorTo = Items.silicon.color;
+                        }}, new ParticleEffect(){{
+                            strokeFrom = 1f; strokeTo = 3.5f;
+                            sizeFrom = 2.5f; sizeTo = 6.5f;
+                            interp = Interp.pow5Out;            // 先飞爆冲出去
+                            cone = 360f;                          // 60° 左右散开
+                            length = 40f;
+                            sizeInterp = Interp.slope;           // 到中间再缩回去
+                            particles = 5;
+                            colorFrom = Items.silicon.color;
+                            colorTo = NuItems.monoSiliCrystal.color;
+                        }});
+                        trailLength = 8;
+                        fragBullets = 2;
+                        fragRandomSpread = 20f;
+                        fragBullet = new FlakBulletType(1f,75f){{
+                            width = 16f;
+                            height = 16f;
+                            lifetime = 1f;
+                            splashDamage = 16f;
+                            splashDamageRadius = 16f;
+                            homingPower = 0.1f;
+                            homingRange = 50f;
+                            frontColor = lightColor = trailColor = Items.silicon.color;
+                            backColor = lightColor = NuItems.monoSiliCrystal.color;
+                            despawnEffect = hitEffect = new WaveEffect(){{
+                                sizeTo = 32f;
+                                strokeFrom = 4f; strokeTo = 1.5f;
+                                interp = Interp.pow2Out;
+                                lightColor = NuColor.PaleColor;
+                                lightInterp = Interp.reverse;   // 开始最亮，随半径扩大熄灭（最符合冲击波）
+                                colorFrom = NuItems.monoSiliCrystal.color;
+                                colorTo = Items.silicon.color;
+                            }};
+                        }};
+                    }}
+            );
+        }};
+        Wanuo = new ItemTurret("Wanuo"){{
+            size = 1;
+            health = 1000;
+            armor = 12;
+            shake = 2.5f;
+            reload = 40f;
+            ammoPerShot = 2;
+            maxAmmo = 30;
+            shootCone = 5f;
+            rotateSpeed = 9f;
+            range = 120f;
+            requirements(Category.turret,with(NuItems.bigIron,150,NuItems.monoSiliCrystal,50));
+            targetAir = false;
+            targetGround = true;
+            shoot = new ShootMulti(
+                   new ShootSpread(8, 2.5f),new ShootPattern(){{
+                       shots = 2;
+                       shotDelay = 15f;
+            }});
+            ammo(
+                    NuItems.bigIron,new BasicBulletType(8f,56f){{
+                        width = 8f;
+                        height = 24f;
+                        lifetime = 15f;
+                        frontColor = lightColor = trailColor = NuColor.PaleColor;
+                        backColor = hitColor = NuItems.bigIron.color;
+                        trailLength = 5;
+                        trailInterval = 3f;
+                        trailEffect = new  ParticleEffect(){{
+                            particles = 2;
+                            sizeFrom = 5f;
+                            sizeTo = 1f;
+                            lifetime = 15f;
+                            colorFrom = NuItems.bigIron.color;
+                            colorTo = NuColor.PaleColor;
+                            sizeInterp = Interp.slope;
+                        }};
+                        despawnEffect = hitEffect = Fx.flakExplosionBig;
+                    }},
+                    Items.graphite,new BasicBulletType(8f,100f){{
+                        width = 8f;
+                        height = 24f;
+                        lifetime = 15f;
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = hitColor = Items.graphite.color;
+                        trailLength = 5;
+                        trailInterval = 3f;
+                        trailEffect = new  ParticleEffect(){{
+                            particles = 6;
+                            sizeFrom = 5f;
+                            sizeTo = 1f;
+                            lifetime = 15f;
+                            colorFrom = Items.graphite.color;
+                            colorTo = NuColor.PaleColor;
+                            sizeInterp = Interp.slope;
+                        }};
+                        despawnEffect = hitEffect = Fx.flakExplosionBig;
+                    }},
+                    NuItems.monoSiliCrystal,new BasicBulletType(8f,78f){{
+                        width = 8f;
+                        height = 24f;
+                        lifetime = 15f;
+                        homingPower = 0.6f;
+                        homingRange = 60f;
+                        homingDelay = 3f;
+                        frontColor = lightColor = trailColor = Items.silicon.color;
+                        backColor = hitColor = NuItems.monoSiliCrystal.color;
+                        trailLength = 5;
+                        trailInterval = 3f;
+                        trailEffect = new  ParticleEffect(){{
+                            particles = 6;
+                            sizeFrom = 5f;
+                            sizeTo = 1f;
+                            lifetime = 15f;
+                            colorFrom = NuItems.monoSiliCrystal.color;
+                            colorTo = NuColor.PaleColor;
+                            sizeInterp = Interp.slope;
+                        }};
+                        despawnEffect = hitEffect = Fx.flakExplosionBig;
+                    }},
+                    NuItems.magent,new BasicBulletType(8f,190f){{
+                        width = 8f;
+                        height = 24f;
+                        lifetime = 15f;
+                        knockback = -1f;
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = hitColor = NuItems.magent.color;
+                        trailLength = 5;
+                        trailInterval = 3f;
+                        trailEffect = new  ParticleEffect(){{
+                            particles = 6;
+                            sizeFrom = 5f;
+                            sizeTo = 1f;
+                            lifetime = 15f;
+                            colorFrom = NuItems.magent.color;
+                            colorTo = NuColor.PaleColor;
+                            sizeInterp = Interp.slope;
+                        }};
+                        despawnEffect = hitEffect = Fx.flakExplosionBig;
+                    }},
+                    NuItems.sulFurFrag,new BasicBulletType(8f,86f){{
+                        width = 8f;
+                        height = 24f;
+                        lifetime = 15f;
+                        reloadMultiplier = 1.2f;
+                        status = StatusEffects.burning;
+                        statusDuration = reload*reloadMultiplier*10f;
+                        frontColor = lightColor = trailColor = Items.sand.color;
+                        backColor = hitColor = NuItems.sulFurFrag.color;
+                        trailLength = 5;
+                        trailInterval = 3f;
+                        trailEffect = new  ParticleEffect(){{
+                            particles = 6;
+                            sizeFrom = 5f;
+                            sizeTo = 1f;
+                            lifetime = 15f;
+                            colorFrom = Items.sand.color;
+                            colorTo = NuItems.sulFurFrag.color;
+                            sizeInterp = Interp.slope;
+                        }};
+                        despawnEffect = hitEffect = Fx.flakExplosionBig;
+                    }}
+            );
+        }};
+        Incinerate = new ItemTurret("Incinerate"){{
+            requirements(Category.turret, with(NuItems.bigIron,50,NuItems.monoSiliCrystal,50,Items.graphite,40));
+            size = 1;
+            health = 1000;
+            armor = 12;
+            shake = 2.5f;
+            reload = 10f;
+            ammoPerShot = 2;
+            maxAmmo = 30;
+            shootCone = 5f;
+            rotateSpeed = 9f;
+            range = 120f;
+            targetAir = false;
+            targetGround = true;
+            ammo(
+              NuItems.Tcoal,new FireBulletType(5f,98f){{
+                  colorFrom = NuItems.Tcoal.color;
+                  colorMid = NuItems.monoSiliCrystal.color;
+                  colorTo = Items.coal.color;
+                  fireTrailChance = 0f;
+                  radius = 5f;velMin=speed-0.5f;velMax =speed+1f;
+                  lifetime = 2f;
+                  drag = 0.01f;
+                  fragBullets = 15;
+                  fragRandomSpread = 5f;
+                  fragBullet = new FireBulletType(5f,35f){{
+                      colorFrom = NuItems.Tcoal.color;
+                      colorMid = NuItems.monoSiliCrystal.color;
+                      colorTo = Items.coal.color;
+                      fireTrailChance = 0.2f;
+                      radius = 5f;velMin = speed-0.5f;velMax = speed+1f;
+                      lifetime = 18f;
+                      drag = 0.01f;
+                      collidesTiles = true;
+                      collides = true;
+                  }};
+                }},
+                    NuItems.sulFurFrag,new FireBulletType(5f,140f){{
+                        colorFrom = NuItems.Tcoal.color;
+                        colorMid = NuItems.monoSiliCrystal.color;
+                        colorTo = Items.coal.color;
+                        radius = 10f;velMin = 4.5f;velMax = 6f;
+                        fireTrailChance = 0f;
+                        lifetime = 5f;
+                        drag = 0.01f;
+                        fragBullets = 15;
+                        fragRandomSpread = 30f;
+                        fragBullet = new FireBulletType(5f,45f){{
+                            colorFrom = NuItems.Tcoal.color;
+                            colorMid = NuItems.monoSiliCrystal.color;
+                            colorTo = Items.coal.color;
+                            fireTrailChance = 0.5f;
+                            radius = 5f;velMin = 4.5f;velMax = 6f;
+                            lifetime = 20f;
+                            drag = 0.01f;
+                            collidesTiles = true;
+                            collides = true;
+                        }};
+                    }},
+                    NuItems.frailPolyester,new FireBulletType(5f,125f){{
+                        colorFrom = NuItems.Tcoal.color;
+                        colorMid = NuItems.monoSiliCrystal.color;
+                        colorTo = Items.coal.color;
+                        fireTrailChance = 0f;
+                        radius = 10f;velMin = 4.5f;velMax = 6f;
+                        lifetime = 5f;
+                        drag = 0f;
+                        reloadMultiplier = 1.5f;
+                        fragBullets = 10;
+                        fragRandomSpread = 20f;
+                        fragBullet = new FireBulletType(5f,50f){{
+                            colorFrom = NuItems.Tcoal.color;
+                            colorMid = NuItems.monoSiliCrystal.color;
+                            colorTo = Items.coal.color;
+                            fireTrailChance = 0.6f;
+                            radius = 5f;velMin = 4.5f;velMax = 6f;
+                            collidesTiles = true;
+                            collides = true;
+                            lifetime = 20f;
+                            drag = 0.01f;
+                        }};
+                    }},
+                    NuItems.rubber,new FireBulletType(5f,350f){{
+                        colorFrom = NuItems.Tcoal.color;
+                        colorMid = NuItems.monoSiliCrystal.color;
+                        colorTo = Items.coal.color;
+                        fireTrailChance = 0f;
+                        radius = 10f;velMin = 4.5f;velMax = 6f;
+                        lifetime = 5f;
+                        drag = 0f;
+                        fragBullets = 25;
+                        reloadMultiplier = 0.6f;
+                        fragRandomSpread = 50f;
+                        fragBullet = new FireBulletType(5f,80f){{
+                            colorFrom = NuItems.Tcoal.color;
+                            colorMid = NuItems.monoSiliCrystal.color;
+                            colorTo = Items.coal.color;
+                            fireTrailChance = 0.9f;
+                            radius = 5f;velMin = 4.5f;velMax = 6f;
+                            lifetime = 22f;
+                            collidesTiles = true;
+                            collides = true;
+                            drag = 0.01f;
+                        }};
+                    }}
+            );
+        }};
+        Joy = new LiquidTurret("Joy"){{
+            requirements(Category.turret, with(NuItems.bigIron,50,NuItems.frailPolyester,80,Items.graphite,10));
+            size = 1;
+            health = 1000;
+            armor = 12;
+            shake = 2.5f;
+            rotateSpeed = 9f;
+            range = 200f;
+            targetAir = true;
+            targetGround = true;
+            shootCone = 50f;
+            liquidCapacity = 10f;
+            shootEffect = Fx.shootLiquid;
+            flags = EnumSet.of(BlockFlag.turret, BlockFlag.extinguisher);
+            reload = 16f;
+            shoot.shotDelay = 1f;
+            shoot.shots = 10;
+            ammo(
+                    Liquids.water,new LiquidBulletType(Liquids.water){{
+                        knockback = 0.7f;
+                        layer = Layer.bullet - 2f;
+                        speed = 5f;
+                        lifetime = 40f;
+                        damage = 1.5f;
+                    }},
+                    NuLiquid.strangeLiquid,new LiquidBulletType(NuLiquid.strangeLiquid){{
+                        layer = Layer.bullet - 2f;
+                        speed = 5f;
+                        lifetime = 40f;
+                        damage = 5f;
+                    }},
+                    NuLiquid.liquidOxygen,new LiquidBulletType(NuLiquid.liquidOxygen){{
+                        layer = Layer.bullet - 2f;
+                        speed = 5f;
+                        lifetime = 40f;
+                        damage = 6f;
+                    }},
+                    NuLiquid.dirtySolution,new LiquidBulletType(NuLiquid.dirtySolution){{
+                        layer = Layer.bullet - 2f;
+                        speed = 5f;
+                        lifetime = 40f;
+                        damage = 12f;
+                    }},
+                    NuLiquid.nuclearFluid,new LiquidBulletType(NuLiquid.nuclearFluid){{
+                        layer = Layer.bullet - 2f;
+                        speed = 5f;
+                        lifetime = 40f;
+                        damage = 15f;
+                        status = NuStatus.radiation;
+                        statusDuration = 60f*speed;
+                    }},
+                    NuLiquid.prismLiquid,new LiquidBulletType(NuLiquid.prismLiquid){{
+                        layer = Layer.bullet - 2f;
+                        speed = 8f;
+                        lifetime = 25f;
+                        damage = 10f;
+                    }},
+                    NuLiquid.divineTears,new LiquidBulletType(NuLiquid.divineTears){{
+                        layer = Layer.bullet - 2f;
+                        speed = 8f;
+                        lifetime = 25f;
+                        damage = 45f;
+                        status = NuStatus.divineWrath;
+                        statusDuration = 60f*speed*4.5f;
+                    }}
+            );
+        }};
+        TraceSource = new ItemTurret("TraceSource"){{
+            requirements(Category.turret, with(NuItems.bigIron,50,NuItems.frailPolyester,80,Items.graphite,10));
+            targetAir = false;
+            size = 2;
+            shoot.shots = 4;
+            inaccuracy = 11f;
+            reload = 40f;
+            ammoEjectBack = 5f;
+            ammoUseEffect = Fx.casing3Double;
+            ammoPerShot = 2;
+            maxAmmo = 40;
+            velocityRnd = 0.2f;
+            scaleLifetimeOffset = 1f / 9f;
+            recoil = 6f;
+            shake = 2f;
+            range = 290f;
+            minRange = 50f;
+            coolant = consumeCoolant(0.3f);
+            health = 2000;
+            depositCooldown = 2.0f;
+            shootSound = Sounds.shootRipple;
+            ammo(
+                    NuItems.monoSiliCrystal,new ArtilleryBulletType(4.5f,120f){{
+                                width = 10f;
+                                height = 13f;
+                                lifetime = 63f;
+                                splashDamage = 56f;
+                                splashDamageRadius = 16f;
+                                drag = 0f;
+                                homingPower = 0.65f;
+                                homingDelay = 5f;
+                                homingRange = 120f;
+                                collidesTiles = true;
+                                collides = true;
+                                collidesAir = false;
+                                scaleLife = true;
+                                lifeScaleRandMax = 1.08f;
+                                lifeScaleRandMin = 0.95f;
+                                frontColor = lightColor = trailColor = NuItems.monoSiliCrystal.color;
+                                backColor = hitColor = Items.silicon.color;
+                                trailLength = 5;
+                                trailInterval = 6f;
+                                trailEffect = new WrapEffect() {{
+                                    effect = Fx.artilleryTrail;
+                                    color = NuItems.monoSiliCrystal.color;
+                                    rotation = 0f;
+                                }};
+                                despawnEffect = hitEffect = new ExplosionEffect() {{
+                                    waveColor = Color.gray;
+                                    sparkColor = Items.silicon.color;
+                                    smokeColor = NuItems.monoSiliCrystal.color;
+                                    waveRad = 12f;       // 改爆炸大小
+                                    waveRadBase = 2f;
+                                    waveLife = 10f;
+                                    smokeRad = 24f;
+                                    smokeSize = 6f;
+                                    sparkRad = 18f;
+                                    sparkStroke = 2f;
+                                    sparkLen = 5f;
+                                    smokes = 7;          // 更浓密
+                                    sparks = 6;
+                                }};
+                    }},
+                    NuItems.graphite,new ArtilleryBulletType(4.5f,135f){{
+                        width = 10f;
+                        height = 13f;
+                        lifetime = 63f;
+                        splashDamage = 100f;
+                        splashDamageRadius = 25f;
+                        drag = 0f;
+                        collidesTiles = true;
+                        collides = true;
+                        collidesAir = false;
+                        scaleLife = true;
+                        lifeScaleRandMax = 1.28f;
+                        lifeScaleRandMin = 1.01f;
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = hitColor = NuItems.graphite.color;
+                        trailLength = 8;
+                        trailInterval = 6f;
+                        trailEffect = new WrapEffect() {{
+                            effect = Fx.artilleryTrail;
+                            color = NuItems.graphite.color;
+                            rotation = 0f;
+                        }};
+                        despawnEffect = hitEffect = new ExplosionEffect() {{
+                            waveColor = Color.gray;
+                            sparkColor = Color.white;
+                            smokeColor = NuItems.graphite.color;
+                            waveRad = 12f;       // 改爆炸大小
+                            waveRadBase = 2f;
+                            waveLife = 10f;
+                            smokeRad = 24f;
+                            smokeSize = 6f;
+                            sparkRad = 18f;
+                            sparkStroke = 2f;
+                            sparkLen = 5f;
+                            smokes = 7;          // 更浓密
+                            sparks = 6;
+                        }};
+                    }},
+                    NuItems.magent,new ArtilleryBulletType(4.5f,260f){{
+                        width = 10f;
+                        height = 13f;
+                        lifetime = 63f;
+                        reloadMultiplier = 1.2f;
+                        splashDamage = 178f;
+                        splashDamageRadius = 10f;
+                        drag = 0f;
+                        collidesTiles = true;
+                        collides = true;
+                        collidesAir = false;
+                        scaleLife = true;
+                        lifeScaleRandMax = 1.28f;
+                        lifeScaleRandMin = 1.01f;
+                        frontColor = lightColor = trailColor = Color.white;
+                        backColor = hitColor = NuItems.magent.color;
+                        trailLength = 8;
+                        trailInterval = 6f;
+                        trailEffect = new WrapEffect() {{
+                            effect = Fx.artilleryTrail;
+                            color = NuItems.magent.color;
+                            rotation = 0f;
+                        }};
+                        despawnEffect = hitEffect = new ExplosionEffect() {{
+                            waveColor = Color.gray;
+                            sparkColor = Color.white;
+                            smokeColor = NuItems.magent.color;
+                            waveRad = 12f;       // 改爆炸大小
+                            waveRadBase = 2f;
+                            waveLife = 10f;
+                            smokeRad = 24f;
+                            smokeSize = 6f;
+                            sparkRad = 18f;
+                            sparkStroke = 2f;
+                            sparkLen = 5f;
+                            smokes = 7;          // 更浓密
+                            sparks = 6;
+                        }};
+                    }},
+                    NuItems.pumice,new ArtilleryBulletType(4.5f,325f){{
+                        width = 10f;
+                        height = 13f;
+                        lifetime = 63f;
+                        reloadMultiplier = 0.75f;
+                        splashDamage = 236f;
+                        splashDamageRadius = 24f;
+                        drag = 0f;
+                        collidesTiles = true;
+                        collides = true;
+                        collidesAir = false;
+                        scaleLife = true;
+                        lifeScaleRandMax = 1.28f;
+                        lifeScaleRandMin = 1.01f;
+                        frontColor = lightColor = trailColor = NuItems.bigIron.color;
+                        backColor = hitColor = NuItems.pumice.color;
+                        trailLength = 8;
+                        trailInterval = 6f;
+                        trailEffect = new WrapEffect() {{
+                            effect = Fx.artilleryTrail;
+                            color = NuItems.pumice.color;
+                            rotation = 0f;
+                        }};
+                        despawnEffect = hitEffect = new ExplosionEffect() {{
+                            waveColor = NuItems.monoSiliCrystal.color;
+                            sparkColor = NuItems.bigIron.color;
+                            smokeColor = NuItems.pumice.color;
+                            waveRad = 18f;       // 改爆炸大小
+                            waveRadBase = 5f;
+                            waveLife = 15f;
+                            smokeRad = 30f;
+                            smokeSize = 12f;
+                            sparkRad = 24f;
+                            sparkStroke = 3f;
+                            sparkLen = 8f;
+                            smokes = 7;          // 更浓密
+                            sparks = 6;
+                        }};
+                    }}
+            );
+        }};
+        Kurao = new PowerTurret("Kurao"){{
+            requirements(Category.turret, with(
+                    NuItems.bigIron,150,
+                    NuItems.monoSiliCrystal,100,
+                    Items.graphite,80,
+                    NuItems.magent,50
+            ));
+            range = 200f;
+            shoot.firstShotDelay = 40f;
+            recoil = 2f;
+            reload = 60f;
+            shake = 2f;
+            shootEffect = new WrapEffect(){{
+                  effect = Fx.lancerLaserShoot;
+                  color = NuColor.SailColor;
+            }};
+            smokeEffect = Fx.none;
+            heatColor = Color.red;
+            size = 2;
+            health = 2000;
+            targetAir = false;
+            moveWhileCharging = false;
+            accurateDelay = false;
+            shootSound = Sounds.shootLancer;
+            coolant = consumeCoolant(0.2f);
+            chargeSound = Sounds.chargeLancer;
+            consumePower(8f);
+            shootType = new LaserBulletType(){{
+                damage = 345f;
+                colors = new Color[]{NuColor.SailColor,NuColor.SailBackColor, Color.white};
+                chargeEffect = new MultiEffect(
+                        new WrapEffect(){{
+                        effect = Fx.lancerLaserCharge;
+                        color = NuColor.SailColor;
+                        rotation = 0f;
+                        }},new WrapEffect(){{
+                        effect = Fx.lancerLaserChargeBegin;
+                        color = NuColor.SailBackColor;
+                        }});
+                buildingDamageMultiplier = 0.6f;
+                armorMultiplier = 5.5f;
+                hitEffect = new WrapEffect(){{
+                    effect = Fx.hitLancer;
+                    color = NuColor.SailColor;
+                }};
+                hitSize = 4;
+                lifetime = 24f;
+                drawSize = 400f;
+                reloadMultiplier = 1.5f;
+                collidesAir = false;
+                length = 210f;
+                pierceCap = 4;
+            }};
+        }};
+        MPI = new PowerTurret("MPI"){{
+            requirements(Category.turret, with(
+                    NuItems.bigIron,150,
+                    NuItems.monoSiliCrystal,100,
+                    Items.graphite,80,
+                    NuItems.magent,50
+            ));
+            range = 160f;
+            recoil = 2f;
+            reload = 120f;
+            shake = 2f;
+            shootEffect = new WrapEffect(){{
+                   effect = Fx.lancerLaserShoot;
+                   color = NuColor.EnergyColor;
+                }};
+            smokeEffect = Fx.none;
+            heatColor = Color.red;
+            size = 2;
+            health = 2000;
+            targetAir = false;
+            moveWhileCharging = false;
+            accurateDelay = false;
+            shootSound = Sounds.shootLancer;
+            coolant = consumeCoolant(0.2f);
+            chargeSound = Sounds.chargeLancer;
+            consumePower(8f);
+            shoot = new ShootAlternate(){{
+                shots = 9;
+                shotDelay =10f;
+                spread = 3f;
+                barrels =3;
+            }};
+            shootType = new SpeedDamageBulletType(2f,80f){{
+                damageIncrease = 1.5f;
+                accel = 0.15f;
+                lifetime = 40f;
+                width = 6f;
+                height = 21f;
+                trailLength = 6;
+                trailWidth = 1.6f;
+                pierce = true;
+                pierceCap = 10;
+                frontColor = lightColor = trailColor = NuColor.EnergyLiColor;
+                backColor = hitColor = NuColor.EnergyBackColor;
+                despawnEffect = hitEffect = new WaveEffect(){{
+                    sizeFrom = 32f; sizeTo = 16f;
+                    strokeFrom = 0.1f; strokeTo = 4.5f;   // 越收越粗
+                    interp = Interp.reverse;
+                    sides = 4; rotation = 45f;        //
+                    lifetime = 25f;
+                    colorFrom = Color.white;
+                    colorTo = NuColor.EnergyColor;
+                }};
+                intervalBullets = 2;
+                bulletInterval = 2f;
+                intervalRandomSpread = 180f;
+                intervalBullet = new LightningBulletType(){{
+                    damage = 24f;
+                    lifetime = 16f;
+                    status = StatusEffects.shocked;
+                    statusDuration = 60f*5f;
+                    lightningLength = 6;
+                    lightningLengthRand =5;
+                    lightningColor = NuColor.EnergyLiColor;
+                }};
+                fragBullets = 3;
+                fragRandomSpread = 0f;
+                fragBullet = new ExplosionBulletType(0f,78f){{
+                    killShooter = false;
+                    despawnEffect = hitEffect = Fx.none;
+                }};
+            }};
+        }};
+        NonSeen = new ItemTurret("NonSeen"){{
+            requirements(Category.turret, with(
+                    NuItems.graphite,150,
+                    NuItems.monoSiliCrystal,150,
+                    NuItems.magent,40));
+            size = 2;
+            health = 2000;
+            armor = 20;
+            shake = 2.8f;
+            reload = 35f;
+            ammoPerShot = 3;
+            maxAmmo = 45;
+            shootCone = 80f;
+            rotateSpeed = 12f;
+            range = 200f;
+            targetAir = true;
+            targetGround = true;
+            ammo(
+                    NuItems.magent,new MissileBulletType(6f,250f){{
+                        width = 10f;
+                        height = 32f;
+                        lifetime =17.5f;
+                        homingPower = 0.5f;
+                        weaveScale = 12f;
+                        frontColor = lightColor = trailColor = NuItems.magent.color;
+                        backColor = hitColor = Color.white;
+                        trailLength = 8;
+                        fragBullets = 20;
+                        fragVelocityMin = 0.8f;
+                        fragVelocityMax = 1.25f;
+                        fragLifeMin = 0.5f;
+                        fragBullet = new BasicBulletType(3f,75f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 28f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                               colorFrom = NuItems.magent.color;
+                               colorTo = Color.white;
+                               sizeFrom = 4f;sizeTo = 2f;
+                               strokeFrom = 1f;strokeTo = 4.5f;
+                               lifetime = 16f;
+                            }};
+                            homingPower = 0.1f;
+                            buildingDamageMultiplier = 0.5f;
+                        }};
+                        bulletInterval = 2f;
+                        intervalRandomSpread = 20f;
+                        intervalBullets = 2;
+                        intervalAngle = 180f;
+                        intervalSpread = 300f;
+                        intervalBullet = new BasicBulletType(3f,75f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 28f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.magent.color;
+                                colorTo = Color.white;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.1f;
+                            buildingDamageMultiplier = 0.5f;
+                        }};
+                        fragBullets = 1;
+                        fragRandomSpread = 0f;
+                        fragBullet = new MissileBulletType(6f,200f){{
+                            width = 10f;
+                            height = 32f;
+                            lifetime =17.5f;
+                            homingPower = 0.5f;
+                            weaveScale = 12f;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailLength = 8;
+                            fragBullets = 20;
+                            fragVelocityMin = 0.8f;
+                            fragVelocityMax = 1.25f;
+                            fragLifeMin = 0.5f;
+                            fragBullet = new BasicBulletType(3f,75f){{
+                                width = 10f;
+                                height = 18f;
+                                lifetime = 28f;
+                                pierce = true;
+                                pierceCap = 6;
+                                pierceBuilding = true;
+                                frontColor = lightColor = trailColor = NuItems.magent.color;
+                                backColor = hitColor = Color.white;
+                                trailWidth = 2.5f;
+                                trailLength = 6;
+                                hitEffect = despawnEffect = new WaveEffect(){{
+                                    colorFrom = NuItems.magent.color;
+                                    colorTo = Color.white;
+                                    sizeFrom = 4f;sizeTo = 2f;
+                                    strokeFrom = 1f;strokeTo = 4.5f;
+                                    lifetime = 16f;
+                                }};
+                                homingPower = 0.1f;
+                                buildingDamageMultiplier = 0.5f;
+                            }};
+                            bulletInterval = 2f;
+                            intervalRandomSpread = 20f;
+                            intervalBullets = 2;
+                            intervalAngle = 180f;
+                            intervalSpread = 300f;
+                            intervalBullet = new BasicBulletType(3f,75){{
+                                width = 10f;
+                                height = 18f;
+                                lifetime = 28f;
+                                pierce = true;
+                                pierceCap = 6;
+                                pierceBuilding = true;
+                                frontColor = lightColor = trailColor = NuItems.magent.color;
+                                backColor = hitColor = Color.white;
+                                trailWidth = 2.5f;
+                                trailLength = 6;
+                                hitEffect = despawnEffect = new WaveEffect(){{
+                                    colorFrom = NuItems.magent.color;
+                                    colorTo = Color.white;
+                                    sizeFrom = 4f;sizeTo = 2f;
+                                    strokeFrom = 1f;strokeTo = 4.5f;
+                                    lifetime = 16f;
+                                }};
+                                homingPower = 0.1f;
+                                buildingDamageMultiplier = 0.5f;
+                            }};
+                        }};
+                    }},
+                    NuItems.monoSiliCrystal,new MissileBulletType(6f,175f){{
+                        width = 10f;
+                        height = 32f;
+                        lifetime =37f;
+                        homingPower = 1f;
+                        weaveScale = 12f;
+                        reloadMultiplier = 0.8f;
+                        frontColor = lightColor = trailColor = NuItems.magent.color;
+                        backColor = hitColor = Color.white;
+                        trailLength = 8;
+                        fragBullets = 20;
+                        fragVelocityMin = 0.8f;
+                        fragVelocityMax = 1.25f;
+                        fragLifeMin = 0.5f;
+                        fragBullet = new BasicBulletType(3f,57.5f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 28f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.magent.color;
+                                colorTo = Color.white;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 1f;
+                            buildingDamageMultiplier = 0.5f;
+                        }};
+                        bulletInterval = 2f;
+                        intervalRandomSpread = 20f;
+                        intervalBullets = 2;
+                        intervalAngle = 180f;
+                        intervalSpread = 300f;
+                        intervalBullet = new BasicBulletType(3f,57.5f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 28f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.magent.color;
+                                colorTo = Color.white;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 1f;
+                            buildingDamageMultiplier = 0.75f;
+                        }};
+                    }},
+                    NuItems.frailPolyester,new MissileBulletType(6f,120f){{
+                        width = 10f;
+                        height = 32f;
+                        lifetime =37f;
+                        homingPower = 0.3f;
+                        weaveScale = 12f;
+                        frontColor = lightColor = trailColor = NuItems.magent.color;
+                        backColor = hitColor = Color.white;
+                        trailLength = 8;
+                        fragBullets = 20;
+                        fragVelocityMin = 0.8f;
+                        fragVelocityMax = 1.25f;
+                        fragLifeMin = 0.5f;
+                        status = StatusEffects.burning;
+                        statusDuration = 60f*5.5f;
+                        fragBullet = new BasicBulletType(3f,40f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 28f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.magent.color;
+                                colorTo = Color.white;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.45f;
+                            buildingDamageMultiplier = 0.6f;
+                        }};
+                        bulletInterval = 2f;
+                        intervalRandomSpread = 20f;
+                        intervalBullets = 2;
+                        intervalAngle = 180f;
+                        intervalSpread = 300f;
+                        intervalBullet = new BasicBulletType(3f,40f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 28f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.magent.color;
+                            backColor = hitColor = Color.white;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.magent.color;
+                                colorTo = Color.white;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.45f;
+                            buildingDamageMultiplier = 0.6f;
+                        }};
+                    }}
+            );
+        }};
+        Traction = new TractorBeamTurret("Traction"){{
+            requirements(Category.turret, with(
+                    NuItems.bigIron,250,
+                    NuItems.monoSiliCrystal,250,
+                    NuItems.pumice,40,
+                    NuItems.magent,100));
+            size = 2;
+            health = 2000;
+            armor = 20;
+            shootCone = 360f;
+            rotateSpeed = 40f;
+            scaledForce = 9f;
+            damage = 2f;
+            force = 20f;
+            range = 300f;
+            hasPower = true;
+            targetAir = true;
+            targetGround = true;
+            consumePower(10f);
+        }};
+        BreathSoil = new ShadeConTurret("BreathSoil"){{
+       // —— 基础属性 ——
+       requirements(Category.turret, with(
+               NuItems.bigIron, 500,
+               NuItems.monoSiliCrystal, 360,
+               Items.graphite, 360,
+               NuItems.magent,80
+                              ));
+       size = 2;
+       health = 1800;
+       range = 140f;            // 射程 = 扫描半径（init() 会自动把 scanRadius 抬到 ≥ range）
+       reload = 30f;            // 每发扫描脉冲的间隔（tick）
+       shake = 0f;
+       recoil = 0f;
+       shootSound = Sounds.none;
+       consumePower(15f);        // 耗电
+       // —— 自定义扫描子弹参数（覆盖默认）——
+       shootType = new SweepBulletType(100f){{
+           heal = 10f;                    // 受伤友方每次触发治疗量
+           shield = 4f;                // 满血友方每次触发护盾增加量
+           maxShieldRatio = 2f;        // 护盾上限 = 60% 最大血量
+           scanRadius = 240f;            // 扫描半径（一般 ≥ 炮塔 range）
+           fieldAngle = 60f;            // 扇形角度
+           damageInterval = 5f;          // 伤害/治疗/护盾触发间隔（tick）
+           lifetime = 12f;               // 单发扫描脉冲持续时长（tick）
+           scanColor = NuColor.EnergyColor;
+           healColor  = NuColor.EnergyLiColor;
+           healThreshold = 0.75f;
+           pdDamage = 25f;
+           autoHealTarget = true;
+       }};
+       // —— 可选：关闭对满血友方的护盾瞄准（只治疗受伤友方 + 攻击敌方）——
+            targetShielding = true;
+        }};
+        BurnInjured = new ContinuousLiquidTurret("BurnInjured"){{
+            requirements(Category.turret, with(
+                    NuItems.bigIron,250,
+                    NuItems.frailPolyester,180,
+                    Items.graphite,150,
+                    NuItems.pumice,90
+            ));
+            size = 2;
+            health = 2000;
+            armor = 20;
+            shake = 0f;
+            rotateSpeed = 6f;
+            range = 160f;reload = 5f;
+            targetAir = true;
+            targetGround = true;
+            shootCone = 50f;
+            liquidCapacity = 250f;
+            liquidConsumed = 0.2f;
+            cooldownTime = 100f;
+            shootWarmupSpeed = 0.75f;
+            researchCostMultiplier = 1.2f;
+            inaccuracy =5f;
+            velocityRnd = 0.15f;
+            ammo(
+                    NuLiquid.strangeLiquid,new ContinuousFlameBulletType(350f){{
+                        collides = collidesTiles = collidesAir = true;
+                        pierceArmor = pierce = true;
+                        length = 180f;width = 2.4f;
+                        continuous = true;
+                        flareColor = NuLiquid.strangeLiquid.color;
+                        colors = new Color[]{NuColor.HonorColor,NuLiquid.strangeLiquid.color,
+                                NuColor.HonorBackColor,NuColor.PaleColor,Color.white.cpy()};
+                        drawFlare = true;pierceCap = 6;damageInterval = 12f;
+                        buildingDamageMultiplier = 0.8f; timescaleDamage = true;
+                    }},
+                    NuLiquid.liquidOxygen,new ContinuousFlameBulletType(500f){{
+                        collides = collidesTiles = collidesAir = true;
+                        pierceArmor = pierce = true;
+                        length = 210f;width = 2.4f;
+                        continuous = true;
+                        flareColor = NuLiquid.liquidOxygen.color;
+                        colors = new Color[]{NuColor.EnergyColor,NuLiquid.liquidOxygen.color,
+                                NuColor.EnergyBackColor,NuColor.PaleColor,Color.white.cpy()};
+                        drawFlare = true;pierceCap = 10;damageInterval = 10f;
+                        buildingDamageMultiplier = 0.9f;
+                        rangeChange = 40f; timescaleDamage = true;
+                    }},
+                    NuLiquid.nuclearFluid,new ContinuousFlameBulletType(85f){{
+                        collides = collidesTiles = collidesAir = true;
+                        pierceArmor = pierce = true;
+                        length = 140f;width = 2.4f;
+                        continuous = true;
+                        flareColor = NuLiquid.nuclearFluid.color;
+                        colors = new Color[]{NuColor.SailColor,NuLiquid.nuclearFluid.color,
+                                NuColor.SailBackColor,NuColor.PaleColor,Color.white.cpy()};
+                        drawFlare = true;pierceCap = 3;damageInterval = 15f;
+                        buildingDamageMultiplier = 0.9f;
+                        rangeChange = -20f; timescaleDamage = true;
+                        status = NuStatus.radiation;
+                        statusDuration = 60f*6;
+                    }},
+                    NuLiquid.dirtySolution,new ContinuousFlameBulletType(54f){{
+                        collides = collidesTiles = collidesAir = true;
+                        pierceArmor = pierce = true;
+                        length = 160f;width = 2.4f;
+                        continuous = true;
+                        flareColor = NuLiquid.dirtySolution.color;
+                        colors = new Color[]{NuColor.HonorColor,NuLiquid.dirtySolution.color,
+                                NuColor.HonorBackColor,NuColor.PaleColor,Color.white.cpy()};
+                        drawFlare = true;pierceCap = 6;damageInterval = 15f;
+                        buildingDamageMultiplier = 0.9f; timescaleDamage = true;
+                    }},
+                    NuLiquid.divineTears,new ContinuousFlameBulletType(600f){{
+                        collides = collidesTiles = collidesAir = true;
+                        pierceArmor = pierce = true;
+                        length = 245f;width = 2.4f;
+                        continuous = true;
+                        flareColor = NuLiquid.liquidOxygen.color;
+                        colors = new Color[]{NuColor.EnergyColor,NuLiquid.liquidOxygen.color,
+                                NuColor.EnergyBackColor,NuColor.PaleColor,Color.white.cpy()};
+                        drawFlare = true;pierceCap = 12;damageInterval = 6f;
+                        buildingDamageMultiplier = 0.9f;
+                        rangeChange = 80f; timescaleDamage = true;
+                        status = NuStatus.divineWrath;statusDuration = 60f*10;
+                    }},
+                    NuLiquid.prismLiquid,new ContinuousFlameBulletType(360f){{
+                        collides = collidesTiles = collidesAir = true;
+                        pierceArmor = pierce = true;
+                        length = 285f;width = 2.4f;
+                        continuous = true;
+                        flareColor = NuLiquid.liquidOxygen.color;
+                        colors = new Color[]{NuColor.EnergyColor,NuLiquid.liquidOxygen.color,
+                                NuColor.EnergyBackColor,NuColor.PaleColor,Color.white.cpy()};
+                        drawFlare = true;pierceCap = 12;damageInterval = 12f;
+                        buildingDamageMultiplier = 0.9f;
+                        rangeChange = 120f; timescaleDamage = true;
+                        status = NuStatus.pulse;statusDuration = 60f*10;
+                    }}
+            );
+        }};
+        TurbidAir = new ContinuousTurret("TurbidAir"){{
+            requirements(Category.turret, with(
+                    NuItems.pumice,250,
+                    NuItems.magent,180,
+                    Items.graphite,150,
+                    NuItems.rubber,90
+            ));
+            size = 3;
+            health = 3000;
+            armor = 28;
+            shake = 0f;
+            rotateSpeed = 10f;
+            range = 240f;targetAir = targetGround = true;
+            unitSort = UnitSorts.strongest;
+            consumeLiquid(NuLiquid.strangeLiquid, 0.15f);
+            consumePower(18f);
+            shootCone = 360f;
+            liquidCapacity = 400f;
+            cooldownTime = 100f;
+            shootWarmupSpeed = 0.08f;
+            aimChangeSpeed = 0.9f;
+            rotateSpeed = 0.9f;
+            researchCostMultiplier = 1.25f;
+            inaccuracy =5f;
+            velocityRnd = 0.15f;
+            shootType = new PointLaserBulletType(){{
+                damage = 600f;
+                buildingDamageMultiplier = 0.9f;
+                hitColor = NuColor.SailBackColor;
+                color = NuColor.SailColor;
+            }};
+        }};
+        CrossTractor = new ItemTurret("CrossTractor"){{
+            requirements(Category.turret, with(NuItems.bigIron,500,NuItems.monoSiliCrystal,350,NuItems.alkSliver,100,NuItems.pumice,250));
+            ammo(
+                    NuItems.magent,new SpeedDamageBulletType(3.2f, 50f){{
+                        damageIncrease = 50f;
                         width = 20f;
                         height = 20f;
-                        lifetime = 120f;
+                        lifetime = 80f;
                         ammoMultiplier = 2;
                         hitEffect = despawnEffect = Fx.hitBulletColor;
                         hitColor = backColor = trailColor = Pal.copperAmmoBack;
                         frontColor = Pal.copperAmmoFront;
                     }}
             );
-            shoot = new ShootAlternate(3.5f);
-            recoils = 2;
+            shoot = new ShootAlternate(){{
+                shots = 6;
+                shotDelay = 7.5f;
+                spread = 5f;
+                barrels =3;
+            }};
             drawer = new DrawTurret(){{
                 for(int i = 0; i < 2; i ++){
                     int f = i;
@@ -1799,36 +3368,988 @@ public class NuBlocks {
                 }
             }};
             shootSound = Sounds.shootDuo;
-            recoil = 0.5f;
+            recoil = 2.5f;
             shootY = 3f;
-            reload = 20f;
-            range = 160;
+            reload = 75f;
+            range = 320f;
             shootCone = 15f;
             ammoUseEffect = Fx.casing1;
-            health = 250;
-            inaccuracy = 2f;
-            rotateSpeed = 10f;
-            coolant = consumeCoolant(0.1f);
-            coolantMultiplier = 10f;
-            researchCostMultiplier = 0.05f;
-            depositCooldown = 2.0f;
-            limitRange(5f);
-        }};
-
-
-        rubberCrusher = new WallCrafter("rubberCrusher"){{
-            requirements(Category.production, with(Items.graphite, 25));
-            consumePower(11 / 60f);
-            drillTime = 110f;
+            health = 3000;
             size = 3;
-            attribute = NuAttribute.oriRubber;
-            output = NuItems.oriRubber;
-            fogRadius = 2;
-            researchCost = with( Items.graphite, 40);
-            ambientSound = Sounds.loopDrill;
-            ambientSoundVolume = 0.04f;
+            ammoPerShot = 5;
+            maxAmmo = 50;
+            inaccuracy = 2f;
+            rotateSpeed = 5f;
+            coolant = consumeCoolant(0.25f);
+            coolantMultiplier = 4f;
+            researchCostMultiplier = 1.5f;
+            depositCooldown = 2.0f;
         }};
-        bigIronDrills = new Drill("bigIronDrills"){{
+        Mountains = new ItemTurret("Mountains"){{
+            size = 3;
+            health = 3000;
+            armor = 28;
+            shake = 2f;
+            reload = 150f;
+            ammoPerShot =3;
+            maxAmmo = 60;
+            shootCone = 20f;
+            rotateSpeed = 9f;
+            range = 320f;
+            targetGround = true;
+            targetAir =true;
+            shootY = 4f;
+            requirements(Category.turret,with(
+                    NuItems.alkSliver,250,
+                    NuItems.magent,125,
+                    NuItems.pumice,350,
+                    NuItems.prismCrystal,200
+            ));
+            shoot = new ShootBarrel(){{
+                barrels = new float[]{
+                        6f, 0f, 0f,
+                        0f, 0f ,0f,
+                        -6f,0f, 0f
+                };
+                shots = 12;
+                shotDelay = 8f;
+            }};
+            ammo(
+                    NuItems.bigIron,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.HolyWhite;
+                    }},
+                    NuItems.magent,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.HolyDay;
+                    }},
+                    NuItems.alkSliver,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.HolyVoid;
+                    }},
+                    NuItems.uranium,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.HolyCore;
+                    }},
+                    NuItems.thallide,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.HolyProclamation;
+                    }},
+                    NuItems.pumice,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.HolyFloat;
+                    }}
+            );
+        }};
+        MistRosy = new ItemTurret("MistRosy"){{
+            coolantMultiplier = 1.5f;
+            liquidCapacity = 600f;
+            coolant = consumeCoolant(0.2f);
+            depositCooldown = 2.0f;
+            size = 3;
+            health = 3000;
+            armor = 28;
+            shake = 2f;
+            reload = 60f;
+            ammoPerShot =3;
+            maxAmmo = 60;
+            shootCone = 45f;
+            rotateSpeed = 9f;
+            range = 160f;
+            targetGround = true;
+            targetAir =true;
+            shootY = 4f;
+            inaccuracy = 5f;
+            velocityRnd = 0.12f;
+            requirements(Category.turret,with(
+                    NuItems.alkSliver,250,
+                    NuItems.magent,125,
+                    NuItems.pumice,350,
+                    NuItems.prismCrystal,200
+            ));
+            shoot = new ShootSpread(45,1f);
+            ammo(
+                    NuItems.bigIron,new BasicBulletType(6.5f,42f){{
+                        width = 5f;
+                        height = 15f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        lifetime = 25f;
+                        knockback = 0.1f;
+                        reloadMultiplier = 1.25f;
+                        trailLength = 10;
+                        trailWidth = 1.6f;
+                        frontColor = lightColor =trailColor =Color.white;
+                        backColor = hitColor = NuItems.bigIron.color;
+                    }},
+                    NuItems.monoSiliCrystal,new BasicBulletType(6.5f,57f){{
+                        width = 5f;
+                        height = 15f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        lifetime = 25f;
+                        knockback = 0.1f;
+                        reloadMultiplier = 0.85f;
+                        trailLength = 10;
+                        trailWidth = 1.6f;
+                        homingPower = 0.75f;
+                        homingRange = 50f;
+                        frontColor = lightColor =trailColor =Items.silicon.color;
+                        backColor = hitColor = NuItems.monoSiliCrystal.color;
+                    }},
+                    NuItems.magent,new BasicBulletType(6.5f,90f){{
+                        width = 5f;
+                        height = 15f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        lifetime = 25f;
+                        knockback = 0.1f;
+                        trailLength = 10;
+                        trailWidth = 1.6f;
+                        frontColor = lightColor =trailColor =NuItems.magent.color;
+                        backColor = hitColor = Color.white;
+                    }},
+                    NuItems.sulFurFrag,new BasicBulletType(6.5f,65f){{
+                        width = 5f;
+                        height = 15f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        lifetime = 25f;
+                        knockback = 0.1f;
+                        reloadMultiplier = 0.9f;
+                        status = StatusEffects.burning;
+                        statusDuration = 60f*4.5f;
+                        trailLength = 10;
+                        trailWidth = 1.6f;
+                        frontColor = lightColor =trailColor =Items.sand.color;
+                        backColor = hitColor = NuItems.sulFurFrag.color;
+                    }},
+                    NuItems.pumice,new BasicBulletType(6.5f,110f){{
+                        width = 5f;
+                        height = 15f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        lifetime = 25f;
+                        knockback = 0.1f;
+                        reloadMultiplier = 0.9f;
+                        status = StatusEffects.freezing;
+                        statusDuration = 60f*4.5f;
+                        trailLength = 10;
+                        trailWidth = 1.6f;
+                        frontColor = lightColor =trailColor =Color.white;
+                        backColor = hitColor = NuItems.pumice.color;
+                    }},
+                    NuItems.sacredIron,new BasicBulletType(6.5f,190f){{
+                        width = 5f;
+                        height = 15f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        lifetime = 25f;
+                        knockback = 0.1f;
+                        reloadMultiplier = 0.9f;
+                        status = NuStatus.enrich;
+                        statusDuration = 60f*4.5f;
+                        trailLength = 10;
+                        trailWidth = 1.6f;
+                        frontColor = lightColor =trailColor =NuColor.EnergyColor;
+                        backColor = hitColor = NuItems.sacredIron.color;
+                    }}
+            );
+        }};
+        CircuitBreak = new LaserTurret("CircuitBreak"){{
+            requirements(Category.turret,with(
+                    NuItems.pumice,560,
+                    NuItems.magent,260,
+                    NuItems.monoSiliCrystal,500,
+                    NuItems.alkSliver,70
+            ));
+           size = 3;
+           shootEffect = Fx.shootBigSmoke2;shootCone = 40f;
+           health = 3000;
+           range = 240f;
+           reload = 200f;
+           targetGround = true;
+           targetAir = true;
+           liquidCapacity = 800f;
+           recoil = 2.65f;
+           shoot.shotDelay = 180f;
+           inaccuracy = 0f;
+           recoilTime = 50f;
+           shake = 5f;
+           rotateSpeed = 10f;
+           coolEffect = Fx.steam;
+           minWarmup = 0.86f;
+           shootDuration = 240f;
+           shootSound = Sounds.shootMeltdown;
+           loopSound = Sounds.beamMeltdown;
+           loopSoundVolume = 2f;
+           liquidCapacity = 60f;
+           coolant = consumeCoolant(0.5f);
+           consumePower(18f);
+           shootType = new ContinuousLaserBulletType(300f){{
+                damageInterval = 10f;
+                length = 245f;
+                buildingDamageMultiplier = 0.75f;
+                width = 2.5f;
+                pierceArmor = true;
+                knockback = 0.85f;
+                timescaleDamage = true;
+                colors = new Color[]{NuColor.SailColor,NuColor.SailConColor,NuColor.SailBackColor,Color.white};
+                shootEffect = Fx.shootBigSmoke2;
+                strokeFrom = 5.5f;strokeTo = 0.75f;pointyScaling = 1.5f;
+                shootCone = 40f;
+                intervalBullets = 4;
+                bulletInterval = 10f;
+                intervalRandomSpread = 30f;
+                intervalBullet = new BulletType(0f,0f){{
+                   instantDisappear = true;
+                   fragBullets = 2;
+                   fragRandomSpread = 10f;
+                   fragBullet = new LaserBulletType(70f){{
+                       length = 180f;
+                       colors = new Color[]{NuColor.SailColor,NuColor.SailBackColor,Color.white};
+                       width = 7f;sideAngle = 45f; sideLength =32f;sideWidth = 3f;
+                       pierce = true;pierceCap = 3;
+                       fragBullets = 2;fragRandomSpread = 0f;
+                       fragBullet = new LightningBulletType(){{
+                          damage = 28f;lightningLength =22;lightningLengthRand = 10;
+                          lightningColor = NuColor.SailColor;
+                          status = NuStatus.radiation;
+                          statusDuration = 60f*6f;
+                       }};
+                   }};
+                }};
+            }};
+        }};
+        IntermittentPressure = new PowerTurret("IntermittentPressure"){{
+            requirements(Category.turret, with(
+                    NuItems.pumice,850,
+                    NuItems.monoSiliCrystal,950,
+                    NuItems.rubber,450,
+                    Items.graphite,800,
+                    NuItems.thallide,450
+            ));
+            range = 400f;
+            recoil = 2f;
+            reload = 20f;
+            shake = 2f;
+            shootEffect = new WrapEffect(){{
+                effect = Fx.lancerLaserShoot;
+                color = NuColor.CoreColor;
+            }};
+            smokeEffect = Fx.none;
+            heatColor = Color.red;
+            size = 4;
+            health = 4000;
+            targetAir = true;
+            shootSound = Sounds.shootLancer;
+            coolant = consumeCoolant(0.5f);
+            consumePower(20f);
+            unitSort = UnitSorts.strongest;
+            velocityRnd = 0.15f;
+            warmupMaintainTime = 120f;
+            minWarmup = 0.96f;
+            shootWarmupSpeed = 0.08f;
+            shootType =new FlakBulletType(5f,750f){{
+                    collides = collidesAir = collidesGround = collidesTiles = true;
+                    lifetime = 65f;
+                    width = 8f;
+                    drag = 0f;
+                    height = 18f;
+                    frontColor = lightColor = trailColor = Color.white;
+                    backColor = hitColor = NuColor.CoreColor;
+                    despawnEffect = hitEffect = new WaveEffect(){{
+                        sizeFrom = 40f; sizeTo = 4f;
+                        strokeFrom = 1f; strokeTo = 7.5f;   // 越收越粗
+                        interp = Interp.reverse;
+                        sides = 6; rotation = 60f;        //
+                        lifetime = 24f;
+                        colorFrom = NuColor.PaleColor;
+                        colorTo = NuColor.CoreColor;
+                    }};
+                    trailLength = 18;
+                    trailWidth = 4.2f;
+                    trailInterval = 3f;
+                    trailEffect = new WaveEffect(){{
+                        sizeFrom = 32f; sizeTo = 8f;
+                        strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
+                        interp = Interp.reverse;
+                        sides = 4; rotation = 30f;        //
+                        lifetime = 20f;
+                        colorFrom = NuColor.EnergyColor;
+                        colorTo = NuColor.EnergyBackColor;
+                    }};
+                    trailEffect = NuFx.sniperGlowTail;
+                    fragBullets = 10;
+                    fragRandomSpread = 90f;
+                    fragBullet = new LaserBulletType(75f){{
+                        length = 95f;
+                        width = 1f;
+                        colors = new Color[]{NuColor.DespColor, NuColor.BombColor, NuColor.BombBackColor, NuColor.DespBackColor};
+                        hitEffect = Fx.hitLancer;
+                        sideAngle = 175f;
+                        sideWidth = 1f;
+                        sideLength = 40f;
+                        lifetime = 22f;
+                        pierceCap = 2;
+                        optimalLifeFract = 1f;
+                        status = NuStatus.pulse;
+                        statusDuration = 60f * 2f;
+                    }};
+            }};
+        }};
+        DivineCreation = new ItemTurret("DivineCreation"){{
+            coolantMultiplier = 1.5f;
+            liquidCapacity = 600f;
+            coolant = consumeCoolant(0.2f);
+            consumePower(20f);
+            depositCooldown = 2.0f;
+            size = 4;
+            health = 4000;
+            armor = 28;
+            shake = 2f;
+            reload = 330f;
+            ammoPerShot =3;
+            maxAmmo = 60;
+            shootCone = 45f;
+            rotateSpeed = 9f;
+            range = 480f;
+            targetGround = true;
+            targetAir =true;
+            shootY = 4f;
+            inaccuracy = 5f;
+            velocityRnd = 0.12f;
+            requirements(Category.turret,with(
+                    NuItems.alkSliver,600,
+                    NuItems.uranium,350,
+                    NuItems.pumice,650,
+                    NuItems.prismCrystal,1000,
+                    NuItems.remakeSource,150
+            ));
+            shoot = new ShootPattern(){{
+                shots = 2;
+                shotDelay = 110f;
+            }};
+            ammo(
+                    NuItems.bottledMagenticStorm,new BasicBulletType(4.5f,800f){{
+                        lifetime = 89f;
+                        frontColor = lightColor = trailColor = NuColor.EnergyColor;
+                        backColor = hitColor = NuColor.EnergyBackColor;
+                        trailWidth = 3f;
+                        trailLength = 15;
+                        width = 24f;
+                        height = 32f;
+                        trailInterval = 3f;
+                        trailEffect = new MultiEffect(new ParticleEffect(){{
+                            line = true;
+                            strokeFrom = 0.5f; strokeTo = 7f;
+                            lenFrom = 6f; lenTo = 32f;
+                            cone = 180f;
+                            colorFrom = NuColor.EnergyColor;
+                            colorTo = Color.white;
+                        }},new WaveEffect(){{
+                            interp = Interp.circleOut;
+                            lifetime = 20f;sizeFrom = 4f;sizeTo=24f;strokeFrom=4f;strokeTo=0.5f;
+                            colorFrom=NuColor.EnergyColor;colorTo=NuColor.EnergyBackColor;
+                        }});
+                        pierce = true; pierceCap = 10;
+                        fragBullets = 1;fragRandomSpread = 0f;
+                        fragBullet = new BasicBulletType(0f,800f){{
+                            pierce = true; pierceCap = 100;
+                            width = 24f;
+                            height = 32f;
+                            frontColor = lightColor = trailColor = NuColor.EnergyColor;
+                            backColor = hitColor = NuColor.EnergyBackColor;
+                            lifetime = 100f;
+                            intervalBullets = 6;
+                            intervalRandomSpread = 360f;
+                            bulletInterval = 2f;
+                            intervalBullet = new MultiBulletType(new BasicBulletType(5f,80f){{
+                                lifetime = 16f;
+                                width = 8f;
+                                height = 21f;
+                                frontColor = lightColor = trailColor = NuColor.EnergyColor;
+                                backColor = hitColor = NuColor.EnergyBackColor;
+                                trailLength = 15;trailWidth = 8f;
+                                despawnEffect = hitEffect = new WaveEffect(){{
+                                    sizeFrom = 32f; sizeTo = 8f;
+                                    strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
+                                    interp = Interp.reverse;
+                                    sides = 8; rotation = 30f;        //
+                                    lifetime = 20f;
+                                    colorFrom = NuColor.EnergyColor;
+                                    colorTo = NuColor.EnergyBackColor;
+                                }};
+                            }},new LightningBulletType(){{
+                                damage = 65f;
+                                lifetime = 45f;
+                                status = StatusEffects.shocked;
+                                lightningLength = 50;
+                                lightningLengthRand = 4;
+                                lightningColor = NuColor.EnergyColor;
+                            }},new LightningBulletType(){{
+                                damage = 65f;
+                                lifetime = 45f;
+                                status = StatusEffects.shocked;
+                                lightningLength = 20;
+                                lightningLengthRand = 4;
+                                lightningColor = NuColor.EnergyColor;
+                            }});
+                        }};
+                    }},
+                    NuItems.thallide,new BasicBulletType(4.5f,700f){{
+                        lifetime = 89f;
+                        frontColor = lightColor = trailColor = NuColor.HonorColor;
+                        backColor = hitColor = NuColor.HonorBackColor;
+                        trailWidth = 3f;
+                        trailLength = 15;
+                        width = 24f;
+                        height = 32f;
+                        trailInterval = 3f;
+                        trailEffect = new MultiEffect(new ParticleEffect(){{
+                            line = true;
+                            strokeFrom = 0.5f; strokeTo = 7f;
+                            lenFrom = 6f; lenTo = 32f;
+                            cone = 180f;
+                            colorFrom = NuColor.HonorColor;
+                            colorTo = Color.white;
+                        }},new WaveEffect(){{
+                            interp = Interp.circleOut;
+                            lifetime = 20f;sizeFrom = 4f;sizeTo=24f;strokeFrom=4f;strokeTo=0.5f;
+                            colorFrom=NuColor.HonorColor;colorTo=NuColor.HonorBackColor;
+                        }});
+                        pierce = true; pierceCap = 10;
+                        fragBullets = 1;fragRandomSpread = 0f;
+                        fragBullet = new BasicBulletType(0f,800f){{
+                            pierce = true; pierceCap = 100;
+                            width = 24f;
+                            height = 32f;
+                            frontColor = lightColor = trailColor = NuColor.HonorColor;
+                            backColor = hitColor = NuColor.HonorBackColor;
+                            lifetime = 80f;
+                            intervalBullets = 6;
+                            intervalRandomSpread = 360f;
+                            bulletInterval = 2f;
+                            intervalBullet = new BasicBulletType(5f,80f){{
+                                lifetime = 24f;
+                                width = 8f;
+                                height = 21f;
+                                frontColor = lightColor = trailColor = NuColor.HonorColor;
+                                backColor = hitColor = NuColor.HonorBackColor;
+                                trailLength = 15;trailWidth = 8f;
+                                despawnEffect = hitEffect = new WaveEffect(){{
+                                    sizeFrom = 32f; sizeTo = 8f;
+                                    strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
+                                    interp = Interp.reverse;
+                                    sides = 8; rotation = 30f;        //
+                                    lifetime = 20f;
+                                    colorFrom = NuColor.HonorColor;
+                                    colorTo = NuColor.HonorBackColor;
+                                }};
+                            }};
+                        }};
+                    }},
+                    NuItems.uranium,new BasicBulletType(4.5f,1000f){{
+                        lifetime = 89f;
+                        frontColor = lightColor = trailColor = NuColor.SailColor;
+                        backColor = hitColor = NuColor.SailBackColor;
+                        trailWidth = 3f;
+                        trailLength = 15;
+                        width = 24f;
+                        height = 32f;
+                        trailInterval = 3f;
+                        status = NuStatus.radiation;statusDuration = 60f*10f;
+                        trailEffect = new MultiEffect(new ParticleEffect(){{
+                            line = true;
+                            strokeFrom = 0.5f; strokeTo = 7f;
+                            lenFrom = 6f; lenTo = 32f;
+                            cone = 180f;
+                            colorFrom = NuColor.SailColor;
+                            colorTo = Color.white;
+                        }},new WaveEffect(){{
+                            interp = Interp.circleOut;
+                            lifetime = 20f;sizeFrom = 4f;sizeTo=24f;strokeFrom=4f;strokeTo=0.5f;
+                            colorFrom=NuColor.SailColor;colorTo=NuColor.SailBackColor;
+                        }});
+                        pierce = true; pierceCap = 10;
+                        fragBullets = 1;fragRandomSpread = 0f;
+                        fragBullet = new BasicBulletType(0f,1000f){{
+                            pierce = true; pierceCap = 100;
+                            width = 24f;
+                            height = 32f;
+                            status = NuStatus.radiation;statusDuration = 60f*10f;
+                            frontColor = lightColor = trailColor = NuColor.SailColor;
+                            backColor = hitColor = NuColor.SailBackColor;
+                            lifetime = 80f;
+                            intervalBullets = 6;
+                            intervalRandomSpread = 360f;
+                            bulletInterval = 2f;
+                            intervalBullet = new BasicBulletType(5f,100f){{
+                                lifetime = 24f;
+                                width = 8f;
+                                height = 21f;
+                                frontColor = lightColor = trailColor = NuColor.SailColor;
+                                backColor = hitColor = NuColor.SailBackColor;
+                                trailLength = 15;trailWidth = 8f;
+                                status = NuStatus.radiation;statusDuration = 60f*10f;
+                                despawnEffect = hitEffect = new WaveEffect(){{
+                                    sizeFrom = 32f; sizeTo = 8f;
+                                    strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
+                                    interp = Interp.reverse;
+                                    sides = 8; rotation = 30f;        //
+                                    lifetime = 20f;
+                                    colorFrom = NuColor.SailColor;
+                                    colorTo = NuColor.SailBackColor;
+                                }};
+                            }};
+                        }};
+                    }},
+                    NuItems.pyratite,new BasicBulletType(4.5f,450f){
+                        {
+                            lifetime = 89f;
+                            frontColor = lightColor = trailColor = NuItems.sand.color;
+                            backColor = hitColor = NuItems.pyratite.color;
+                            trailWidth = 3f;
+                            trailLength = 15;
+                            width = 24f;
+                            height = 32f;
+                            status = StatusEffects.burning;
+                            statusDuration = 60f * 10f;
+                            trailInterval = 3f;
+                            trailEffect = new MultiEffect(new ParticleEffect() {{
+                                line = true;
+                                strokeFrom = 0.5f;
+                                strokeTo = 7f;
+                                lenFrom = 6f;
+                                lenTo = 32f;
+                                cone = 180f;
+                                colorFrom = NuItems.pyratite.color;
+                                colorTo = Color.white;
+                            }}, new WaveEffect() {{
+                                interp = Interp.circleOut;
+                                lifetime = 20f;
+                                sizeFrom = 4f;
+                                sizeTo = 24f;
+                                strokeFrom = 4f;
+                                strokeTo = 0.5f;
+                                colorFrom = NuItems.pyratite.color;
+                                colorTo = NuItems.sand.color;
+                            }});
+                            pierce = true;
+                            pierceCap = 10;
+                            fragBullets = 1;
+                            fragRandomSpread = 0f;
+                            fragBullet = new BasicBulletType(0f, 450f) {{
+                                pierce = true;
+                                pierceCap = 100;
+                                width = 24f;
+                                height = 32f;
+                                frontColor = lightColor = trailColor = NuItems.sand.color;
+                                backColor = hitColor = NuItems.pyratite.color;
+                                lifetime = 80f;
+                                intervalBullets = 6;
+                                status = StatusEffects.burning;
+                                statusDuration = 60f * 10f;
+                                intervalRandomSpread = 360f;
+                                bulletInterval = 2f;
+                                intervalBullet = new MultiBulletType(new BasicBulletType(5f, 32f) {{
+                                    lifetime = 24f;
+                                    width = 8f;
+                                    height = 21f;
+                                    status = StatusEffects.burning;
+                                    statusDuration = 60f * 10f;
+                                    frontColor = lightColor = trailColor = NuItems.sand.color;
+                                    backColor = hitColor = NuItems.pyratite.color;
+                                    trailLength = 15;
+                                    trailWidth = 8f;
+                                    despawnEffect = hitEffect = new WaveEffect() {{
+                                        sizeFrom = 32f;
+                                        sizeTo = 8f;
+                                        strokeFrom = 1f;
+                                        strokeTo = 6f;   // 越收越粗
+                                        interp = Interp.reverse;
+                                        sides = 8;
+                                        rotation = 30f;        //
+                                        lifetime = 20f;
+                                        colorFrom = NuItems.pyratite.color;
+                                        colorTo = NuItems.sand.color;
+                                    }};
+                                }}, new FireBulletType(5f, 98f) {
+                                    {
+                                        colorFrom = NuItems.Tcoal.color;
+                                        colorMid = NuItems.monoSiliCrystal.color;
+                                        colorTo = Items.coal.color;
+                                        fireTrailChance = 0f;
+                                        radius = 5f;
+                                        velMin = speed - 0.5f;
+                                        velMax = speed + 1f;
+                                        lifetime = 2f;
+                                        drag = 0.01f;
+                                        fragBullets = 15;
+                                        fragRandomSpread = 5f;
+                                        fragBullet = new FireBulletType(5f, 35f) {{
+                                            colorFrom = NuItems.Tcoal.color;
+                                            colorMid = NuItems.monoSiliCrystal.color;
+                                            colorTo = Items.coal.color;
+                                            fireTrailChance = 0.2f;
+                                            radius = 5f;
+                                            velMin = speed - 0.5f;
+                                            velMax = speed + 1f;
+                                            lifetime = 18f;
+                                            drag = 0.01f;
+                                            collidesTiles = true;
+                                            collides = true;
+                                        }};
+                                    }
+                                });
+                            }};
+                        }},
+                            NuItems.remakeSource,new BasicBulletType(4.5f,1200f){{
+                            lifetime = 89f;
+                            frontColor = lightColor = trailColor = NuColor.PaleColor;
+                            backColor = hitColor = NuItems.remakeSource.color;
+                            trailWidth = 3f;
+                            trailLength = 15;
+                            width = 24f;
+                            height = 32f;
+                            status = NuStatus.enrich;
+                            statusDuration = 60f*3f;
+                            trailInterval = 3f;
+                            trailEffect = new MultiEffect(new ParticleEffect(){{
+                                line = true;
+                                strokeFrom = 0.5f; strokeTo = 7f;
+                                lenFrom = 6f; lenTo = 32f;
+                                cone = 180f;
+                                colorFrom = NuItems.remakeSource.color;
+                                colorTo = Color.white;
+                            }},new WaveEffect(){{
+                                interp = Interp.circleOut;
+                                lifetime = 20f;sizeFrom = 4f;sizeTo=24f;strokeFrom=4f;strokeTo=0.5f;
+                                colorFrom=NuColor.PaleColor;colorTo=NuItems.remakeSource.color;
+                            }});
+                            pierce = true; pierceCap = 10;
+                            fragBullets = 1;fragRandomSpread = 0f;
+                            fragBullet = new BasicBulletType(0f,1200f){{
+                                pierce = true; pierceCap = 100;
+                                width = 24f;
+                                height = 32f;
+                                frontColor = lightColor = trailColor =NuColor.PaleColor;
+                                backColor = hitColor =NuItems.remakeSource.color;
+                                lifetime = 80f;
+                                intervalBullets = 6;
+                                intervalRandomSpread = 360f;
+                                bulletInterval = 2f;
+                                intervalBullet = new MultiBulletType(new BasicBulletType(5f,120f){{
+                                    lifetime = 24f;
+                                    width = 8f;
+                                    height = 21f;
+                                    frontColor = lightColor = trailColor =NuColor.PaleColor;
+                                    backColor = hitColor = NuItems.remakeSource.color;
+                                    trailLength = 15;trailWidth = 8f;
+                                    despawnEffect = hitEffect = new WaveEffect(){{
+                                        sizeFrom = 32f; sizeTo = 8f;
+                                        strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
+                                        interp = Interp.reverse;
+                                        sides = 8; rotation = 30f;        //
+                                        lifetime = 20f;
+                                        colorFrom =NuColor.PaleColor;
+                                        colorTo = NuItems.remakeSource.color;
+                                    }};
+                                }},new LaserBulletType(65f){{
+                                    colors = new Color[]{NuColor.PaleColor,NuItems.remakeSource.color,Color.white};
+                                    length = 145f;width = 3f; sideLength = 32f;sideWidth = 1.5f;
+                                    hitSize = 16;lifetime = 20f;
+                                    impact = true; collides = true;pierce = true;pierceCap=12;
+                                }});
+                            }};
+                        }}
+            );
+        }};
+        FilthySin = new ItemTurret("FilthySin"){{
+            coolantMultiplier = 0.65f;
+            liquidCapacity = 600f;
+            coolant = consumeCoolant(0.2f);
+            consumePower(25f);
+            depositCooldown = 2.0f;
+            size = 4;
+            health = 4000;
+            armor = 28;
+            shake = 2f;
+            reload = 330f;
+            ammoPerShot =5;
+            maxAmmo = 50;
+            shootCone = 10f;
+            rotateSpeed = 9f;
+            range = 800f;
+            targetGround = true;
+            targetAir =true;
+            shootY = 4f;
+            inaccuracy = 5f;
+            velocityRnd = 0.12f;
+            requirements(Category.turret,with(
+                    NuItems.alkSliver,600,
+                    NuItems.uranium,600,
+                    NuItems.pumice,650,
+                    NuItems.sacredIron,350,
+                    NuItems.prismCrystal,1000,
+                    NuItems.remakeSource,250
+            ));
+            ammo(
+                    NuItems.thallide, new PointBulletType(){{
+                        lifetime = 600f;
+                        damage = 1000f;
+                        speed = 3f;
+                        shootEffect = NuFx.HonorInstShoot;
+                        smokeEffect = Fx.smokeCloud;
+                        hitEffect = new MultiEffect(NuFx.HonorInstHit,
+                                new ExplosionEffect(){{
+                                    waveColor    = NuColor.HonorColor;
+                                    smokeColor   = NuColor.PaleColor;
+                                    sparkColor   = NuColor.HonorBackColor;
+                                    waveLife     = 8f;
+                                    waveStroke   = 3f;
+                                    waveRad      = 128f;
+                                    waveRadBase  = 0f;
+                                    sparkStroke  = 3f;
+                                    sparkRad     = 128f;
+                                    sparkLen     = 14f;
+                                    smokeSize    = 32f;
+                                    smokeSizeBase= 1f;
+                                    smokeRad     = 160f;
+                                    smokes       = 26;
+                                    sparks       = 24;
+                                    lifetime     = 180f;
+                                }}
+                        );
+                        hitSound = Sounds.explosion;
+                        despawnSound = Sounds.explosion;
+                        despawnEffect = new MultiEffect(NuFx.HonorInstBomb,
+                                new ExplosionEffect(){{
+                                    waveColor    = NuColor.HonorColor;
+                                    smokeColor   = NuColor.PaleColor;
+                                    sparkColor   = NuColor.HonorBackColor;
+                                    waveLife     = 8f;
+                                    waveStroke   = 3f;
+                                    waveRad      = 128f;
+                                    waveRadBase  = 0f;
+                                    sparkStroke  = 3f;
+                                    sparkRad     = 128f;
+                                    sparkLen     = 14f;
+                                    smokeSize    = 32f;
+                                    smokeSizeBase= 1f;
+                                    smokeRad     = 160f;
+                                    smokes       = 26;
+                                    sparks       = 24;
+                                    lifetime     = 180f;
+                                }}
+                        );
+                        trailEffect = new MultiEffect(NuFx.HonorInstTrail,
+                                new ParticleEffect(){{
+                                    particles    = 1;
+                                    length       = 20f;
+                                    interp       = Interp.circleOut;
+                                    sizeInterp   = Interp.circleIn;
+                                    colorFrom    = NuColor.HonorColor.a(0.53f);
+                                    colorTo      = NuColor.HonorColor;
+                                    sizeFrom     = 4f;
+                                    sizeTo       = 0f;
+                                    lifetime     = 60f;
+                                    layer        = 100f;
+                                }}
+                        );
+                        trailInterval = 20f;
+                        buildingDamageMultiplier = 0.5f;
+                        status = NuStatus.paralysis;
+                        statusDuration = 600f;
+                        splashDamage = 2500f;
+                        scaledSplashDamage = true;
+                        splashDamageRadius = 80f;
+                        hitShake = 10f;
+                        despawnHit = false;
+                        makeFire = true;
+                        fragBullets = 2;fragRandomSpread = 0f;
+                        fragBullet = new ExplosionBulletType(600f,80f){{
+                            killShooter = false;
+                            despawnEffect = Fx.none;
+                        }};
+                    }},
+                    NuItems.uranium, new RailBulletType(){{
+                        lifetime = 600f;
+                        damage = 5800f;
+                        speed = 3f;
+                        shootEffect = NuFx.SailInstShoot;
+                        hitEffect = NuFx.SailInstHit;
+                        pierceEffect = Fx.railHit;
+                        smokeEffect = Fx.smokeCloud;
+                        pointEffect = NuFx.SailInstTrail;
+                        despawnEffect = NuFx.SailExplosion;
+                        hitSound = Sounds.explosion;
+                        despawnSound = Sounds.explosion;
+                        buildingDamageMultiplier = 0.6f;
+                        status = NuStatus.radiation;
+                        statusDuration = 150f;
+                        scaledSplashDamage = true;
+                        hitShake = 10f;
+                        length = 880f;
+                        rangeChange = 80f;
+                        despawnHit = false;
+                        makeFire = true;
+                    }},
+                    NuItems.bottledMagenticStorm, new RailBulletType(){{
+                        lifetime = 600f;
+                        damage = 4500f;
+                        speed = 3f;
+                        shootEffect = NuFx.EnergyInstShoot;
+                        hitEffect = NuFx.EnergyInstHit;
+                        pierceEffect = Fx.railHit;
+                        smokeEffect = Fx.smokeCloud;
+                        pointEffect = NuFx.EnergyInstTrail;
+                        despawnEffect = NuFx.EnergyExplosion;
+                        hitSound = Sounds.explosion;
+                        despawnSound = Sounds.explosion;
+                        length = 800f;
+                        buildingDamageMultiplier = 0.8f;
+                        status = NuStatus.paralysis;
+                        statusDuration = 600f;
+                        splashDamage = 3280f;
+                        scaledSplashDamage = true;
+                        splashDamageRadius = 128f;
+                        hitShake = 10f;
+                        despawnHit = false;
+                        makeFire = true;
+                        fragBullets = 9;fragRandomSpread = 360f;
+                        fragBullet = new BasicBulletType(6f,80f){{
+                           width = 20f;height = 20f;sprite = "circle-bullet";
+                           lifetime = 5f;
+                           frontColor=lightColor=hitColor= NuColor.EnergyColor;
+                           backColor=hitColor=NuColor.EnergyBackColor;
+                           fragBullets = 1;fragRandomSpread = 0f;
+                           fragBullet = new BasicBulletType(0f,80f){{
+                               width = 20f;height = 20f;sprite = "circle-bullet";
+                               lifetime = 120f;pierce = true;pierceCap = 100;
+                               frontColor=lightColor=hitColor= NuColor.EnergyColor;
+                               backColor=hitColor=NuColor.EnergyBackColor;
+                               intervalBullets = 6;intervalRandomSpread=360f;
+                               bulletInterval = 2f;intervalBullet = new LightningBulletType(){{
+                                   damage = 65f;
+                                   lifetime = 20f;
+                                   status = StatusEffects.shocked;statusDuration=60f*lifetime;
+                                   lightningLength = 10;
+                                   lightningLengthRand = 2;
+                                   lightningColor = NuColor.EnergyColor;
+                               }};
+                           }};
+                        }};
+                    }}
+            );
+        }};
+        EverVictorious = new ItemTurret("EverVictorious"){{
+            consumeLiquid(NuLiquid.strangeLiquid,0.5f);
+            size = 4;
+            health = 4000;
+            armor = 28;
+            shake = 2f;
+            reload = 400f;
+            ammoPerShot =5;
+            maxAmmo = 50;
+            shootCone = 10f;
+            rotateSpeed = 9f;
+            range = 800f;
+            targetGround = true;
+            targetAir =true;
+            shootY = 4f;
+            inaccuracy = 5f;
+            velocityRnd = 0.12f;
+            shoot = new ShootPattern(){{
+               shots = 2;
+               shotDelay = 150f;
+            }};
+            requirements(Category.turret,with(
+                    NuItems.alkSliver,750,
+                    NuItems.thallide,600,
+                    NuItems.pumice,650,
+                    NuItems.sacredIron,350,
+                    NuItems.prismCrystal,1000
+            ));
+            ammo(
+                    NuItems.thallide,new BulletType(0f,0f){{
+                            shootEffect = Fx.shootBig;
+                            smokeEffect = Fx.shootSmokeMissileColor;
+                            hitColor = Pal.redLight;
+                            ammoMultiplier = 1f;
+                            spawnUnit = FederalUnitTypes.smokeLeaf;
+                        }},
+                    NuItems.uranium,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.greyLeaf;
+                    }},
+                    NuItems.sacredIron,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.despLeaf;
+                        rangeChange =-32f;
+                        reloadMultiplier = 0.75f;
+                    }},
+                    NuItems.remakeSource,new BulletType(0f,0f){{
+                        shootEffect = Fx.shootBig;
+                        smokeEffect = Fx.shootSmokeMissileColor;
+                        hitColor = Pal.redLight;
+                        ammoMultiplier = 1f;
+                        spawnUnit = FederalUnitTypes.despLeaf;
+                        rangeChange =56f;
+                        reloadMultiplier = 1.5f;
+                    }}
+            );
+        }};
+        SoarDragon = new ItemTurret("SoarDragon"){{
+            size = 5;
+            health = 5000;
+            armor = 45;
+            shake = 2f;
+            reload = 90f;
+            ammoPerShot =5;
+            maxAmmo = 75;
+            shootCone = 10f;
+            rotateSpeed = 9f;
+            range = 800f;
+            targetGround = true;
+            targetAir =true;
+            shootY = 4f;
+            inaccuracy = 5f;
+            velocityRnd = 0.12f;
+        }};
+
+
+        bigIronDrill = new Drill("bigIronDrill"){{
             requirements(Category.production, with(NuItems.bigIron, 10));
             drillTime = 240f;
             size = 2;
@@ -1836,6 +4357,56 @@ public class NuBlocks {
             tier = 4;
             hardnessDrillMultiplier = 200f;
             itemCapacity = 20;
+            hasItems = hasLiquids = true;
+            consumeLiquid(Liquids.water, 1/60f).boost();
+            liquidBoostIntensity = 1.45f;
+            drillEffect = new WaveEffect(){{
+                sizeFrom = 0f;
+                sizeTo = 20f;
+                strokeFrom = 2f;
+                strokeTo = 0.2f;
+                colorFrom = NuColor.PaleColor;
+                colorTo = NuColor.PaleConColor;
+                lifetime = 30f;
+            }};
+        }};
+        floatDrill = new BurstDrill("floatDrill"){{
+            requirements(Category.production, with(
+                    NuItems.pumice,50,
+                    NuItems.bigIron,200,
+                    NuItems.monoSiliCrystal,60,
+                    Items.graphite,45
+            ));
+            drillTime = 60f * 3f;
+            size = 3;
+            hasPower = true;
+            tier = 4;
+            health = 1500;
+            drillEffect = new MultiEffect(Fx.mineImpact, Fx.drillSteam, Fx.mineImpactWave.wrap(Pal.redLight, 40f));
+            shake = 4f;
+            itemCapacity = 40;
+            blockedItem = NuItems.prismCrystal;
+            researchCostMultiplier = 1f;
+            drillMultipliers.put(NuItems.rubberFrag, 2f);
+            liquidBoostIntensity = 1.75f;
+            fogRadius = 10;
+            consumePower(5f);
+            consumeLiquid(NuLiquid.strangeLiquid, 1/60f).boost();
+            liquidBoostIntensity = 2.36f;
+        }};
+        nuclearDrill = new Drill("nuclearDrill"){{
+            requirements(Category.production, with(
+                    NuItems.pumice, 120,
+                    NuItems.magent,80,
+                    NuItems.uranium,10,
+                    NuItems.monoSiliCrystal,90
+            ));
+            drillTime = 80f;
+            size = 4;
+            health = 2000;
+            tier = 6;
+            hardnessDrillMultiplier = 1f;
+            itemCapacity = 100;
             hasItems = hasLiquids = true;
             drillEffect = new WaveEffect(){{
                 sizeFrom = 0f;
@@ -1846,6 +4417,113 @@ public class NuBlocks {
                 colorTo = NuColor.PaleConColor;
                 lifetime = 30f;
             }};
+            consumePower(16f);
+            consumeLiquid(NuLiquid.liquidOxygen, 1/60f).boost();
+            liquidBoostIntensity = 3.6f;
+        }};
+        hotMeltDrill = new BeamDrill("hotMeltDrill"){{
+            requirements(Category.production, with(
+                    Items.graphite, 40,
+                    NuItems.monoSiliCrystal,25,
+                    NuItems.pumice,50
+            ));
+            consumePower(0.5f);
+            drillTime = 100f;
+            tier = 4;
+            size = 2;
+            range = 7;
+            fogRadius = 8;
+            consumeLiquid(NuLiquid.strangeLiquid, 0.05f / 60f).boost();
+        }};
+        waterSamplingDevice = new SolidPump("waterSamplingDevice"){{
+            requirements(Category.production, with(
+                    NuItems.frailPolyester,30,
+                    Items.graphite, 30,
+                    NuItems.bigIron,45
+            ));
+            result = Liquids.water;
+            pumpAmount = 11/60f;
+            size = 1;
+            liquidCapacity = 100f;
+            rotateSpeed = 2f;
+            attribute = Attribute.water;
+            envRequired |= Env.groundWater;
+            consumePower(1.25f);
+        }};
+        wallCrusher = new WallCrafter("wallCrusher"){{
+            requirements(Category.production, with(
+                    Items.graphite,65,
+                    NuItems.monoSiliCrystal,100,
+                    NuItems.bigIron,75
+            ));
+            consumePower(3/60f);
+            drillTime = 60f;
+            size = 2;
+            attribute = Attribute.sand;
+            output = NuItems.sand;
+            fogRadius = 3;
+            ambientSound = Sounds.loopDrill;
+            ambientSoundVolume = 0.04f;
+        }};
+        rubberCrusher = new WallCrafter("rubberCrusher"){{
+            requirements(Category.production, with(
+                    NuItems.pumice,90,
+                    NuItems.monoSiliCrystal,135,
+                    NuItems.magent,90,
+                    Items.graphite,60
+            ));
+            consumePower(45/60f);
+            drillTime = 210f;
+            size = 3;
+            attribute = NuAttribute.oriRubber;
+            output = NuItems.oriRubber;
+            fogRadius = 6;
+            ambientSound = Sounds.loopDrill;
+            ambientSoundVolume = 0.04f;
+        }};
+        uranCrystalCrusher = new WallCrafter("uranCrystalCrusher"){{
+            requirements(Category.production, with(
+                    NuItems.pumice,80,
+                    NuItems.frailPolyester,100,
+                    NuItems.monoSiliCrystal,150,
+                    NuItems.rubber,60
+            ));
+            consumePower(1f);
+            drillTime = 180f;
+            size = 3;
+            attribute = NuAttribute.uranCrystal;
+            output = NuItems.uranCrystal;
+            fogRadius = 4;
+            ambientSound = Sounds.loopDrill;
+            ambientSoundVolume = 0.04f;
+        }};
+        fifthCoagulator = new AttributeCrafter("fifthCoagulator"){{
+            requirements(Category.production, with(
+                    NuItems.bigIron, 25,
+                    NuItems.monoSiliCrystal, 25,
+                    Items.graphite,10));
+            outputItem = new ItemStack(NuItems.dirtyCoagulum,2);
+            craftTime = 60;
+            size = 2;
+            hasLiquids = true;
+            hasPower = true;
+            hasItems = true;
+            liquidCapacity = 80f;
+            craftEffect = Fx.none;
+            attribute = NuAttribute.dirty;
+            ambientSound = Sounds.loopCultivator;
+            ambientSoundVolume = 0.075f;
+            legacyReadWarmup = true;
+            drawer = new DrawMulti(
+                    new DrawRegion("-bottom"),
+                    new DrawLiquidTile(Liquids.water),
+                    new DrawDefault(),
+                    new DrawCultivator(),
+                    new DrawRegion("-top")
+            );
+            maxBoost = 3f;
+            consumePower(125f/60f);
+            consumeLiquid(Liquids.water, 25f/60f);
         }};
     }
 }

@@ -8,7 +8,8 @@ import mindustry.type.*;
 import arc.graphics.*;
 
 public class NuLiquid {
-    public static Liquid water,nuclearFluid,dirtySolution,liquidOxygen,strangeLiquid;
+    public static Liquid water,nuclearFluid,dirtySolution,liquidOxygen,strangeLiquid,
+    prismEnergyLiquid,divineTears;
     public static void load(){
         nuclearFluid=new Liquid("nuclearFluid",Color.valueOf("00FF00")){{
             temperature=5f;
@@ -28,7 +29,7 @@ public class NuLiquid {
             temperature=-10f;
             lightColor=Color.valueOf("99CCFFFF");
             viscosity=0.1f;
-            heatCapacity=2.2f;
+            heatCapacity=1.2f;
             boilPoint=1f;
             coolant=true;
         }};
@@ -36,7 +37,21 @@ public class NuLiquid {
             temperature=-6f;
             lightColor=Color.valueOf("6FA5FFFF");
             viscosity=0.1f;
-            heatCapacity=1f;
+            heatCapacity=0.5f;
+        }};
+        prismEnergyLiquid = new Liquid("prismEnergyLiquid",Color.valueOf("F0FFFD")){{
+            temperature=-3f;
+            lightColor=Color.valueOf("F0FFFDB0");
+            heatCapacity=1.6f;
+            boilPoint=3f;
+            viscosity=0.5f;
+        }};
+        divineTears = new Liquid("divineTears",Color.valueOf("F8FFB0")){{
+            temperature=2f;
+            lightColor=Color.valueOf("F8FFB0B0");
+            heatCapacity=2.3f;
+            boilPoint=12f;
+            viscosity=1f;
         }};
     }
 }

@@ -80,8 +80,9 @@ public class NuBlocks {
             //units
             ExperimentalMachineryUnitFactory,ExperimentalUnitReconstructionFactory,MechanicalAssemblyFactory,AirshipAssemblyFactory,
             ShipAssemblyFactory,ParadoxUnitAssemblyFactory,TerminalUnitAssemblyFactory,bigIronUnitConveyor,floatUnitConvryor,
-            floatUnitRouter,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts,
-            ThalliumAssemblyParts,BuildingConstructor,SpecialUnitFactory,PaleUnitFactory,
+            floatUnitRouter,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts, ThalliumAssemblyParts,
+            AssemblyPlantModule,BuildingConstructor,SpecialUnitFactory,PaleUnitFactory,PaleNumberReconstruction,PaleMultiplyReconstruction,
+            PaleExponentReconstruction,PaleImmeasurableReconstruction,
             //logic
 
             //turret
@@ -425,7 +426,7 @@ public class NuBlocks {
             researchCostMultiplier = 0.5f;
             outputItem = new ItemStack(NuItems.thallide,3);
             consumePower(12f);
-            consumeItems(ItemStack.with(NuItems.sulFurFrag,6,NuItems.Tcoal,5));
+            consumeItems(ItemStack.with(NuItems.thallium,6,NuItems.sulFurFrag,3));
             craftEffect = new MultiEffect(new RadialEffect(){{
                 amount = 4;
                 rotationSpacing = 90f;
@@ -1696,8 +1697,8 @@ public class NuBlocks {
         ExperimentalMachineryUnitFactory = new UnitFactory("ExperimentalMachineryUnitFactory"){{
             requirements(Category.units, with(NuItems.bigIron,120, NuItems.monoSiliCrystal,120,Items.graphite,80));
             plans = Seq.with(
-                    new UnitPlan(FederalUnitTypes.honor, 60f * 24, with(NuItems.monoSiliCrystal,45,NuItems.frailPolyester,25)),
-                    new UnitPlan(FederalUnitTypes.vile, 60f * 30, with(NuItems.monoSiliCrystal,50,Items.graphite,30)),
+                    new UnitPlan(FederalUnitTypes.honor, 60f * 24, with(NuItems.monoSiliCrystal,45,NuItems.dirtyCoagulum,25)),
+                    new UnitPlan(FederalUnitTypes.vile, 60f * 30, with(NuItems.monoSiliCrystal,50,NuItems.Tcoal,30)),
                     new UnitPlan(FederalUnitTypes.sailor, 60f * 36, with(NuItems.monoSiliCrystal,65))
             );
             size = 3;
@@ -1720,6 +1721,7 @@ public class NuBlocks {
         MechanicalAssemblyFactory = new UnitAssembler("MechanicalAssembly"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
+            droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.vanity, 60f * 50f, PayloadStack.list(FederalUnitTypes.honor,8, energyStorageLargeWall, 10)),
@@ -1733,6 +1735,7 @@ public class NuBlocks {
         AirshipAssemblyFactory = new UnitAssembler("AirshipAssemblyFactory"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
+            droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.loss, 60f * 50f, PayloadStack.list(FederalUnitTypes.vile,8, energyStorageLargeWall, 12)),
@@ -1746,6 +1749,7 @@ public class NuBlocks {
         ShipAssemblyFactory = new UnitAssembler("ShipAssemblyFactory"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
+            droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.wanderer, 60f * 50f, PayloadStack.list(FederalUnitTypes.sailor,8, energyStorageLargeWall, 8)),
@@ -1756,18 +1760,217 @@ public class NuBlocks {
             consumePower(16f);
             consumeLiquid(NuLiquid.liquidOxygen, 0.2f);
         }};
+        NuclearAssemblyParts = new Wall("NuclearAssemblyParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.uranium,40,NuItems.monoSiliCrystal,100,NuItems.frailPolyester,150));
+            health = 10000;
+            armor = 25;
+        }};
+        AbsurdAssemblyParts = new Wall("AbsurdAssemblyParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.sacredIron,40,NuItems.monoSiliCrystal,100,NuItems.pumice,150));
+            health = 10000;
+            armor = 25;
+        }};
+        ThalliumAssemblyParts = new Wall("ThalliumAssemblyParts"){{
+            size = 3;
+            requirements(Category.units, with(NuItems.thallide,40,NuItems.monoSiliCrystal,100,Items.graphite,150));
+            health = 10000;
+            armor = 25;
+        }};
+        AssemblyPlantModule = new UnitAssemblerModule("AssemblyPlantModule"){{
+            requirements(Category.units, with(
+                    NuItems.rubber, 300,
+                    NuItems.pumice, 500,
+                    NuItems.magent, 250,
+                    NuItems.monoSiliCrystal, 400));
+            consumePower(6f);
+            regionSuffix = "-dark";
+            researchCostMultiplier = 0.75f;
+            size = 3;
+        }};
         ParadoxUnitAssemblyFactory = new ClickSwitchAssembler("ParadoxUnitAssemblyFactory"){{
             size = 6;
-        health = 10000;
-        areaSize = 20;                 // 装配区（格）
-        droneType = UnitTypes.assemblyDrone;
+        health = 100000;
+        areaSize = 18;                 // 装配区（格）
+        droneType = FederalUnitTypes.humorous;
         dronesCreated = 4;
-        plans.add(new AssemblerUnitPlan(UnitTypes.dagger,
-                                120f, PayloadStack.list(Blocks.copperWallLarge, 4, Blocks.siliconSmelter, 1)));
-         plans.add(new AssemblerUnitPlan(UnitTypes.crawler,
-                                240f, PayloadStack.list(Blocks.copperWallLarge, 8, Blocks.siliconSmelter, 2)));
-         consumePower(5f);
-         requirements(Category.units, with(Items.copper, 400, Items.silicon, 200));
+        plans.add(new AssemblerUnitPlan(FederalUnitTypes.blindLoyalty,
+                                60f*60f*5, PayloadStack.list(FederalUnitTypes.vanity,4,ThalliumAssemblyParts,5)));
+        plans.add(new AssemblerUnitPlan(FederalUnitTypes.cowardTraitor,
+                                60*60f*5, PayloadStack.list(FederalUnitTypes.loss,4,AbsurdAssemblyParts,5)));
+        plans.add(new AssemblerUnitPlan(FederalUnitTypes.captain,
+                    60*60f*5, PayloadStack.list(FederalUnitTypes.wanderer,4,NuclearAssemblyParts,5)));
+         consumePower(40f);
+         consumeLiquid(NuLiquid.prismEnergyLiquid,0.4f);
+         requirements(Category.units, with(NuItems.uranium,250,
+                 NuItems.monoSiliCrystal,800,
+                 NuItems.rubber,300,
+                 NuItems.alkSliver,240,
+                 NuItems.thallide,200
+         ));
+        }};
+        TerminalUnitAssemblyFactory = new ClickSwitchAssembler("TerminalUnitAssemblyFactory"){{
+            size = 8;
+            health = 1000000;
+            areaSize = 25;                 // 装配区（格）
+            droneType = FederalUnitTypes.humorous;
+            dronesCreated = 8;
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.safeguardRights,
+                    60f*60f*12, PayloadStack.list(FederalUnitTypes.overPraise,6,ThalliumAssemblyParts,12)));
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.desperate,
+                    60*60f*12, PayloadStack.list(FederalUnitTypes.nonsense,6,AbsurdAssemblyParts,12)));
+            plans.add(new AssemblerUnitPlan(FederalUnitTypes.nemo,
+                    60*60f*12, PayloadStack.list(FederalUnitTypes.setsails,6,NuclearAssemblyParts,12)));
+            consumePower(75f);
+            consumeLiquid(NuLiquid.divineTears,0.8f);
+            requirements(Category.units, with(NuItems.uranium,2500,
+                    NuItems.monoSiliCrystal,2000,
+                    NuItems.rubber,1000,
+                    NuItems.alkSliver,1300,
+                    NuItems.thallide,1500,
+                    NuItems.remakeSource,1000,
+                    NuItems.sacredIron,900
+            ));
+        }};
+        bigIronUnitConveyor = new PayloadConveyor("bigIronUnitConveyor"){{
+            requirements(Category.units, with(Items.graphite,45, NuItems.bigIron,25));
+            canOverdrive = true;
+        }};
+        floatUnitConvryor = new PayloadConveyor("floatUnitConvryor"){{
+            requirements(Category.units, with(Items.graphite,90, NuItems.pumice,45));
+            canOverdrive = true;
+            payloadLimit = 6f;
+            size = 5;
+        }};
+        floatUnitRouter = new PayloadRouter("floatUnitRouter"){{
+            requirements(Category.units, with(Items.graphite, 90,NuItems.pumice,45));
+            canOverdrive = true;
+            payloadLimit = 6f;
+            size = 5;
+        }};
+        ParadoxAssemblyModule = new Wall("ParadoxAssemblyModule"){{
+            size = 5;
+            requirements(Category.units, with(NuItems.prismCrystal,300,NuItems.monoSiliCrystal,500,NuItems.rubber,350));
+            health = 50000;
+            armor = 45;
+        }};
+        TerminalAssemblyModule = new Wall("TerminalAssemblyModule"){{
+            size = 5;
+            requirements(Category.units, with(NuItems.remakeSource,450,NuItems.monoSiliCrystal,900,NuItems.sacredIron,560));
+            health = 50000;
+            armor = 45;
+        }};
+        BuildingConstructor = new Constructor("BuildingConstructor"){{
+            requirements(Category.units, with(NuItems.monoSiliCrystal,120, Items.graphite,75,NuItems.pumice,120));
+            regionSuffix = "-dark";
+            hasPower = true;
+            buildSpeed = 1.2f;
+            consumePower(4f);
+            size = 3;
+            filter = Seq.with(
+                    bigIronWall,bigIronLargeWall,energyStorageWall,energyStorageLargeWall,IllusionGate,IllusionLargeGate,
+                    frailPolyesterWall,frailPolyesterLargeWall,magneticPullWall,magneticPullLargeWall,
+                    floatWall,floatLargeWall,rubberWall,rubberLargeWall,alkSliverWall,alkSliverLargeWall,
+                    thallideWall,thallideLargeWall,uraniumWall,uraniumLargeWall,energyShield,Lotus,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts,
+                    ThalliumAssemblyParts
+            );
+        }};
+        SpecialUnitFactory = new ClickSwitchAssembler("SpecialUnitFactory"){{
+            consumePower(15f);
+            consumeLiquid(NuLiquid.strangeLiquid,2f);
+            requirements(Category.units, with(NuItems.alkSliver,50,
+                    NuItems.monoSiliCrystal,200,
+                    NuItems.rubber,100
+            ));
+            size = 7;
+            health = 100000;
+            areaSize = 50;                 // 装配区（格）
+            droneType = FederalUnitTypes.humorous;
+            dronesCreated = 12;
+            plans.add(new AssemblerUnitPlan(CalamityUnitTypes.dragon,
+                    60f*60f*5, PayloadStack.list(ThalliumAssemblyParts,40)));
+        }};
+        PaleUnitFactory = new UnitFactory("PaleUnitFactory"){{
+            requirements(Category.units, with(NuItems.prismCrystal,450, NuItems.monoSiliCrystal,240,NuItems.rubber,80));
+            plans = Seq.with(
+                    new UnitPlan(FederalUnitTypes.pale, 60f *36, with(NuItems.monoSiliCrystal,120,NuItems.pumice,75)),
+                    new UnitPlan(FederalUnitTypes.mornLight, 60f *45, with(NuItems.monoSiliCrystal,100,NuItems.prismCrystal,30)),
+                    new UnitPlan(FederalUnitTypes.pureJade, 60f*32, with(NuItems.magent,60,NuItems.monoSiliCrystal,90))
+            );
+            size = 3;
+            consumePower(7f);
+            researchCostMultiplier = 0.5f;
+        }};
+        PaleNumberReconstruction = new Reconstructor("PaleNumberLvReconstruction"){{
+            requirements(Category.units, with(NuItems.pumice, 200, NuItems.prismCrystal, 120, NuItems.monoSiliCrystal, 90));
+            size = 3;
+            consumePower(10f);
+            consumeItems(with(NuItems.monoSiliCrystal,210,Items.graphite,200,NuItems.sacredIron,85));
+            consumeLiquid(NuLiquid.strangeLiquid,0.2f);
+            constructTime = 60f * 54f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.pale, FederalUnitTypes.ripple},
+                    new UnitType[]{FederalUnitTypes.mornLight, FederalUnitTypes.sunsetGlow},
+                    new UnitType[]{FederalUnitTypes.pureJade, FederalUnitTypes.darkMaple}
+            );
+        }};
+        PaleMultiplyReconstruction = new Reconstructor("PaleMultiplyReconstruction"){{
+            requirements(Category.units, with(
+                    NuItems.pumice,450,
+                    NuItems.prismCrystal,350,
+                    NuItems.monoSiliCrystal,560,
+                    NuItems.rubber,350
+            ));
+            size = 5;
+            consumePower(15f);
+            consumeItems(with(NuItems.monoSiliCrystal,450,NuItems.magent,300,NuItems.sacredIron,430));
+            consumeLiquid(NuLiquid.strangeLiquid,0.5f);
+            constructTime = 60f * 60f * 1.5f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.ripple, FederalUnitTypes.greatPath},
+                    new UnitType[]{FederalUnitTypes.sunsetGlow, FederalUnitTypes.dusk},
+                    new UnitType[]{FederalUnitTypes.darkMaple, FederalUnitTypes.brightCrow}
+            );
+        }};
+        PaleExponentReconstruction = new Reconstructor("PaleExponentReconstruction"){{
+            requirements(Category.units, with(
+                    NuItems.sacredIron,700,
+                    NuItems.prismCrystal,600,
+                    NuItems.monoSiliCrystal,1200,
+                    NuItems.rubber,700,
+                    NuItems.thallium,560
+            ));
+            size = 7;
+            consumePower(21f);
+            consumeItems(with(NuItems.monoSiliCrystal,900,NuItems.thallium,650,NuItems.rubber,350));
+            consumeLiquid(NuLiquid.liquidOxygen,0.4f);
+            constructTime = 60f * 60f * 1.5f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.greatPath, FederalUnitTypes.loyalRequest},
+                    new UnitType[]{FederalUnitTypes.dusk, FederalUnitTypes.swallowingDay},
+                    new UnitType[]{FederalUnitTypes.brightCrow, FederalUnitTypes.saint}
+            );
+        }};
+        PaleImmeasurableReconstruction = new Reconstructor("PaleImmeasurableReconstruction"){{
+            requirements(Category.units, with(
+                    NuItems.sacredIron,1400,
+                    NuItems.prismCrystal,1000,
+                    NuItems.monoSiliCrystal,2500,
+                    NuItems.rubber,1500,
+                    NuItems.thallide,900,
+                    NuItems.remakeSource,600
+            ));
+            size = 9;
+            consumePower(27f);
+            consumeItems(with(NuItems.monoSiliCrystal,900,NuItems.thallium,650,NuItems.rubber,350));
+            consumeLiquid(NuLiquid.divineTears,0.5f);
+            constructTime = 60f * 60f * 4f;
+            upgrades.addAll(
+                    new UnitType[]{FederalUnitTypes.loyalRequest, FederalUnitTypes.paladin},
+                    new UnitType[]{FederalUnitTypes.swallowingDay, FederalUnitTypes.moonLight},
+                    new UnitType[]{FederalUnitTypes.saint, FederalUnitTypes.bloodLotus}
+            );
         }};
 
 

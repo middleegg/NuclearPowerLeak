@@ -11,14 +11,13 @@ import Npl.newSth.Type.coins;
 
 public class NuItems {
     // 1. 声明你的自定义物品（类型使用 NewItemsType）
-    //生铁，T型煤，硫芯，单晶体，磁铁，脆纶，气浮石，原胶，胶种，碱银，橡胶，铀晶，原铀，铊化物，铀，瓶装磁暴
+    //生铁，T型煤，硫芯，单晶体，污凝体，磁铁，脆纶，气浮石，原胶，棱能晶，胶种，碱银，橡胶，铀晶，铊，圣铁，原铀，塑源，铊化物，铀，瓶装磁暴
     public static NewItemsType
-    bigIron,Tcoal,sulFurFrag,monoSiliCrystal,magent,frailPolyester,pumice,oriRubber,rubberFrag,
-    alkSliver,rubber,uranCrystal,oriUranium,thallide,uranium,bottledMagenticStorm;
+    bigIron,Tcoal,sulFurFrag,monoSiliCrystal,dirtyCoagulum,magent,frailPolyester,pumice,oriRubber,prismCrystal,rubberFrag,
+    alkSliver,rubber,uranCrystal,thallium,sacredIron,oriUranium,remakeSource,thallide,uranium,bottledMagenticStorm;
     public static Item
     graphite,sand,pyratite;
     public static coins coinsItem;
-    // 3. 加载方法（完全模仿 NHItems 的写法）
     public static void load() {
         bigIron= new NewItemsType("bigIron",Color.valueOf("7e7e7e")){{
             hardness=1;
@@ -44,6 +43,11 @@ public class NuItems {
         monoSiliCrystal = new NewItemsType("monoSiliCrystal", Color.valueOf("616161")) {{
             alwaysUnlocked = false;
             cost = 0.7f;
+        }};
+        dirtyCoagulum = new NewItemsType("dirtyCoagulum",Color.valueOf("B3B0FF")){{
+            alwaysUnlocked = false;
+            flammability = 2.5f;
+            explosiveness = 0.6f;
         }};
         magent = new NewItemsType("magent",Color.valueOf("b42828")){{
             alwaysUnlocked = false;
@@ -73,6 +77,13 @@ public class NuItems {
             hardness = 3;
             flammability = 2.35f;
         }};
+        prismCrystal = new NewItemsType("prismCrysstal",Color.valueOf("E1FFFB")){{
+            alwaysUnlocked = false;
+            cost = 1f;
+            hardness = 4;
+            reversible = 1.5f;
+            charge = 1.3f;
+        }};
         rubberFrag = new NewItemsType("rubberFrag",Color.valueOf("956f4e")){{
             alwaysUnlocked = false;
             cost = 1f;
@@ -94,11 +105,29 @@ public class NuItems {
             radioactivity = 0.9f;
             explosiveness = 0.4f;
         }};
+        thallium = new NewItemsType("thallium",Color.valueOf("C98FFF")){{
+            alwaysUnlocked = false;
+            hardness = 4;
+            cost = 0.8f;
+            radioactivity = 0.9f;
+            stability = 0.6f;
+        }};
+        sacredIron = new NewItemsType("sacredIron",Color.valueOf("DEFFFB")){{
+            cost = 0.8f;
+            charge = 1.4f;
+        }};
         oriUranium = new NewItemsType("oriUranium",Color.valueOf("50826e")){{
             alwaysUnlocked = false;
             cost = 0.5f;
             radioactivity= 1.2f;
             explosiveness=0.6f;
+        }};
+        remakeSource = new NewItemsType("remakeSource",Color.valueOf("FFEA8F")){{
+            reversible = 4f;
+            stability = 1f;
+            radioactivity=2.4f;
+            explosiveness=0.1f;
+            charge = 1.4f;
         }};
         thallide = new NewItemsType("thallide",Color.valueOf("9a7da1")){{
             alwaysUnlocked = false;

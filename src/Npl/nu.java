@@ -1,19 +1,23 @@
 package Npl;
 
 import arc.*;
+import arc.struct.*;
 import arc.util.*;
 import mindustry.game.EventType.*;
+import mindustry.game.Schematic;
+import mindustry.game.Schematic.Stile;
 import mindustry.mod.*;
 import mindustry.ui.dialogs.*;
+import mindustry.world.blocks.storage.CoreBlock;
 import Npl.content.*;
 import Npl.events.*;
 import Npl.content.envBlocks;
 import Npl.newSth.NewItemsType;
 import Npl.newSth.Type.*;
 import arc.graphics.Color;
-import arc.struct.Seq;
 import mindustry.ui.*;
-import mindustry.type.Item;
+
+import static mindustry.Vars.*;
 
 public class nu extends Mod {
 
@@ -63,16 +67,43 @@ public class nu extends Mod {
         });
     }
 
+    /**
+     * 用指定的 CoreBlock 动态生成一个"单核心发射蓝图"（loadout schematic）
+     * 效果等同原版 Loadouts.basicShard，但核心换成你自己的
+     *
+     * 原理：size = N 的 CoreBlock 放在 schematic 中心 (N/2 向下取整, N/2 向下取整)
+     * Schematics.placeLoadout 会找 schematic 里唯一的 CoreBlock tile，
+     * 用 ox = spawnX - coreTile.x, oy = spawnY - coreTile.y 对齐落地点。
+     */
+    private static Schematic buildCoreLoadout(CoreBlock core){
+        int s = core.size;
+        // Stile(x, y, block, config, rotation)
+        // x,y 都设为中心位置，保证落地时 spawn 点对齐核心中心
+        Seq<Stile> tiles = Seq.with(new Stile(core, s / 2, s / 2, null, (byte)0));
+        // tags 可以为空（或加个标签名）；width/height = s x s 防止越界
+        return new Schematic(tiles, new StringMap(), s, s);
+    }
+
     @Override
     public void loadContent() {
+        NuStatus.load();
         NuItems.load();
         NuLiquid.load();
         Azer.load();
         FederalUnitTypes.load();
+        CalamityUnitTypes.load();
         NuBlocks.load();
-        NuStatus.load();
+        // —— 循环依赖化解 ——
+        // Azer.defaultCore：某些分支（例如FileMapGenerator core override）会用
+        Azer.Azer.defaultCore = NuBlocks.FederalJuniorCore;
+        // AzerPlanetGenerator.defaultLoadout：真正控制落地的核心
+        //   Schematics.placeLaunchLoadout() 读 universe.getLastLoadout()，
+        //   universe.getLastLoadout() 默认回退读 generator.defaultLoadout（BasicGenerator里默认Loadouts.basicShard）
+        Azer.Azer.generator.defaultLoadout = buildCoreLoadout((CoreBlock) NuBlocks.FederalJuniorCore);
+        // 顺便把 FederalJuniorCore 强行注册进 Azer 的 shownPlanets（保证UI/选蓝图过滤时不会因 shownPlanets 为空被筛掉）
+        NuBlocks.FederalJuniorCore.shownPlanets.add(Azer.Azer);
+        if(NuBlocks.FederalSubCore != null) NuBlocks.FederalSubCore.shownPlanets.add(Azer.Azer);
         envBlocks.load();
-        CalamityUnitType.load();
         OneEvent.load();
     }
 
@@ -90,11 +121,11 @@ public class nu extends Mod {
             t.row();
             t.add(Core.bundle.get("ui.nu.frog.profile.value.name")).color(Color.cyan).padLeft(30f).row();
 
-            t.add(Core.bundle.get("ui.nu.frog.profile.label.description")).left();
+            t.add(Core.bundle.get("ui.nu.frog.profile.label.content")).left();
             t.row();
             t.add(Core.bundle.get("ui.nu.frog.profile.value.weight")).color(Color.yellow).padLeft(30f).row();
 
-            t.add(Core.bundle.get("ui.nu.frog.profile.label.content")).color(Color.scarlet).left();
+            t.add(Core.bundle.get("ui.nu.frog.profile.label.description")).color(Color.scarlet).left();
         }).growX().pad(20f).row();
         // 底部两个按钮：返回 / 关闭
         profile.buttons.defaults().size(200f, 54f).pad(8f);

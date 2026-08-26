@@ -52,6 +52,8 @@ import static mindustry.type.ItemStack.*;
 
 public class envBlocks {
     public static Block
+    //cluster
+    crystalCluster,
     //environmentBlocks
     desert,desertWall,yellowStone,yellowStoneWall,brownStone,brownStoneWall,rubberTree,rubberFloor,
     hollyFloor,hollyWall,glossy,darkness,altar,hollyTree,lossLiquid,huiye,harborWater,uranCrystalWall,crystalCune,
@@ -60,6 +62,10 @@ public class envBlocks {
     //WallOres
     bigIronWores,coalHillOre,sulfurFragWores,frailPolyesterWores,pumiceMegaWores,thalliumWores,prismCrystalWores;
     public static void load(){
+        crystalCluster = new TallBlock("crystalCluster"){{
+           variants = 1;
+           useColor = true;
+        }};
         desert = new Floor("desert"){{
             itemDrop = Items.sand;
             playerUnmineable = true;
@@ -78,7 +84,7 @@ public class envBlocks {
             playerUnmineable = true;
             speedMultiplier = 0.95f;
             useColor = true;
-            variants = 3;
+            variants = 2;
             attributes.set(Attribute.water, -0.25f);
         }};
         yellowStoneWall= new StaticWall("yellowStoneWall"){{
@@ -91,7 +97,7 @@ public class envBlocks {
             playerUnmineable = true;
             speedMultiplier = 0.85f;
             useColor = true;
-            variants = 3;
+            variants = 2;
             attributes.set(Attribute.water, 0.1f);
         }};
         brownStoneWall= new StaticWall("brownStoneWall"){{
@@ -121,7 +127,8 @@ public class envBlocks {
         crystalCune = new Floor("crystalCune"){{
             playerUnmineable = true;
             useColor = true;
-            variants = 2;
+            variants = 4;
+            attributes.set(NuAttribute.dirty, 0.1f);
         }};
         hollyFloor = new Floor("hollyFloor"){{
            useColor = true;
@@ -134,6 +141,11 @@ public class envBlocks {
         glossy = new SteamVent("glossy"){{
             parent = blendGroup = hollyFloor;
             attributes.set(Attribute.steam, 1f);
+            variants=1;
+            effect = new RadialEffect(){{
+                amount = 3;rotationSpacing = 120f;lengthOffset =8f;
+               effect = NuFx.ConsumeSmoke;
+            }};
         }};
         darkness = new Floor("darkness"){{
             useColor = true;

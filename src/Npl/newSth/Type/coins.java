@@ -37,6 +37,7 @@ public class coins extends Item {
     /** 自定义地图模式下的 coins（跨地图共享，存入 Core.settings） */
     private static int customCoins = 0;
     /** UI 是否已初始化 */
+    public static TextureRegion uiIcon;
     private static boolean uiInitialized = false;
     /** UI 表引用，用于更新 */
     private static Table uiTable = null;
@@ -148,7 +149,6 @@ public class coins extends Item {
     public static void addSector(int amount){
         add(amount);
     }
-
     /** 扣除当前战役/地图 coins（同 spend） */
     public static boolean spendSector(int amount){
         return spend(amount);
@@ -159,17 +159,14 @@ public class coins extends Item {
     private static void saveCampaign(){
         Core.settings.put("npl-coins-campaign", campaignCoins);
     }
-
     private static void saveCustom(){
         Core.settings.put("npl-coins-custom", customCoins);
     }
-
     private static void loadFromSettings(){
         campaignCoins = Core.settings.getInt("npl-coins-campaign", 0);
         customCoins = Core.settings.getInt("npl-coins-custom", 0);
         Log.info("Loaded coins [campaign=" + campaignCoins + ", custom=" + customCoins + "]");
     }
-
     /* ===================== UI ===================== */
 
     private static void initUI(){
@@ -179,7 +176,6 @@ public class coins extends Item {
             Log.err("Failed to init coins UI: " + e.getMessage());
         }
     }
-
     private static void addCoinsDisplay(){
         try{
             // 匿名 Table：draw 先画 90% 不透明灰黑背景，再画内容
@@ -196,31 +192,24 @@ public class coins extends Item {
 
             coinsTable.setPosition(70f, Core.graphics.getHeight() / 2f - 20f);
 
-            // 找到 coins Item（它的 uiIcon 已经由 Item.java 的帧动画逻辑自动切换了）
-            Item coinItem = null;
-            if(mindustry.Vars.content != null){
-                coinItem = mindustry.Vars.content.items().find(i -> "coins".equals(i.name));
-            }
-            final Item finalCoin = coinItem;
-
             coinsTable.table(t -> {
                 t.defaults().pad(3f);
 
-                // 匿名 Element：Draw.rect 直接读 uiIcon 当前 UV，天然跟随帧切换
-                if(finalCoin != null){
-                    Element icon = new Element(){
-                        @Override
-                        public void draw(){
-                            Draw.color(1f, 1f, 1f, 1f);
-                            Draw.rect(finalCoin.uiIcon, x + width/2f, y + height/2f, width, height);
-                            Draw.color();
-                        }
-                    };
-                    icon.setSize(28f, 28f);
-                    t.add(icon).padRight(4f).size(28f);
-                }else{
-                    t.add("★").padRight(4f);
-                }
+                // ✅ 直接用 coins.uiIcon（静态变量，在 nu.loadContent() 里赋值，
+                //    先找 "item-coins/nu-item-coins1" 等多个 atlas key，兜底 white 1×1 像素，绝对不为 null）
+                Element icon = new Element(){
+                    @Override
+                    public void draw(){
+                        // ⭐ 双层空检查：① region 不能是 null ② region.texture 也不能为 null
+                        //    任何一项不满足 → 跳过绘制（绝对避免 Draw.rect NPE）
+                        if(coins.uiIcon == null || coins.uiIcon.texture == null) return;
+                        Draw.color(1f, 1f, 1f, 1f);
+                        Draw.rect(coins.uiIcon, x + width/2f, y + height/2f, width, height);
+                        Draw.color();
+                    }
+                };
+                icon.setSize(28f, 28f);
+                t.add(icon).padRight(4f).size(28f);
 
                 t.add("coins").padLeft(2f);
 

@@ -1,6 +1,8 @@
 package Npl;
 
 import arc.*;
+import arc.files.Fi;
+import arc.graphics.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.game.EventType.*;
@@ -15,6 +17,7 @@ import Npl.content.envBlocks;
 import Npl.newSth.NewItemsType;
 import Npl.newSth.Type.*;
 import arc.graphics.Color;
+import arc.graphics.g2d.TextureRegion;
 import mindustry.ui.*;
 
 import static mindustry.Vars.*;
@@ -93,6 +96,66 @@ public class nu extends Mod {
         FederalUnitTypes.load();
         CalamityUnitTypes.load();
         NuBlocks.load();
+        // ══════════════════════════════════════════════════════════════════
+        // ⭐ coins 贴图：★强制锁定显示 coins1.png（不管 atlas 怎么打包，直接读 PNG 文件最靠谱）★
+        //   你的贴图就在 G:\NuclearPowerLeak\assets\sprites\items\coins1.png
+        //   优先级（从上往下，第一个成功就停）：
+        //     1) 直接从 classpath 读文件："assets/sprites/items/coins1.png"
+        //     2) 从 classpath 读文件："sprites/items/coins1.png"（有些打包流程不加 assets/ 前缀）
+        //     3) 从运行时工作目录绝对路径读：NuclearPowerLeak/assets/sprites/items/coins1.png
+        //     4) 最后兜底：12 种 atlas key 穷举 → white → Items.copper.uiIcon
+        // ══════════════════════════════════════════════════════════════════
+        TextureRegion coinsRegion = null;
+        String[] tryFiles = {
+            "assets/sprites/items/coins1.png",
+            "sprites/items/coins1.png"
+        };
+        for (String fpath : tryFiles) {
+            try {
+                Fi f = Core.files.internal(fpath);
+                if (f != null && f.exists()) {
+                    Pixmap pm = new Pixmap(f);
+                    Texture tex = new Texture(pm);
+                    coinsRegion = new TextureRegion(tex);
+                    pm.dispose();
+                    break;
+                }
+            } catch (Exception ignored) { /* 这个路径失败，试下一个 */ }
+        }
+        // 再试绝对路径（开发环境没打包进 jar 时能命中）
+        if (coinsRegion == null || coinsRegion.texture == null) {
+            try {
+                Fi absFi = Core.files.absolute("G:\\NuclearPowerLeak\\assets\\sprites\\items\\coins1.png");
+                if (absFi != null && absFi.exists()) {
+                    Pixmap pm = new Pixmap(absFi);
+                    Texture tex = new Texture(pm);
+                    coinsRegion = new TextureRegion(tex);
+                    pm.dispose();
+                }
+            } catch (Exception ignored) {}
+        }
+        // 兜底：12 种 atlas key 穷举（打包后 classpath 文件可能读不到，但 atlas 里是有的）
+        if (coinsRegion == null || coinsRegion.texture == null) {
+            String[] tryKeys = {
+                "items-coins1",    "nu-items-coins1",
+                "item-coins1",     "nu-item-coins1",
+                "coins1",          "nu-coins1",
+                "items-coins",     "nu-items-coins",
+                "item-coins",      "nu-item-coins",
+                "coins",           "nu-coins"
+            };
+            for (String key : tryKeys) {
+                TextureRegion r = Core.atlas.find(key);
+                if (r != null && r.texture != null) { coinsRegion = r; break; }
+            }
+        }
+        // 终极兜底 1：Mindustry 自带 white 1×1 像素
+        if (coinsRegion == null || coinsRegion.texture == null) coinsRegion = Core.atlas.find("white");
+        // 终极兜底 2：用原版铜的 uiIcon（100% 存在）
+        if (coinsRegion == null || coinsRegion.texture == null) coinsRegion = mindustry.content.Items.copper.uiIcon;
+
+        NuItems.coinsItem.uiIcon = coinsRegion;        // 父类 Item.uiIcon：物品面板/内容库/方块详情"硬币 (coins)"那一行的图标
+        Npl.newSth.Type.coins.uiIcon = coinsRegion;    // coins 自定义静态 uiIcon：coinsTable 左侧悬浮窗图标
         // —— 循环依赖化解 ——
         // Azer.defaultCore：某些分支（例如FileMapGenerator core override）会用
         Azer.Azer.defaultCore = NuBlocks.FederalJuniorCore;
@@ -105,8 +168,8 @@ public class nu extends Mod {
         if(NuBlocks.FederalSubCore != null) NuBlocks.FederalSubCore.shownPlanets.add(Azer.Azer);
         envBlocks.load();
         OneEvent.load();
+        NuTree.load();
     }
-
     /* ──────────────────────────────────────────────────────
        跳转到的「青蛙档案」界面
        参数 backTo = 点"返回"按钮要回到哪一个弹窗

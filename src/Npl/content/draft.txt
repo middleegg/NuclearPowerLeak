@@ -1,0 +1,69 @@
+ hunfuTest = new HunfuBlock("hunfu-test") {{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron, 100,
+                    Items.lead,  80,
+                    Items.silicon, 40,
+                    Items.graphite, 40
+            ));
+            size = 2;
+            health = 800;
+            consumePower(6.0f);   // 混成工厂耗电稍高
+            plans = Seq.with(
+                    // ─────────────────────────────────────
+                    // 配方 1：纯物品（向后兼容 ConfigurableBlock）
+                    //   原料：煤×2 + 铜×1  →  产物：钛×2 + 硅×1   （90 tick = 1.5 秒）
+                    // ─────────────────────────────────────
+                    new HunfuBlock.Plan(
+                            with(Items.titanium, 2, Items.silicon, 1),    // outItem（物品产物）
+                            90f,                                            // time
+                            with(Items.coal, 2, Items.copper, 1)           // requirements（物品原料）
+                    ),
+
+                    // ─────────────────────────────────────
+                    // 配方 2：纯液体
+                    //   原料液体：水×10  →  产物液体：油×3   （120 tick = 2 秒）
+                    //   （炼油配方，测试纯液体场景）
+                    // ─────────────────────────────────────
+                    new HunfuBlock.Plan(
+                            null,                                           // outItem = null → 没有物品产物
+                            120f,                                           // time
+                            null,                                           // requirements = null → 没有物品原料
+                            LiquidStack.with(Liquids.oil, 3),                // outLiquid（液体产物）——显式调用 LiquidStack.with 消除歧义
+                            LiquidStack.with(Liquids.water, 10)              // inLiquid（液体原料）——显式调用 LiquidStack.with
+                    ),
+
+                    // ─────────────────────────────────────
+                    // 配方 3：物品 + 液体 混成（真正发挥 HunfuBlock 能力）
+                    //   物品原料：铅×2
+                    //   液体原料：水×5
+                    //   ────────────────
+                    //   物品产物：相织物（phase-fabric）×1
+                    //   液体产物：炉渣液（slag）×4
+                    //   耗时：180 tick = 3 秒
+                    // ─────────────────────────────────────
+                    new HunfuBlock.Plan(
+                            with(Items.phaseFabric, 1),                     // outItem：相织物
+                            180f,                                           // time
+                            with(Items.lead, 2),                            // requirements：物品原料铅
+                            LiquidStack.with(Liquids.slag, 4),               // outLiquid：炉渣液（液体产物）——显式 LiquidStack.with
+                            LiquidStack.with(Liquids.water, 5)               // inLiquid：水（液体原料）——显式 LiquidStack.with
+                    )
+            );
+        }};
+        Testonme = new ConfigurableBlock("testonme"){{
+                    requirements(Category.crafting, with(
+                            NuItems.bigIron,200,
+                            Items.lead,   150,
+                            Items.silicon, 60,
+                            Items.graphite, 50
+                    ));
+                    size = 2;
+                    health= 1000;
+                    craftEffect = NuFx.lightningStormFull;
+                    plans = Seq.with(
+                            new Plan(with(NuItems.pumice,3),30f,with(NuItems.bigIron,2,NuItems.sulFurFrag,2)),
+                            new Plan(with(NuItems.uranium,4),75f,with(NuItems.uranCrystal,2,NuItems.sulFurFrag,3)),
+                            new Plan(with(NuItems.bottledMagenticStorm,1),90f,with(NuItems.magent,2,NuItems.alkSliver,5))
+                    );
+                    consumePower(4.5f);
+                }};

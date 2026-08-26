@@ -51,20 +51,26 @@ import arc.util.Log;   // 👈 Log 属于 arc 框架，不是 Mindustry！
 
 
 public class NuBlocks {
+
     // ============= 静态方块声明：以后在这儿加就行 =============
     public static Block
-            //crafting
-            MagnetPurifier,monoSiliCrystalFactory,coinProducer, exchange,CompressionChamber,HeatMaker, strangeLiquidExtractionRoom,
-            seedCollector,rubberGrower,heatRelaxation,distillationRoom,silverPlatingRoom,Grinder,nuclearFluidCollector,
-            thalliumCompoundCrucible,OxygenLiquefactionRoom,uraniumPurificationRoom,MagneticStormStabiliser,MagentEnergyStation,
-            UraniumPrecipitationRoom,
+            //crafting,磁铁提纯机，单晶体厂，货币产房，交易所，压缩室，电热制机，*污化室，奇液收集室，碾碎室
+            // 采种机，橡胶种植机，热能解放室，*污秽分解室，蒸馏室，镀银室，研磨机，核废液收集器，*圣铁镌刻室,*棱能粉碎器
+            // *溯流逆转室,铊化物坩埚，*神泪富集室，氧低温室，铀提纯室，磁暴稳定装置，磁铁化能站，铀沉淀室
+            MagentPurifier,monoSiliCrystalFactory,coinProducer, exchange,CompressionChamber,HeatMaker,
+            contaminationRoom,strangeLiquidExtractionRoom,crushingRoom,
+            seedCollector,rubberGrower,heatRelaxation, dirtyDecompositionRoom, distillationRoom,
+            silverPlatingRoom,Grinder,nuclearFluidCollector, sacredIronEngravingRoom,
+            prismSmasher,backflowReversalRoom,thalliumCompoundCrucible,
+            divineTearsEnrichRoom, OxygenLiquefactionRoom,uraniumPurificationRoom,
+            MagenticStormStabiliser,MagentEnergyStation,UraniumPrecipitationRoom,
             //effect
             antiStealthRadar,BulletAccelerator,FederalJuniorCore,FederalSubCore,FederalContainer,FederalWarehouse,
             JuniorMender,MenderProjector,SeniorMender,DefenceShieldProjector,OverloadedThrowor,SeniorOverloaded,
             OverloadDefenceTower,ConstructionField,
             //power
-            ElectricalNode,PowerCapacitor,OriginalElectronics,SteamElectronics,FloatingCapacitor,RestoreMotor,RadioisotopeGenerator,
-            DepletedUraniumPower,DepletedUraniumCapacitor,UraniumPowerAppliance,
+            ElectricalNode,PowerCapacitor,OriginalElectronics,SteamElectronics,FloatingCapacitor,RestoreMotor,
+            RadioisotopeGenerator,DepletedUraniumPower,DepletedUraniumCapacitor,UraniumPowerAppliance,
             //wall
             bigIronWall,bigIronLargeWall,energyStorageWall,energyStorageLargeWall,IllusionGate,IllusionLargeGate,
             frailPolyesterWall,frailPolyesterLargeWall,magneticPullWall,magneticPullLargeWall,
@@ -75,29 +81,31 @@ public class NuBlocks {
             ThermalConductor,GaintThermalConductor,floatDuct,floatRouter,floatOverFlow,floatUnderFlow,floatJunction,
             floatBridge,UnitCarryingPoint,UnitUnloadingContainer,SwiftConveyor,UnifiedDrive,
             //liquid
-            bigIronPump,floatPump,nuclearPowerPump,OrganicConduit,OrganicJunction,OrganicRouter,OrganicBridge,FloatConduic,FloatJunction,
-            FloatBridge,FloatRouter,FloatTank,
+            bigIronPump,floatPump,nuclearPowerPump,OrganicConduit,OrganicJunction,OrganicRouter,
+            OrganicBridge,FloatConduic,FloatJunction,FloatBridge,FloatRouter,FloatTank,
             //units
             ExperimentalMachineryUnitFactory,ExperimentalUnitReconstructionFactory,MechanicalAssemblyFactory,AirshipAssemblyFactory,
             ShipAssemblyFactory,ParadoxUnitAssemblyFactory,TerminalUnitAssemblyFactory,bigIronUnitConveyor,floatUnitConvryor,
-            floatUnitRouter,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts, ThalliumAssemblyParts,
-            GodForsakenParts,FatedParts,StandaloneParts,CalamityParts,
-            AssemblyPlantModule,BuildingConstructor,SpecialUnitFactory,PaleUnitFactory,PaleNumberReconstruction,PaleMultiplyReconstruction,
+            floatUnitRouter,ParadoxAssemblyModule,TerminalAssemblyModule,NuclearAssemblyParts,AbsurdAssemblyParts,ThalliumAssemblyParts,
+            GodForsakenParts,FatedParts,StandaloneParts,CalamityParts,AssemblyPlantModule,BuildingConstructor,
+            SpecialUnitFactory,PaleUnitFactory,PaleNumberReconstruction,PaleMultiplyReconstruction,
             PaleExponentReconstruction,PaleImmeasurableReconstruction,
             //logic
             //turret,胜天，立地，万诺，焚毁，欢悦，溯源，库兰，核磁，未见，牵引，息壤，灼伤,浊气，牵越，群山，烟霞
             //熔断，间压，神乾，秽罪，常胜，游龙
             DefeatGod,StandingGround,Wanuo,Incinerate,Joy,TraceSource,Kurao,MPI,NonSeen,Traction,
             BreathSoil,BurnInjured,TurbidAir,CrossTractor,Mountains,MistRosy,CircuitBreak,IntermittentPressure,
-            DivineCreation,FilthySin,EverVictorious,SoarDragon,multiTurret,
+            DivineCreation,FilthySin,EverVictorious,SoarDragon,multiTurret,awnlessSpike,
             //production
-            bigIronDrill,floatDrill,nuclearDrill,hotMeltDrill,waterSamplingDevice,wallCrusher,
-            rubberCrusher,uranCrystalCrusher,fifthCoagulator;
+            bigIronDrill,floatBaseDrill,floatDrill,sliverDrill,prismDrill,nuclearDrill,hotMeltDrill,
+            waterSamplingDevice,wallCrusher,droneDrill,
+            rubberCrusher,uranCrystalCrusher,fifthCoagulator,prismVenter;
     public static void load() {
 
-        MagnetPurifier = new GenericCrafter("MagentPurifier") {{
-            requirements(Category.crafting, with(NuItems.bigIron,100,NuItems.sulFurFrag,75,NuItems.frailPolyester,150,
-                    NuItems.monoSiliCrystal,100,Items.graphite,100));
+        MagentPurifier = new GenericCrafter("MagentPurifier") {{
+            requirements(Category.crafting, with(NuItems.bigIron,100,
+                    NuItems.sulFurFrag,75,
+                    NuItems.monoSiliCrystal,100));
             outputItem = new ItemStack(NuItems.magent,4);
             craftTime =60f;
             hasItems=hasPower=true;
@@ -119,6 +127,7 @@ public class NuBlocks {
                 colorFrom = NuColor.PaleConColor;
                 colorTo = NuColor.PaleSilverColor;
             }};
+            researchCost = with(NuItems.monoSiliCrystal,650,NuItems.bigIron,2000,NuItems.graphite,700);
         }};
         monoSiliCrystalFactory = new GenericCrafter("monoSiliCrystalFactory") {{
             requirements(Category.crafting, with(NuItems.bigIron,100,Items.graphite,30));
@@ -126,11 +135,15 @@ public class NuBlocks {
             hasItems=true;
             ambientSound=Sounds.loopGrind;
             ambientSoundVolume=0.025f;
-            consumeItems(ItemStack.with(NuItems.Tcoal,3,Items.sand,2));
+            consumeItems(ItemStack.with(NuItems.Tcoal,6,Items.sand,6));
             health = 800;
             size=2;
             itemCapacity = 40;
             drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawRegion("-top"),new DrawDefault(),
+                    new DrawRegion("-rotator"){{
+                        rotateSpeed = 3.6f;
+                        spinSprite = true;
+                    }},
                     new DrawParticles(){{
                         color = Color.valueOf("616161");
                         sides = 12;
@@ -149,7 +162,7 @@ public class NuBlocks {
                         particleInterp = Interp.circleOut;
                     }});
         }};
-        coinProducer = new CoinProducerBlock("coin-producer") {{
+        coinProducer = new HunfuBlock("coinProducer") {{
             requirements(Category.crafting, with(
                     NuItems.bigIron,  200,
                     NuItems.monoSiliCrystal, 150,
@@ -161,10 +174,18 @@ public class NuBlocks {
             health = 800;
             hasItems = hasPower = true;
             itemCapacity = 500;
-            craftTime = 120f;       // 2 秒一次
-            coinPerCraft = 10;       // 每次 +5 coins
-            consumeItems(ItemStack.with(NuItems.bigIron,  100));
-            consumePower(4f);
+            plans = Seq.with(
+                    new Plan(null,90f,with(NuItems.bigIron,100),null,null,0,15),
+                    new Plan(null,120f,with(NuItems.pumice,100),null,null,0,80),
+                    new Plan(null,90f,with(NuItems.frailPolyester,100),null,null,0,20)
+            );
+            consumePower(8f);
+            researchCost = with(NuItems.rubber,320,
+                    NuItems.alkSliver,480,
+                    NuItems.bigIron,800,
+                    NuItems.monoSiliCrystal,650,
+                    NuItems.pumice,640
+                    );
         }};
         exchange = new HunfuBlock("exchange") {{
             requirements(Category.crafting, with(
@@ -179,12 +200,12 @@ public class NuBlocks {
             health = 1400;
             hasItems = true;
             plans = Seq.with(
-                    new Plan(with(NuItems.bigIron,100),60f*10,null,15),
+                    new Plan(with(NuItems.bigIron,100),60f*10,null,20),
                     new Plan(with(NuItems.monoSiliCrystal,100),60f*20,null,80),
                     new Plan(with(Items.graphite,100),60f*20,null,80),
                     new Plan(with(NuItems.sulFurFrag,100),60f*16,null,60),
                     new Plan(with(NuItems.magent,100),60f*30,null,120),
-                    new Plan(with(NuItems.frailPolyester,100),60f*10,null,15),
+                    new Plan(with(NuItems.frailPolyester,100),60f*10,null,30),
                     new Plan(with(NuItems.oriRubber,100),60f*16,null,60),
                     new Plan(with(NuItems.oriUranium,100),60f*16,null,60),
                     new Plan(with(NuItems.pumice,100),60f*30,null,120),
@@ -225,6 +246,25 @@ public class NuBlocks {
             heatOutput = 3;
             craftTime = 60f;
         }};
+        contaminationRoom = new GenericCrafter("contaminationRoom"){{
+            requirements(Category.crafting, with(
+                    NuItems.bigIron,240,
+                    NuItems.graphite,145,
+                    NuItems.monoSiliCrystal,140,
+                    NuItems.magent,40
+            ));
+            outputLiquid = new LiquidStack(NuLiquid.dirtySolution,0.15f);
+            hasItems = true;
+            consumePower(4f);
+            craftTime = 75f;
+            health = 800;
+            size = 2;
+            consumeItems(ItemStack.with(NuItems.dirtyCoagulum,3));
+            craftEffect = new WrapEffect(){{
+                effect = Fx.lava;
+                color = NuColor.HonorColor;
+            }};
+        }};
         strangeLiquidExtractionRoom = new HeatCrafter("strangeLiquidExtractionRoom") {{
             requirements(Category.crafting, with(NuItems.monoSiliCrystal,160,NuItems.pumice,150,Items.graphite,200));
             hasLiquids = true;
@@ -251,6 +291,25 @@ public class NuBlocks {
                 particleLife = 140f;
             }});
         }};
+        crushingRoom = new GenericCrafter("crushingRoom"){{
+            requirements(Category.crafting,with(
+                    NuItems.frailPolyester,60,
+                    NuItems.monoSiliCrystal,45
+            ));
+            health = 400;
+            size = 1;
+            researchCostMultiplier = 1.15f;
+            craftEffect = NuFx.PaleSmoke;
+            itemCapacity = 40;
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.24f;
+            drawer = new DrawMulti(new DrawRegion("-rotator"){{
+                rotateSpeed = 20f;
+                spinSprite = true;
+            }}, new DrawDefault(),new DrawRegion("-top"));
+           consumeItem(NuItems.dirtyCoagulum,2);
+           outputItem = new ItemStack(NuItems.Tcoal,4);
+        }};
         seedCollector = new GenericCrafter("seedCollector") {{
             requirements(Category.crafting, with(Items.graphite,450,NuItems.pumice,250,NuItems.magent,50));
             hasItems = true;
@@ -259,9 +318,9 @@ public class NuBlocks {
             size = 2;
             buildTime = 40f;
             drawer = new DrawMulti(new DrawRegion("-rotator"){{
-                rotateSpeed = 2f;
+                rotateSpeed = 4f;
                 spinSprite = true;
-            }}, new DrawDefault(),new DrawRegion("-top"),new DrawRegion("-bottom"));
+            }}, new DrawDefault(),new DrawRegion("-top"));
             ambientSound = Sounds.plantBreak;
             itemCapacity = 60;
             outputItem = new ItemStack(NuItems.rubberFrag,8);
@@ -273,18 +332,24 @@ public class NuBlocks {
             requirements(Category.crafting,with(NuItems.monoSiliCrystal,100,NuItems.bigIron,300,NuItems.pumice,150,NuItems.sulFurFrag,90));
             size = 2;
             buildTime = 50f;
-            drawer = new DrawMulti(new DrawHeatInput(){{}});
             craftTime = 600f;
             consumePower(7.5f);
-            outputItem = new ItemStack(NuItems.rubber,2);
+            outputItem = new ItemStack(NuItems.rubber,3);
             drawer = new DrawMulti(new DrawHeatInput(){{
                 heatColor = NuColor.HeatColor;
             }},new DrawDefault(),new DrawGlowRegion("-heat"){{
                 blending = Blending.additive;
                 color = NuColor.HeatConColor;
-            }},new DrawRegion("-bottom"));
+            }},new DrawDefault(), new DrawParticles(){{
+                color = NuColor.HeatColor;
+                alpha = 0.6f;
+                particleSize = 4f;
+                particles = 10;
+                particleRad = 12f;
+                particleLife = 140f;
+            }});
             ambientSound = Sounds.loopSmelter;
-            consumeItems(ItemStack.with(NuItems.rubberFrag,1));
+            consumeItems(ItemStack.with(NuItems.rubberFrag,2));
             craftEffect = Fx.smeltsmoke;
             itemCapacity = 40;
             heatRequirement = 10;
@@ -305,6 +370,48 @@ public class NuBlocks {
             ambientSound = Sounds.loopSmelter;
             ambientSoundVolume = 0.1f;
             itemCapacity = 20;
+        }};
+        dirtyDecompositionRoom = new GenericCrafter("dirtyDecompositionRoom"){{
+            requirements(Category.crafting, with(
+                    NuItems.monoSiliCrystal,125,
+                    Items.graphite,200,
+                    NuItems.bigIron,240,
+                    NuItems.pumice, 80));
+            size = 3;
+            researchCostMultiplier = 1.2f;
+            craftTime = 75f;
+            rotate = true;
+            invertFlip = true;
+            group = BlockGroup.liquids;
+            itemCapacity = 20;
+            liquidCapacity = 50f;
+            consumeLiquid(NuLiquid.dirtySolution, 32f / 60f);
+            consumePower(8f);
+            drawer = new DrawMulti(
+                    new DrawRegion("-bottom"),
+                    new DrawLiquidTile(NuLiquid.dirtySolution, 2f),
+                    new DrawBubbles(NuColor.HonorColor){{
+                        sides = 10;
+                        recurrence = 3f;
+                        spread = 6;
+                        radius = 1.5f;
+                        amount = 20;
+                    }},
+                    new DrawRegion(),
+                    new DrawLiquidOutputs(),
+                    new DrawGlowRegion(){{
+                        alpha = 0.7f;
+                        color = Liquids.water.color;
+                        glowIntensity = 0.3f;
+                        glowScale = 6f;
+                    }}
+            );
+            ambientSound = Sounds.loopElectricHum;
+            ambientSoundVolume = 0.08f;
+            regionRotated1 = 3;
+            outputItem = new ItemStack(NuItems.dirtyCoagulum,1);
+            outputLiquids = LiquidStack.with(Liquids.water,10f/60,NuLiquid.nuclearFluid,8f/60);
+            liquidOutputDirections = new int[]{1, 3};
         }};
         distillationRoom = new GenericCrafter("distillationRoom") {{
             requirements(Category.crafting,with(NuItems.bigIron,200,NuItems.monoSiliCrystal,125,NuItems.pumice,75,Items.graphite,150,NuItems.rubber,50));
@@ -412,6 +519,92 @@ public class NuBlocks {
            }};
            consumePower(10f);
         }};
+        sacredIronEngravingRoom = new GenericCrafter("sacredIronEngravingRoom"){{
+            requirements(Category.crafting,with(
+                    NuItems.pumice,300,
+                    NuItems.magent,250,
+                    NuItems.frailPolyester,125,
+                    NuItems.alkSliver,200
+            ));
+            ambientSound = Sounds.loopGrind;
+            ambientSoundVolume = 0.2f;
+            size = 2;
+            buildTime = 25f;
+            health = 800;
+            itemCapacity = 40;
+            consumeItems(ItemStack.with(NuItems.bigIron,3));
+            consumeLiquids(LiquidStack.with(NuLiquid.prismLiquid,45/60f));
+            outputItem = new ItemStack(NuItems.sacredIron,3);
+            craftTime = 100f;
+            liquidCapacity = 500f;
+            craftEffect = new ParticleEffect(){{
+                particles = 8;
+                cone = 180;
+                lenFrom = 15f;
+                lenTo = 0f;
+                spin = 3f;
+                sizeFrom = 4f;
+                sizeTo = 0f;
+                colorFrom = NuColor.PaleColor;
+                colorTo = NuColor.PaleBackColor;
+                lifetime = 60f;
+                layer =110f;
+            }};
+            consumePower(12f);
+        }};
+        prismSmasher = new HeatCrafter("prismSmasher"){{
+            requirements(Category.crafting,with(
+                    NuItems.sacredIron,100,
+                    NuItems.magent,210,
+                    NuItems.pumice,300
+            ));
+            health = 1200;
+            size = 3;
+            craftTime = 600f;
+            heatRequirement = 3;
+            maxEfficiency = 6;
+            ambientSound = Sounds.loopSmelter;
+            ambientSoundVolume = 0.24f;
+            researchCostMultiplier = 1.1f;
+            consumePower(6f);
+            outputLiquid = new LiquidStack(NuLiquid.prismLiquid,45/60f);
+            consumeItems(ItemStack.with(NuItems.prismCrystal,4));
+            craftEffect = Fx.smoke;
+            itemCapacity = 40;
+        }};
+        backflowReversalRoom = new GenericCrafter("backflowReversalRoom"){{
+            requirements(Category.crafting,with(
+                    NuItems.pumice,300,
+                    NuItems.magent,250,
+                    NuItems.uranium,125,
+                    NuItems.sacredIron,200
+            ));
+            ambientSound = Sounds.loopGrind;
+            ambientSoundVolume = 0.2f;
+            size = 3;
+            buildTime = 25f;
+            health = 1400;
+            itemCapacity = 40;
+            consumeItems(ItemStack.with(NuItems.sacredIron,4,NuItems.thallium,3,NuItems.prismCrystal,3));
+            consumeLiquids(LiquidStack.with(NuLiquid.prismLiquid,1f));
+            outputItem = new ItemStack(NuItems.remakeSource,5);
+            craftTime = 300f;
+            liquidCapacity = 500f;
+            craftEffect = new ParticleEffect(){{
+                particles = 8;
+                cone = 180;
+                lenFrom = 15f;
+                lenTo = 0f;
+                spin = 3f;
+                sizeFrom = 4f;
+                sizeTo = 0f;
+                colorFrom = NuColor.PaleColor;
+                colorTo = NuColor.PaleBackColor;
+                lifetime = 60f;
+                layer =110f;
+            }};
+            consumePower(18f);
+        }};
         thalliumCompoundCrucible = new HeatCrafter("thalliumCompoundCrucible") {{
             requirements(Category.crafting,with(
                     NuItems.bigIron,400,
@@ -431,20 +624,41 @@ public class NuBlocks {
             outputItem = new ItemStack(NuItems.thallide,3);
             consumePower(12f);
             consumeItems(ItemStack.with(NuItems.thallium,6,NuItems.sulFurFrag,3));
-            craftEffect = new MultiEffect(new RadialEffect(){{
-                amount = 4;
-                rotationSpacing = 90f;
-                rotationOffset = 55f;
-                lengthOffset = 12f;
-                effect =NuFx.ThallideConsumeSmoke;
-            }},new RadialEffect(){{
-                amount = 4;
-                rotationSpacing = 90f;
-                rotationOffset = 50f;
-                lengthOffset = 12f;
-                effect = NuFx.ThallideConsumeSmoke;
-            }});
+            craftEffect = Fx.smoke;
             itemCapacity = 60;
+        }};
+        divineTearsEnrichRoom = new GenericCrafter("divinTearsEnrichRoom"){{
+            requirements(Category.crafting,with(
+                    NuItems.pumice,300,
+                    NuItems.magent,250,
+                    NuItems.uranium,125,
+                    NuItems.sacredIron,200
+            ));
+            ambientSound = Sounds.loopGrind;
+            ambientSoundVolume = 0.2f;
+            size = 3;
+            buildTime = 25f;
+            health = 1400;
+            itemCapacity = 40;
+            consumeItems(ItemStack.with(NuItems.magent,1,NuItems.prismCrystal,2));
+            consumeLiquids(LiquidStack.with(Liquids.water,35/60f));
+            outputLiquid = new LiquidStack(NuLiquid.divineTears,0.4f);
+            craftTime = 120f;
+            liquidCapacity = 500f;
+            craftEffect = new ParticleEffect(){{
+                particles = 8;
+                cone = 180;
+                lenFrom = 15f;
+                lenTo = 0f;
+                spin = 3f;
+                sizeFrom = 4f;
+                sizeTo = 0f;
+                colorFrom = NuColor.PaleColor;
+                colorTo = NuColor.PaleBackColor;
+                lifetime = 60f;
+                layer =110f;
+            }};
+            consumePower(14f);
         }};
         OxygenLiquefactionRoom =new HeatCrafter("OxygenLiquefactionRoom") {{
             requirements(Category.crafting,with(
@@ -455,6 +669,7 @@ public class NuBlocks {
             ));
             heatRequirement = 5;
             maxEfficiency = 6;
+            size = 3;
             ambientSound = Sounds.loopSmelter;
             ambientSoundVolume = 0.2f;
             craftTime = 120f;
@@ -487,20 +702,20 @@ public class NuBlocks {
             ));
             researchCostMultiplier = 0.5f;
             itemCapacity = 20;
-            hasItems = true;
-            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawDefault(), new DrawLiquidTile(){{
-                drawLiquid = Liquids.water;
-                padding = 3f;
-            }});
+            size = 2;
+            hasItems = hasLiquids =true;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),
+                    new DrawDefault(),
+                    new DrawCultivator(){{
+                        plantColor = NuLiquid.nuclearFluid.color;
+                        plantColorLight = NuColor.SailBackColor;
+                    }},new DrawRegion("-top")
+            );
             consumePower(20f);
             consumeItems(ItemStack.with(NuItems.oriUranium,2));
             consumeLiquids(LiquidStack.with(Liquids.water,0.5f));
             outputItem = new ItemStack(NuItems.uranium,2);
-            craftEffect = new MultiEffect(new RadialEffect(){{
-                amount = 4;
-                rotationSpacing = 90f;
-                effect = Fx.surgeCruciSmoke;
-            }},new ParticleEffect(){{
+            craftEffect = new ParticleEffect(){{
                 particles = 8;
                 cone = 180f;
                 lenFrom = 32f;
@@ -511,9 +726,9 @@ public class NuBlocks {
                 colorTo = Color.valueOf("ffffff");
                 lifetime = 80f;
                 layer =100f;
-            }});
+            }};
         }};
-        MagneticStormStabiliser = new StormCrafterBlock("MagenticStormStabiliser") {{
+        MagenticStormStabiliser = new StormCrafterBlock("MagenticStormStabiliser") {{
             requirements(Category.crafting, with(
                     NuItems.bigIron, 550,
                     NuItems.sulFurFrag, 500,
@@ -583,7 +798,7 @@ public class NuBlocks {
             lightningLengthMin    = 8;       // 闪电最短 8 格
             lightningLengthMax    = 42;      // 闪电最长 22 格
         }};
-        MagentEnergyStation = new HeatProducer("MagenticEnergyStation") {{
+        MagentEnergyStation = new HeatProducer("MagentEnergyStation") {{
             requirements(Category.crafting, with(
                NuItems.bigIron,400,
                NuItems.monoSiliCrystal,300,
@@ -600,8 +815,7 @@ public class NuBlocks {
             consumeItems(ItemStack.with(NuItems.bigIron,3));
             consumeLiquids(LiquidStack.with(Liquids.water,1f));
             itemCapacity = 60;
-            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawLiquidTile(){{
-                drawLiquid = Liquids.water;
+            drawer = new DrawMulti(new DrawRegion("-bottom"),new DrawLiquidTile(Liquids.water,2){{
             }},new DrawCircles(){{
                 color = NuColor.PaleColor;
                 strokeMax = 3.25f;
@@ -863,10 +1077,10 @@ public class NuBlocks {
             size = 2;
             range = 120f;
             speedBoost = 1.5f;
-            speedBoostPhase = 1f;
+            speedBoostPhase = 0.6f;
             ambientSoundVolume = 0.12f;
-            phaseRangeBoost = 40f;
-            hasBoost = false;
+            phaseRangeBoost = 24f;
+            hasBoost = true;
             consumeItem(NuItems.rubber).boost();
         }};
         SeniorOverloaded = new OverdriveProjector("SeniorOverloaded"){{
@@ -879,12 +1093,12 @@ public class NuBlocks {
             consumePower(25f);
             size = 3;
             range = 280f;
-            phaseRangeBoost = 80f;
-            speedBoost = 2.8f;
-            speedBoostPhase = 2f;
+            phaseRangeBoost = 64f;
+            speedBoost = 1.8f;
+            speedBoostPhase = 1.7f;
             useTime = 300f;
             ambientSoundVolume = 0.12f;
-            hasBoost = false;
+            hasBoost = true;
             consumeItem(NuItems.alkSliver).boost();
         }};
         OverloadDefenceTower = new PointDefenseTurret("OverloadDefenceTower"){{
@@ -901,7 +1115,7 @@ public class NuBlocks {
             size = 2;
             shootLength = 10f;
             bulletDamage = 1000f;
-            reload = 0f;
+            reload = 0.25f;
             rotateSpeed = 360f;
             retargetTime = 0.001f;
             beamEffect = Fx.hitLaserBlast;
@@ -1394,14 +1608,6 @@ public class NuBlocks {
         }};
 
 
-        bigIronDuct = new Duct("bigIronDuct"){{
-            requirements(Category.distribution, with(NuItems.bigIron,3));
-            health = 200;
-            speed = 3.5f;
-            researchCost = with(NuItems.bigIron,12);
-            bridgeReplacement = bigIronBridge;
-            junctionReplacement = bigIronJunction;
-        }};
         bigIronRouter = new DuctRouter("bigIronRouter"){{
             requirements(Category.distribution, with(NuItems.bigIron,12));
             health = 200;
@@ -1442,12 +1648,21 @@ public class NuBlocks {
             bufferCapacity = 14;
             crushFragile = true;
         }};
+        bigIronDuct = new Duct("bigIronDuct"){{
+            requirements(Category.distribution, with(NuItems.bigIron,3));
+            health = 200;
+            speed = 3.5f;
+            researchCost = with(NuItems.bigIron,12);
+            bridgeReplacement = bigIronBridge;
+            junctionReplacement = bigIronJunction;
+        }};
         basicUnloader = new DirectionalUnloader("basicUnloader"){{
             requirements(Category.distribution, with(Items.graphite, 20, NuItems.monoSiliCrystal,20, NuItems.bigIron, 10));
             health = 200;
             speed = 2f;
             solid = false;
             underBullets = true;
+            allowCoreUnload = true;
             regionRotated1 = 1;
         }};
         ThermalConductor = new HeatConductor("ThermalConductor"){{
@@ -1470,13 +1685,6 @@ public class NuBlocks {
             }}, new DrawHeatInput("-heat"));
             regionRotated1 = 1;
         }};
-        floatDuct = new Duct("floatDuct"){{
-            requirements(Category.distribution, with(NuItems.pumice,3));
-            health = 700;
-            speed = 1.5f;
-            bridgeReplacement = floatBridge;
-            junctionReplacement = floatJunction;
-        }};
         floatRouter = new DuctRouter("floatRouter"){{
             requirements(Category.distribution, with(NuItems.pumice,12));
             health = 700;
@@ -1484,7 +1692,7 @@ public class NuBlocks {
             regionRotated1 = 1;
             solid = false;
         }};
-        floatJunction = new Junction("floatJuction"){{
+        floatJunction = new Junction("floatJunction"){{
             requirements(Category.distribution, with(NuItems.pumice, 3));
             speed = 60;
             capacity = 30;
@@ -1516,6 +1724,13 @@ public class NuBlocks {
             arrowSpacing = 6f;
             bufferCapacity = 14;
             crushFragile = true;
+        }};
+        floatDuct = new Duct("floatDuct"){{
+            requirements(Category.distribution, with(NuItems.pumice,3));
+            health = 700;
+            speed = 1.5f;
+            bridgeReplacement = floatBridge;
+            junctionReplacement = floatJunction;
         }};
         UnitCarryingPoint = new UnitCargoLoader("UnitCarryingPoint"){{
             requirements(Category.distribution, with(NuItems.monoSiliCrystal,80, NuItems.rubber, 50,NuItems.alkSliver, 20));
@@ -1619,15 +1834,6 @@ public class NuBlocks {
             size = 3;
             health = 2000;
         }};
-        OrganicConduit =new Conduit("OrganicConduit"){{
-            requirements(Category.liquid, with(NuItems.frailPolyester,2));
-            liquidCapacity =50f;
-            liquidPressure = 1.6f;
-            health = 200;
-            explosivenessScale = flammabilityScale = 1f;
-            junctionReplacement = OrganicJunction;
-            bridgeReplacement = OrganicBridge;
-        }};
         OrganicJunction = new LiquidJunction("OrganicJunction"){{
             requirements(Category.liquid, with(Items.graphite, 4, NuItems.frailPolyester,8));
             solid = false;
@@ -1652,14 +1858,14 @@ public class NuBlocks {
             liquidCapacity = 100f;
             explosivenessScale = flammabilityScale = 20f/10f;
         }};
-        FloatConduic = new Conduit("FloatConduit"){{
-            requirements(Category.liquid, with(NuItems.frailPolyester,4,NuItems.pumice,2));
-            liquidCapacity =140f;
-            liquidPressure = 4f;
-            health = 800;
-            explosivenessScale = flammabilityScale = 0.3f;
-            junctionReplacement = FloatJunction;
-            bridgeReplacement = FloatBridge;
+        OrganicConduit =new Conduit("OrganicConduit"){{
+            requirements(Category.liquid, with(NuItems.frailPolyester,2));
+            liquidCapacity =50f;
+            liquidPressure = 1.6f;
+            health = 200;
+            explosivenessScale = flammabilityScale = 1f;
+            junctionReplacement = OrganicJunction;
+            bridgeReplacement = OrganicBridge;
         }};
         FloatJunction = new LiquidJunction("FloatJunction"){{
             requirements(Category.liquid, with(NuItems.pumice,6, NuItems.frailPolyester,12));
@@ -1685,6 +1891,15 @@ public class NuBlocks {
             liquidCapacity = 1000f;
             explosivenessScale = flammabilityScale = 20f/240f;
         }};
+        FloatConduic = new Conduit("FloatConduit"){{
+            requirements(Category.liquid, with(NuItems.frailPolyester,4,NuItems.pumice,2));
+            liquidCapacity =140f;
+            liquidPressure = 4f;
+            health = 800;
+            explosivenessScale = flammabilityScale = 0.3f;
+            junctionReplacement = FloatJunction;
+            bridgeReplacement = FloatBridge;
+        }};
         FloatTank = new LiquidRouter("FloatTank"){{
             requirements(Category.liquid, with(Items.graphite,14, NuItems.frailPolyester,20,NuItems.pumice,4));
             liquidCapacity = 4500f;
@@ -1709,7 +1924,7 @@ public class NuBlocks {
             consumePower(4f);
             researchCostMultiplier = 0.5f;
         }};
-        ExperimentalUnitReconstructionFactory = new Reconstructor("ExperimentalUnitReconstruction"){{
+        ExperimentalUnitReconstructionFactory = new Reconstructor("ExperimentalUnitReconstructionFactory"){{
             requirements(Category.units, with(NuItems.pumice, 200, NuItems.magent, 120, NuItems.monoSiliCrystal, 90));
             size = 3;
             consumePower(10f);
@@ -1722,14 +1937,14 @@ public class NuBlocks {
                     new UnitType[]{FederalUnitTypes.sailor, FederalUnitTypes.cruise}
             );
         }};
-        MechanicalAssemblyFactory = new UnitAssembler("MechanicalAssembly"){{
+        MechanicalAssemblyFactory = new UnitAssembler("MechanicalAssemblyFactory"){{
             requirements(Category.units, with(NuItems.pumice, 500, NuItems.magent,150, NuItems.alkSliver,80, NuItems.monoSiliCrystal,650));
             regionSuffix = "-dark";
             droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.vanity, 60f * 50f, PayloadStack.list(FederalUnitTypes.honor,8, energyStorageLargeWall, 10)),
-                    new AssemblerUnitPlan(FederalUnitTypes.overPraise, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.proud,12, rubberLargeWall, 24))
+                    new AssemblerUnitPlan(FederalUnitTypes.overPraise, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.proud,12, rubberLargeWall, 15))
             );
             areaSize = 13;
             researchCostMultiplier = 0.4f;
@@ -1742,8 +1957,8 @@ public class NuBlocks {
             droneType = FederalUnitTypes.humorous;
             size = 5;
             plans.add(
-                    new AssemblerUnitPlan(FederalUnitTypes.loss, 60f * 50f, PayloadStack.list(FederalUnitTypes.vile,8, energyStorageLargeWall, 12)),
-                    new AssemblerUnitPlan(FederalUnitTypes.overPraise, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.nonsense,12, alkSliverLargeWall, 24))
+                    new AssemblerUnitPlan(FederalUnitTypes.loss, 60f * 50f, PayloadStack.list(FederalUnitTypes.vile,8, energyStorageLargeWall, 8)),
+                    new AssemblerUnitPlan(FederalUnitTypes.nonsense, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.shame,12, alkSliverLargeWall, 15))
             );
             areaSize = 13;
             researchCostMultiplier = 0.4f;
@@ -1757,7 +1972,7 @@ public class NuBlocks {
             size = 5;
             plans.add(
                     new AssemblerUnitPlan(FederalUnitTypes.wanderer, 60f * 50f, PayloadStack.list(FederalUnitTypes.sailor,8, energyStorageLargeWall, 8)),
-                    new AssemblerUnitPlan(FederalUnitTypes.setsails, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.cruise,12, alkSliverLargeWall, 20))
+                    new AssemblerUnitPlan(FederalUnitTypes.setsails, 60f * 60f * 3f, PayloadStack.list(FederalUnitTypes.cruise,12, alkSliverLargeWall, 15))
             );
             areaSize = 13;
             researchCostMultiplier = 0.4f;
@@ -1930,7 +2145,7 @@ public class NuBlocks {
             consumePower(7f);
             researchCostMultiplier = 0.5f;
         }};
-        PaleNumberReconstruction = new Reconstructor("PaleNumberLvReconstruction"){{
+        PaleNumberReconstruction = new Reconstructor("PaleNumberReconstruction"){{
             requirements(Category.units, with(NuItems.pumice, 200, NuItems.prismCrystal, 120, NuItems.monoSiliCrystal, 90));
             size = 3;
             consumePower(10f);
@@ -2028,6 +2243,38 @@ public class NuBlocks {
             }}, NuItems.thallide)
                            );
     }};
+        awnlessSpike = new PowerTurret("awnlessSpike"){{
+           size = 2;
+           health = 2000;
+           armor = 22;
+           shake = 1f;
+           reload = 1200f;
+           range = 160f;
+           consumePower(5f);
+            requirements(Category.turret, with(
+                    NuItems.bigIron, 120,
+                    NuItems.monoSiliCrystal, 80,
+                    Items.graphite, 60
+            ));
+            shoot = new ShootPattern(){{
+               shots = 12;shotDelay = 180f;
+            }};
+            for (int i = 0; i < shoot.shots; i++){{
+               shoot.shotDelay = shoot.shotDelay-10f;
+            shootType = new BasicBulletType(5f, 60f){{
+                width = 20f;
+                height = 20f;
+           lifetime = 60f;
+           pierce = true;
+           pierceCap = 3;
+           // — PointBulletType 拖尾参数（参考 NuBlocks / FederalUnitTypes 中其它 Point 弹的写法）
+           trailInterval = 12f;              // 每 2 tick 触发一次
+           trailEffect   = NuFx.DespSmokeTail;   // 现成能量烟尾，避免 Fx.trailPoint 未定义
+           hitEffect = Fx.flakExplosion;
+           shootEffect = Fx.shootBig;
+                }};
+            }};
+        }};
         DefeatGod = new ItemTurret("DefeatGod"){{
             size = 1;
             health = 1000;
@@ -2041,7 +2288,7 @@ public class NuBlocks {
             range = 160f;
             targetGround = true;
             targetAir =true;
-            requirements(Category.turret,with(NuItems.bigIron,100));
+            requirements(Category.turret,with(NuItems.bigIron,25));
             shoot = new ShootBarrel(){{
                 barrels = new float[]{
                         4f, 0f, 0f,
@@ -2050,6 +2297,7 @@ public class NuBlocks {
                 shots = 12;
                 shotDelay = 4.5f;
             }};
+            researchCost = with(NuItems.bigIron,120);
             ammo(
               NuItems.bigIron,new BasicBulletType(5f,76f){{
                   frontColor = lightColor = trailColor = NuColor.PaleColor;
@@ -2148,13 +2396,14 @@ public class NuBlocks {
             shootCone = 5f;
             rotateSpeed = 9f;
             range = 200f;
-            requirements(Category.turret,with(NuItems.bigIron,150,Items.graphite,50));
+            requirements(Category.turret,with(NuItems.bigIron,45,Items.graphite,25));
             targetAir = true;
             targetGround = false;
             shoot = new ShootPattern(){{
                shots = 12;
                shotDelay = 2f;
             }};
+            researchCost = with(NuItems.bigIron,500,Items.graphite,150);
             ammo(
                     Items.sand,new FlakBulletType(5f,25f){{
                         lifetime = 40f;
@@ -2511,7 +2760,7 @@ public class NuBlocks {
             size = 1;
             health = 1000;
             armor = 12;
-            shake = 2.5f;
+            shake = 0.15f;
             rotateSpeed = 9f;
             range = 200f;
             targetAir = true;
@@ -2827,7 +3076,7 @@ public class NuBlocks {
             heatColor = Color.red;
             size = 2;
             health = 2000;
-            targetAir = false;
+            targetAir = true;
             moveWhileCharging = false;
             accurateDelay = false;
             shootSound = Sounds.shootLancer;
@@ -2895,7 +3144,7 @@ public class NuBlocks {
             maxAmmo = 45;
             shootCone = 80f;
             rotateSpeed = 12f;
-            range = 200f;
+            range = 220f;
             targetAir = true;
             targetGround = true;
             ammo(
@@ -2961,7 +3210,7 @@ public class NuBlocks {
                         }};
                         fragBullets = 1;
                         fragRandomSpread = 0f;
-                        fragBullet = new MissileBulletType(6f,200f){{
+                        fragBullet = new MissileBulletType(6f,250f){{
                             width = 10f;
                             height = 32f;
                             lifetime =17.5f;
@@ -3030,8 +3279,8 @@ public class NuBlocks {
                         homingPower = 1f;
                         weaveScale = 12f;
                         reloadMultiplier = 0.8f;
-                        frontColor = lightColor = trailColor = NuItems.magent.color;
-                        backColor = hitColor = Color.white;
+                        frontColor = lightColor = trailColor = NuItems.monoSiliCrystal.color;
+                        backColor = hitColor = Items.silicon.color;
                         trailLength = 8;
                         fragBullets = 20;
                         fragVelocityMin = 0.8f;
@@ -3044,13 +3293,13 @@ public class NuBlocks {
                             pierce = true;
                             pierceCap = 6;
                             pierceBuilding = true;
-                            frontColor = lightColor = trailColor = NuItems.magent.color;
-                            backColor = hitColor = Color.white;
+                            frontColor = lightColor = trailColor = NuItems.monoSiliCrystal.color;
+                            backColor = hitColor = Items.silicon.color;
                             trailWidth = 2.5f;
                             trailLength = 6;
                             hitEffect = despawnEffect = new WaveEffect(){{
-                                colorFrom = NuItems.magent.color;
-                                colorTo = Color.white;
+                                colorFrom = NuItems.monoSiliCrystal.color;
+                                colorTo = Items.silicon.color;
                                 sizeFrom = 4f;sizeTo = 2f;
                                 strokeFrom = 1f;strokeTo = 4.5f;
                                 lifetime = 16f;
@@ -3070,13 +3319,13 @@ public class NuBlocks {
                             pierce = true;
                             pierceCap = 6;
                             pierceBuilding = true;
-                            frontColor = lightColor = trailColor = NuItems.magent.color;
-                            backColor = hitColor = Color.white;
+                            frontColor = lightColor = trailColor = NuItems.monoSiliCrystal.color;
+                            backColor = hitColor =Items.silicon.color;
                             trailWidth = 2.5f;
                             trailLength = 6;
                             hitEffect = despawnEffect = new WaveEffect(){{
-                                colorFrom = NuItems.magent.color;
-                                colorTo = Color.white;
+                                colorFrom = NuItems.monoSiliCrystal.color;
+                                colorTo = Items.silicon.color;
                                 sizeFrom = 4f;sizeTo = 2f;
                                 strokeFrom = 1f;strokeTo = 4.5f;
                                 lifetime = 16f;
@@ -3091,8 +3340,8 @@ public class NuBlocks {
                         lifetime =37f;
                         homingPower = 0.3f;
                         weaveScale = 12f;
-                        frontColor = lightColor = trailColor = NuItems.magent.color;
-                        backColor = hitColor = Color.white;
+                        frontColor = lightColor = trailColor = NuItems.frailPolyester.color;
+                        backColor = hitColor = NuColor.SurvivalColor;
                         trailLength = 8;
                         fragBullets = 20;
                         fragVelocityMin = 0.8f;
@@ -3107,13 +3356,13 @@ public class NuBlocks {
                             pierce = true;
                             pierceCap = 6;
                             pierceBuilding = true;
-                            frontColor = lightColor = trailColor = NuItems.magent.color;
-                            backColor = hitColor = Color.white;
+                            frontColor = lightColor = trailColor = NuItems.frailPolyester.color;
+                            backColor = hitColor = NuColor.SurvivalColor;
                             trailWidth = 2.5f;
                             trailLength = 6;
                             hitEffect = despawnEffect = new WaveEffect(){{
-                                colorFrom = NuItems.magent.color;
-                                colorTo = Color.white;
+                                colorFrom = NuItems.frailPolyester.color;
+                                colorTo = NuColor.SurvivalColor;
                                 sizeFrom = 4f;sizeTo = 2f;
                                 strokeFrom = 1f;strokeTo = 4.5f;
                                 lifetime = 16f;
@@ -3133,13 +3382,138 @@ public class NuBlocks {
                             pierce = true;
                             pierceCap = 6;
                             pierceBuilding = true;
-                            frontColor = lightColor = trailColor = NuItems.magent.color;
-                            backColor = hitColor = Color.white;
+                            frontColor = lightColor = trailColor = NuItems.frailPolyester.color;
+                            backColor = hitColor = NuColor.SurvivalColor;
                             trailWidth = 2.5f;
                             trailLength = 6;
                             hitEffect = despawnEffect = new WaveEffect(){{
-                                colorFrom = NuItems.magent.color;
-                                colorTo = Color.white;
+                                colorFrom = NuItems.frailPolyester.color;
+                                colorTo = NuColor.SurvivalColor;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.45f;
+                            buildingDamageMultiplier = 0.6f;
+                        }};
+                    }},
+                    NuItems.rubberFrag,new MissileBulletType(6f,215f){{
+                        width = 10f;
+                        height = 32f;
+                        lifetime =37f;
+                        homingPower = 0.3f;
+                        weaveScale = 12f;
+                        frontColor = lightColor = trailColor = NuItems.rubber.color;
+                        backColor = hitColor = NuItems.rubberFrag.color;
+                        trailLength = 8;
+                        fragBullets = 20;
+                        fragVelocityMin = 0.8f;
+                        fragVelocityMax = 1.25f;
+                        fragLifeMin = 0.5f;
+                        status = StatusEffects.burning;
+                        statusDuration = 60f*5.5f;
+                        fragBullet = new BasicBulletType(6f,78f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 14f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.rubber.color;
+                            backColor = hitColor =NuItems.rubberFrag.color;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.rubber.color;
+                                colorTo = NuItems.rubberFrag.color;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.45f;
+                            buildingDamageMultiplier = 0.6f;
+                        }};
+                        bulletInterval = 2f;
+                        intervalRandomSpread = 20f;
+                        intervalBullets = 2;
+                        intervalAngle = 180f;
+                        intervalSpread = 300f;
+                        intervalBullet = new BasicBulletType(6f,78f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 14f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.rubber.color;
+                            backColor = hitColor = NuItems.rubberFrag.color;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom = NuItems.rubber.color;
+                                colorTo =NuItems.rubberFrag.color;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.45f;
+                            buildingDamageMultiplier = 0.6f;
+                        }};
+                    }},
+                    NuItems.dirtyCoagulum,new MissileBulletType(6f,115f){{
+                        width = 10f;
+                        height = 32f;
+                        lifetime =37f;
+                        homingPower = 0.3f;
+                        weaveScale = 12f;
+                        frontColor = lightColor = trailColor = NuItems.dirtyCoagulum.color;
+                        backColor = hitColor =NuColor.HonorColor;
+                        trailLength = 8;
+                        fragBullets = 20;
+                        fragVelocityMin = 0.8f;
+                        fragVelocityMax = 1.25f;
+                        fragLifeMin = 0.5f;
+                        reloadMultiplier = 1.45f;
+                        fragBullet = new BasicBulletType(6f,54f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 14f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.dirtyCoagulum.color;
+                            backColor = hitColor=NuColor.HonorColor;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom =NuItems.dirtyCoagulum.color;
+                                colorTo = NuColor.HonorColor;
+                                sizeFrom = 4f;sizeTo = 2f;
+                                strokeFrom = 1f;strokeTo = 4.5f;
+                                lifetime = 16f;
+                            }};
+                            homingPower = 0.45f;
+                            buildingDamageMultiplier = 0.6f;
+                        }};
+                        bulletInterval = 2f;
+                        intervalRandomSpread = 20f;
+                        intervalBullets = 2;
+                        intervalAngle = 180f;
+                        intervalSpread = 300f;
+                        intervalBullet = new BasicBulletType(6f,32f){{
+                            width = 10f;
+                            height = 18f;
+                            lifetime = 14f;
+                            pierce = true;
+                            pierceCap = 6;
+                            pierceBuilding = true;
+                            frontColor = lightColor = trailColor = NuItems.dirtyCoagulum.color;
+                            backColor = hitColor = NuColor.HonorColor;
+                            trailWidth = 2.5f;
+                            trailLength = 6;
+                            hitEffect = despawnEffect = new WaveEffect(){{
+                                colorFrom =NuItems.dirtyCoagulum.color;
+                                colorTo =NuColor.HonorColor;
                                 sizeFrom = 4f;sizeTo = 2f;
                                 strokeFrom = 1f;strokeTo = 4.5f;
                                 lifetime = 16f;
@@ -3219,7 +3593,7 @@ public class NuBlocks {
             range = 160f;reload = 5f;
             targetAir = true;
             targetGround = true;
-            shootCone = 50f;
+            shootCone = 3f;
             liquidCapacity = 250f;
             liquidConsumed = 0.2f;
             cooldownTime = 100f;
@@ -3301,6 +3675,11 @@ public class NuBlocks {
                         buildingDamageMultiplier = 0.9f;
                         rangeChange = 120f; timescaleDamage = true;
                         status = NuStatus.pulse;statusDuration = 60f*10;
+                        fragBullets = 4;fragRandomSpread = 360f;
+                        fragBullet = new LightningBulletType(){{
+                            damage = 65f;lightningLength =22;lightningLengthRand = 10;
+                            lightningColor = NuColor.PaleColor;
+                        }};
                     }}
             );
         }};
@@ -3655,7 +4034,7 @@ public class NuBlocks {
             ));
             range = 400f;
             recoil = 2f;
-            reload = 20f;
+            reload = 210f;
             shake = 2f;
             shootEffect = new WrapEffect(){{
                 effect = Fx.lancerLaserShoot;
@@ -3664,6 +4043,7 @@ public class NuBlocks {
             smokeEffect = Fx.none;
             heatColor = Color.red;
             size = 4;
+            shootCone = 30f;
             health = 4000;
             targetAir = true;
             shootSound = Sounds.shootLancer;
@@ -3674,11 +4054,14 @@ public class NuBlocks {
             warmupMaintainTime = 120f;
             minWarmup = 0.96f;
             shootWarmupSpeed = 0.08f;
+            shoot = new ShootMulti(new ShootPattern(){{
+               shots = 3; shotDelay=30f;
+            }},new ShootSpread(3,20f));
             shootType =new FlakBulletType(5f,750f){{
                     collides = collidesAir = collidesGround = collidesTiles = true;
                     lifetime = 65f;
                     width = 8f;
-                    drag = 0f;
+                    trailLength = 20;
                     height = 18f;
                     frontColor = lightColor = trailColor = Color.white;
                     backColor = hitColor = NuColor.CoreColor;
@@ -3694,7 +4077,7 @@ public class NuBlocks {
                     trailLength = 18;
                     trailWidth = 4.2f;
                     trailInterval = 3f;
-                    trailEffect = new WaveEffect(){{
+                    trailEffect = new MultiEffect(NuFx.sniperGlowTail,new WaveEffect(){{
                         sizeFrom = 32f; sizeTo = 8f;
                         strokeFrom = 1f; strokeTo = 6f;   // 越收越粗
                         interp = Interp.reverse;
@@ -3702,7 +4085,7 @@ public class NuBlocks {
                         lifetime = 20f;
                         colorFrom = NuColor.EnergyColor;
                         colorTo = NuColor.EnergyBackColor;
-                    }};
+                    }});
                     trailEffect = NuFx.sniperGlowTail;
                     fragBullets = 10;
                     fragRandomSpread = 90f;
@@ -4351,15 +4734,15 @@ public class NuBlocks {
 
         bigIronDrill = new Drill("bigIronDrill"){{
             requirements(Category.production, with(NuItems.bigIron, 10));
-            drillTime = 240f;
+            drillTime = 60*4.5f;
             size = 2;
             health = 500;
-            tier = 4;
+            tier = 3;
             hardnessDrillMultiplier = 200f;
             itemCapacity = 20;
             hasItems = hasLiquids = true;
-            consumeLiquid(Liquids.water, 1/60f).boost();
-            liquidBoostIntensity = 1.45f;
+            consumeLiquid(Liquids.water, 2/60f).boost();
+            liquidBoostIntensity = 1.2f;
             drillEffect = new WaveEffect(){{
                 sizeFrom = 0f;
                 sizeTo = 20f;
@@ -4370,33 +4753,74 @@ public class NuBlocks {
                 lifetime = 30f;
             }};
         }};
+        floatBaseDrill =new Drill("floatBaseDrill"){{
+            requirements(Category.production, with(
+                    NuItems.pumice,20,
+                    Items.graphite,15
+            ));
+            drillTime = 60f * 3f;
+            size = 2;
+            hasPower = true;
+            tier = 3;
+            health = 1500;
+            drillEffect = new MultiEffect(Fx.mineImpact,Fx.mineImpactWave.wrap(NuItems.pumice.color, 40f));
+            itemCapacity = 100;
+            researchCostMultiplier = 1f;
+            drillMultipliers.put(NuItems.rubberFrag, 2f);
+            liquidBoostIntensity = 1.4f;
+            fogRadius = 10;
+            consumeLiquid(Liquids.water, 4/60f).boost();
+        }};
         floatDrill = new BurstDrill("floatDrill"){{
             requirements(Category.production, with(
                     NuItems.pumice,50,
-                    NuItems.bigIron,200,
-                    NuItems.monoSiliCrystal,60,
+                    NuItems.monoSiliCrystal,40,
                     Items.graphite,45
             ));
-            drillTime = 60f * 3f;
+            drillTime = 60f * 5f;
             size = 3;
             hasPower = true;
             tier = 4;
             health = 1500;
-            drillEffect = new MultiEffect(Fx.mineImpact, Fx.drillSteam, Fx.mineImpactWave.wrap(Pal.redLight, 40f));
+            drillEffect = new MultiEffect(Fx.mineImpact,Fx.drillSteam, Fx.mineImpactWave.wrap(NuItems.pumice.color, 40f));
             shake = 4f;
-            itemCapacity = 40;
-            blockedItem = NuItems.prismCrystal;
+            arrows = 2;arrowSpacing = 2.5f;arrowOffset = 0f;
+            //arrowColor = NuColor.PaleColor;glowColor = Color.white;
+            //baseArrowColor = NuItems.pumice.color;
+            itemCapacity = 100;
             researchCostMultiplier = 1f;
             drillMultipliers.put(NuItems.rubberFrag, 2f);
-            liquidBoostIntensity = 1.75f;
+            liquidBoostIntensity = 2f;
             fogRadius = 10;
             consumePower(5f);
-            consumeLiquid(NuLiquid.strangeLiquid, 1/60f).boost();
-            liquidBoostIntensity = 2.36f;
+            consumeLiquid(NuLiquid.strangeLiquid, 3/60f).boost();
+            // — 修正 arrow 贴图像素位置：
+            //   BurstDrill 内部硬编码把 arrowRegion 的 PNG 几何中心对齐 rotator 中心，
+            //   但 floatDrill-arrow.png 的箭头像素画在 PNG 右上，所以通过 FloatDrill 的
+            //   arrowOffsetX / arrowOffsetY 把它往左下拖回中心（单位=像素，1 tile = 32 像素）。
+            //   可按实际视觉再微调。
+        }};
+        sliverDrill = new Drill("sliverDrill"){{
+            requirements(Category.production, with(
+                    NuItems.pumice, 60,
+                    NuItems.magent,25,
+                    NuItems.alkSliver,35
+            ));
+            drillTime = 60*2.5f;
+            size = 3;
+            health = 2000;
+            tier = 4;
+            hardnessDrillMultiplier = 4f;
+            liquidBoostIntensity = 1.6f;
+            itemCapacity = 200;
+            hasItems = hasLiquids = true;
+            drillEffect =Fx.mineHuge;
+            consumePower(7f);
+            consumeLiquid(NuLiquid.strangeLiquid, 4/60f).boost();
         }};
         nuclearDrill = new Drill("nuclearDrill"){{
             requirements(Category.production, with(
-                    NuItems.pumice, 120,
+                    NuItems.pumice, 100,
                     NuItems.magent,80,
                     NuItems.uranium,10,
                     NuItems.monoSiliCrystal,90
@@ -4405,21 +4829,29 @@ public class NuBlocks {
             size = 4;
             health = 2000;
             tier = 6;
-            hardnessDrillMultiplier = 1f;
-            itemCapacity = 100;
+            hardnessDrillMultiplier = 8f;
+            liquidBoostIntensity = 1.8f;
+            itemCapacity = 200;
             hasItems = hasLiquids = true;
-            drillEffect = new WaveEffect(){{
-                sizeFrom = 0f;
-                sizeTo = 20f;
-                strokeFrom = 2f;
-                strokeTo = 0.2f;
-                colorFrom = NuColor.PaleColor;
-                colorTo = NuColor.PaleConColor;
-                lifetime = 30f;
-            }};
+            drillEffect = Fx.mineHuge;
             consumePower(16f);
-            consumeLiquid(NuLiquid.liquidOxygen, 1/60f).boost();
-            liquidBoostIntensity = 3.6f;
+            consumeLiquid(NuLiquid.liquidOxygen, 2.45f/60f).boost();
+        }};
+        prismDrill = new BeamDrill("prismDrill"){{
+            requirements(Category.production, with(
+                    NuItems.pumice, 40,
+                    NuItems.rubber,25,
+                    NuItems.prismCrystal,50
+            ));
+            consumePower(1.25f);
+            drillTime = 45f;
+            itemCapacity = 40;
+            heatColor = glowColor = sparkColor = NuColor.HeatColor;boostHeatColor = NuItems.prismCrystal.color;
+            tier = 5;
+            size = 3;
+            range = 10;
+            fogRadius = 12;
+            consumeLiquid(NuLiquid.prismLiquid, 10f / 60f).boost();
         }};
         hotMeltDrill = new BeamDrill("hotMeltDrill"){{
             requirements(Category.production, with(
@@ -4430,8 +4862,10 @@ public class NuBlocks {
             consumePower(0.5f);
             drillTime = 100f;
             tier = 4;
+            heatColor = NuColor.HeatColor;
+            boostHeatColor = NuItems.monoSiliCrystal.color;
             size = 2;
-            range = 7;
+            range = 6;
             fogRadius = 8;
             consumeLiquid(NuLiquid.strangeLiquid, 0.05f / 60f).boost();
         }};
@@ -4464,6 +4898,20 @@ public class NuBlocks {
             fogRadius = 3;
             ambientSound = Sounds.loopDrill;
             ambientSoundVolume = 0.04f;
+        }};
+        droneDrill = new DroneHarvester("droneDrill"){{
+            size = 3;
+            health = 1200;
+            mineCooldown = 40f;
+            areaSize = 7;              // 组装区域 7×7 格
+            dronesCreated = 8;         // 4 架无人机
+            drillTier = 4;             // 可采硬度 ≤1 的矿物（铜/铅）
+            mineSpeed = 0.4f;         // 每帧采挖进度（约 1.5s 采满 1 单位）
+            droneSpeed = 0.45f;        // 无人机飞行速度（插值系数）
+            droneBuildTime = 60f*3f; // 造满 4 架 drone 需要 5 秒
+            blacklist.add(Items.thorium);  // 钍矿不采
+            consumePower(2f);
+         requirements(Category.production, with(NuItems.bigIron, 200,NuItems.monoSiliCrystal, 100));
         }};
         rubberCrusher = new WallCrafter("rubberCrusher"){{
             requirements(Category.production, with(
@@ -4513,17 +4961,41 @@ public class NuBlocks {
             attribute = NuAttribute.dirty;
             ambientSound = Sounds.loopCultivator;
             ambientSoundVolume = 0.075f;
+            baseEfficiency = 0.6f;
             legacyReadWarmup = true;
             drawer = new DrawMulti(
                     new DrawRegion("-bottom"),
-                    new DrawLiquidTile(Liquids.water),
+                    new DrawLiquidTile(Liquids.water,1),
                     new DrawDefault(),
-                    new DrawCultivator(),
+                    new DrawCultivator(){{
+                        plantColor = NuItems.dirtyCoagulum.color;
+                        plantColorLight = NuLiquid.dirtySolution.color;
+                    }},
                     new DrawRegion("-top")
             );
-            maxBoost = 3f;
+            maxBoost = 12f;
             consumePower(125f/60f);
             consumeLiquid(Liquids.water, 25f/60f);
+        }};
+        prismVenter = new AttributeCrafter("prismVenter"){{
+            requirements(Category.production, with(Items.graphite,100,NuItems.rubber,75,NuItems.alkSliver,30));
+            attribute = Attribute.steam;
+            group = BlockGroup.liquids;
+            minEfficiency = 9f - 0.0001f;
+            baseEfficiency = 0f;
+            displayEfficiency = false;
+            craftEffect = Fx.turbinegenerate;
+            drawer = new DrawMulti(new DrawRegion("-bottom"), new DrawBlurSpin("-rotator", 6f), new DrawRegion("-mid"), new DrawLiquidTile(Liquids.water, 38f / 4f), new DrawDefault());
+            craftTime = 120f;
+            size = 3;
+            ambientSound = Sounds.loopHum;
+            ambientSoundVolume = 0.06f;
+            hasLiquids = true;
+            boostScale = 1f / 9f;
+            itemCapacity = 0;
+            outputLiquid = new LiquidStack(NuLiquid.prismLiquid, 100/60f);
+            consumePower(4f);
+            liquidCapacity = 60f;
         }};
     }
 }

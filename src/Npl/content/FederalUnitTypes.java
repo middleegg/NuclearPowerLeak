@@ -76,7 +76,7 @@ public class FederalUnitTypes{
     mornLight,sunsetGlow,dusk,swallowingDay,moonLight,
    //pale's Hovering，纯玉，暗枫，辉鸦，圣徒，血莲
     pureJade,darkMaple,brightCrow,saint,bloodLotus,
-   //missile 圣日，圣白，圣核，圣空，圣宣，圣浮
+   //missile 圣日，圣白，圣核，圣空，圣宣，圣浮，烟叶，灰叶，绝叶，神叶
     HolyDay,HolyWhite,HolyCore,HolyVoid,HolyProclamation,HolyFloat,smokeLeaf,greyLeaf,despLeaf,divineLeaf,
    //special
     hometown,amicable,confucianScholar,subjects,doc,jargon,humorous;

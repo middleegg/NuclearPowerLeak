@@ -58,9 +58,9 @@ public class AzerPlanetGenerator extends PlanetGenerator {
 
                     // 行 0-5：低海拔，desert 为主，
                     {ds, ds, ds, ds, ds, ds, ds, ds, ds},
-                    {ds, ds, ds, ds, ds, ds, ds, ds, ds},
-                    {ds, ds, ds, ds, ds, ds, ds, ds, ds},
-                    {ds, ds, ds, ds, ds, ds, ds, ds, ds},
+                    {ds, ds, ds, ys, ds, ds, ds, ds, ds},
+                    {ds, ys, ds, ds, ds, ds, ys, ds, ds},
+                    {ds, ds, ys, ds, ys, ds, ds, ys, ds},
                     {ds, ds, ds, ds, ds, ds, ds, ds, ds},
                     {ds, ds, ds, ds, ds, ds, ds, ds, ds},
 

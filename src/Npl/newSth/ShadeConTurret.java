@@ -107,15 +107,17 @@ public class ShadeConTurret extends PowerTurret{
     public void setStats(){
         super.setStats();
         if(shootType instanceof SweepBulletType s){
-            // 修复量（受伤友方每次触发）
+            // 修复量（受伤友方 单位 + 建筑，每次触发）
             if(s.heal > 0f){
-                stats.add(Stat.healing, Strings.autoFixed(s.heal, 2));
+                stats.add(Stat.healing, Strings.autoFixed(s.heal, 2)
+                    + " / 每次触发（单位/建筑）");
             }
-            // 护盾：满血友方每次叠加量 + 上限比例
+            // 护盾：满血友方单位每次叠加量 + 上限比例（建筑不加护盾）
             if(s.shield > 0f){
                 stats.add(Stat.abilities,
-                    Strings.autoFixed(s.shield, 2)
-                    + " / 上限 " + Strings.autoFixed(maxShieldRatio * 100f, 0) + "% maxHealth");
+                    "护盾 " + Strings.autoFixed(s.shield, 2)
+                    + " / 每次触发（仅单位），上限 "
+                    + Strings.autoFixed(maxShieldRatio * 100f, 0) + "% maxHealth");
             }
             // PointDefense：每次削减敌弹伤害
             if(s.pdDamage > 0f){

@@ -20,7 +20,7 @@ import Npl.newSth.*;
 
 public class NuStatus{
     public static OriStatus chaos,paralysis,lack,radiation,enrich,divineWrath,breathHeal,
-    pulse,accelerate,hormone;
+    pulse,accelerate,hormone,poison;
     public static void load(){
         chaos = new OriStatus("chaos"){{
             color = NuColor.ChaosColor;
@@ -108,6 +108,9 @@ public class NuStatus{
                 });
                 opposite(radiation, divineWrath,enrich,StatusEffects.slow);
             });
+        }};
+        poison = new OriStatus("poison"){{
+
         }};
     }
 }

@@ -142,7 +142,7 @@ public class StormCrafterBlock extends GenericCrafter {
     /** 光球迷你心跳速度 */
     public float corePulseSpeed = 8f;
     public float corePulseAmp   = 0.1f;
-    public int   coreGlowLayers = 4;
+    public int   coreGlowLayers = 20;
     public float coreGlowMul    = 4f;
 
     /** 光照半径（= 0 不加光照）*/

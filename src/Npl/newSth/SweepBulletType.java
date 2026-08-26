@@ -189,10 +189,10 @@ public class SweepBulletType extends BulletType {
             });
         } catch (NullPointerException ignored) {}
 
-        // ———— 检测扫描范围内的敌方建筑 ————
+        // ———— 检测扫描范围内的建筑（敌方伤害 / 友方受伤→治疗 / 友方满血→跳过不加护盾） ————
         try {
             Groups.build.intersect(b.x - scanRadius, b.y - scanRadius, scanRadius * 2f, scanRadius * 2f, build -> {
-                if (build == null || build.team == b.team) return;
+                if (build == null || build.dead || !build.isValid()) return;
 
                 float dist = Mathf.dst(b.x, b.y, build.x, build.y);
                 if (dist > scanRadius) return;
@@ -200,8 +200,26 @@ public class SweepBulletType extends BulletType {
                 float buildAng = Angles.angle(b.x, b.y, build.x, build.y);
                 if (Angles.angleDist(buildAng, centerAng) > halfAngle) return;
 
-                build.damage(damage);
-                hitEffect.at(build.x, build.y, buildAng);
+                if (build.team == b.team) {
+                    // 友方建筑：受伤 → 治疗；满血不加护盾（建筑没有 shield 字段）
+                    if (build.health < build.maxHealth()) {
+                        if (heal > 0f) {
+                            // Building 实现了 Healthc，但 heal() 是 Mindustry 6.x+ gen.Healthc 统一方法；
+                            // 为了兼容没有单独 Building.heal 的老版本，这里直接手动加 health。
+                            float cur = build.health;
+                            float cap = build.maxHealth();
+                            if (cur < cap) {
+                                build.health(Math.min(cap, cur + heal));
+                                build.recentlyHealed();
+                                healEffect.at(build.x, build.y, buildAng);
+                            }
+                        }
+                    }
+                } else {
+                    // 敌方建筑：伤害
+                    build.damage(damage);
+                    hitEffect.at(build.x, build.y, buildAng);
+                }
             });
         } catch (NullPointerException ignored) {}
 

@@ -44,7 +44,7 @@ public class NuItems {
             alwaysUnlocked = false;
             cost = 0.7f;
         }};
-        dirtyCoagulum = new NewItemsType("dirtyCoagulum",Color.valueOf("B3B0FF")){{
+        dirtyCoagulum = new NewItemsType("dirtyCoagulum",Color.valueOf("D9B0FF")){{
             alwaysUnlocked = false;
             flammability = 2.5f;
             explosiveness = 0.6f;
@@ -77,7 +77,7 @@ public class NuItems {
             hardness = 3;
             flammability = 2.35f;
         }};
-        prismCrystal = new NewItemsType("prismCrysstal",Color.valueOf("E1FFFB")){{
+        prismCrystal = new NewItemsType("prismCrystal",Color.valueOf("E1FFFB")){{
             alwaysUnlocked = false;
             cost = 1f;
             hardness = 4;
@@ -156,7 +156,7 @@ public class NuItems {
         pyratite = mindustry.content.Items.pyratite;
 
         // 自定义货币 coins
-        coinsItem = new coins("coins", Color.valueOf("FFD700")){{
+        coinsItem = new coins("coins", Color.valueOf("C6C6C6")){{
             frames = 8;
         }};
 

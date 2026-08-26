@@ -20,6 +20,7 @@ import Npl.newSth.effects.CuneEffect;
 import Npl.newSth.expEffect;
 import Npl.newSth.LightningStormEffect;
 import Npl.newSth.TextPopupEffect;
+import Npl.newSth.OutlineBurstEffect;
 
 import static arc.graphics.g2d.Draw.rect;
 import static arc.graphics.g2d.Draw.*;
@@ -40,6 +41,14 @@ public class NuFx {
     // ========================================================
     // 爆炸 1：冲击波圈 + 12 方向飞散粒子
     // ========================================================
+    public static Effect dotPoison = new Effect(45f,e->{
+        color(NuColor.DivineWrathColor, NuItems.dirtyCoagulum.color, e.fin());
+        randLenVectors(e.id, 3, 2f + e.fin() * 7f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 0.1f + e.fout() * 1.4f);
+            Fill.circle(e.x + x, e.y + y, 0.1f + e.fout() * 4f);
+        });
+        Draw.reset();
+    }).layer(Layer.bullet);
     public static Effect explosion1 = new Effect(30f, 200f, e -> {
         float f = e.fin();
 
@@ -442,13 +451,13 @@ public class NuFx {
     // neoplasiaSmoke · 白色版（原版 Fx.neoplasiaSmoke 改色）
     //   原 Pal.neoplasmMid → Color.white
     // ========================================================
-    public static Effect ConsumeSmoke = new Effect(280f, e -> {
+    public static Effect ConsumeSmoke = new Effect(240f, e -> {
         color(Color.white);        // 原版：Pal.neoplasmMid
         alpha(0.6f);
 
         rand.setSeed(e.id);
-        for(int i = 0; i < 6; i++){
-            float len = rand.random(10f), rot = rand.range(120f) + e.rotation;
+        for(int i = 0; i < 3; i++){
+            float len = rand.random(10f), rot = rand.range(40f) + e.rotation;
 
             e.scaled(e.lifetime * rand.random(0.3f, 1f), b -> {
                 v.trns(rot, len * b.finpow());
@@ -1626,4 +1635,40 @@ public class NuFx {
             }
         }
     });
+
+    /* ============================================================
+     *  🅤 单位描边爆发特效（OutlineBurstEffect）
+     *      将 effect 附加到单位上，会把单位/武器的 outlineRegion 画得更厚、更紫
+     *      特效结束时自动触发下一个 Effect（比如爆炸）
+     * ============================================================ */
+
+    // —— 静态示例：最常用默认组合（紫色描边 + 结束时放 ExplosionWhite）
+    public static Effect outlinePurpleBurst = new OutlineBurstEffect(40f, e -> {}){{
+        outlineColor   = new Color(0xAA44FFff);
+        outlineFrom    = 1.0f;   // 初始厚度倍数
+        outlineTo      = 5.0f;   // 结束厚度倍数
+        alphaFrom      = 0.2f;
+        alphaTo        = 0.95f;
+        useAdditive    = true;
+        drawWeapons    = true;
+        nextEffect     = NuFx.ExplosionWhite;  // ← 结束后自动接这个
+    }};
+
+    // 更柔和的紫色描边（不接任何结束特效）
+    public static Effect outlinePurpleSoft = new OutlineBurstEffect(60f, e -> {}){{
+        outlineColor   = new Color(0xBB66FFee);
+        outlineFrom    = 1.2f;
+        outlineTo      = 3.2f;
+        alphaFrom      = 0.2f;
+        alphaTo        = 0.7f;
+        useAdditive    = true;
+        drawWeapons    = true;
+        nextEffect     = null;
+    }};
+
+    // 纯结束触发器（不画任何 outline，只是把父单位延迟 lifetime 后触发 nextEffect）
+    public static Effect delayedTrigger = new OutlineBurstEffect(30f, e -> {}){{
+        drawOutlines   = false;
+        nextEffect     = NuFx.ExplosionNuclear;
+    }};
 }

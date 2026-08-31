@@ -78,10 +78,13 @@ public class FederalUnitTypes{
     pureJade,darkMaple,brightCrow,saint,bloodLotus,
    //missile 圣日，圣白，圣核，圣空，圣宣，圣浮，烟叶，灰叶，绝叶，神叶
     HolyDay,HolyWhite,HolyCore,HolyVoid,HolyProclamation,HolyFloat,smokeLeaf,greyLeaf,despLeaf,divineLeaf,
-   //special
-    hometown,amicable,confucianScholar,subjects,doc,jargon,humorous;
+   //special 故乡，谐和，儒诸，庶民，大夫，滥语，诙谐，火苗，烈焰,鬼火,巨种
+    hometown,amicable,confucianScholar,subjects,doc,jargon,humorous,flame,blaze,ghostFire,hugeSeed,
+   //darkMaple 的列阵抵御单位
+    lingZhenGuard;
     public static Weapon truly;
     public static void load(){
+        FedUnitEntity.register(WhiteColorEntity.class, WhiteColorEntity::new);
         survive = new UnitType("survive"){{
             constructor =  UnitEntity::create;
             EntityMapping.nameMap.put(name,constructor);
@@ -97,7 +100,7 @@ public class FederalUnitTypes{
             mineItems = Seq.with(NuItems.bigIron,NuItems.frailPolyester,NuItems.sulFurFrag);
             armor = 14;
             hitSize = 12f;
-            mineTier = 3;
+            mineTier = 2;
             buildRange = 480f;
             drag = 0.1f;
             buildSpeed = 3.5f;
@@ -202,7 +205,7 @@ public class FederalUnitTypes{
             hitSize = 16f;
             targetAir = true;
             mineWalls = true;
-            mineTier = 4;
+            mineTier = 3;
             buildRange = 560f;
             trailLength = 12;
             drag = 0.1f;
@@ -2088,7 +2091,7 @@ public class FederalUnitTypes{
                     trailLength =12;
                     trailChance =1f;
                     trailEffect = NuFx.sailEnergyTail;
-                    hitEffect = despawnEffect = NuFx.plasmaHit;
+                    hitEffect = despawnEffect = NuFx.sailPlasmaHit;
                     lightRadius = 40f;
                     lightOpacity = 0.7f;
                     fragBullets = 4;
@@ -2518,6 +2521,7 @@ public class FederalUnitTypes{
                 targetInterval = 1f;
                 targetSwitchInterval = 1f;
                 range = 640f;
+                mirror = true;
                 predictTarget = true;
                 color = NuColor.SailColor;
                 bullet = new BulletType(){{
@@ -2527,13 +2531,14 @@ public class FederalUnitTypes{
                     damage = 5000f;
                 }};
             }});
-            weapons.add(new PointDefenseWeapon("Liy"){{
+            weapons.add(new PointDefenseWeapon("Liya"){{
                 x = 12.5f;
                 y = -12f;
                 reload = 0.1f;
                 targetInterval = 1f;
                 targetSwitchInterval = 1f;
                 range = 640f;
+                mirror = true;
                 predictTarget = true;
                 color = NuColor.SailColor;
                 bullet = new BulletType(){{
@@ -3047,6 +3052,42 @@ public class FederalUnitTypes{
                     }};
                 }});
             }};
+        // 列阵抵御单位：darkMaple 结阵时召唤，负责承伤（高血量）+ 小幅度攻击
+        lingZhenGuard = new UnitType("lingZhenGuard"){{
+            constructor = WhiteColorEntity::create;
+            controller = u -> new LingZhenGuardAI();
+            useUnitCap = false;
+            // 陆地单位：平时贴地行走，遇到墙体或出生点被占时自行助推翻越
+            speed = 2.5f;
+            accel = 0.12f;
+            drag = 0f;
+            canBoost = true;
+            boostMultiplier = 1.3f;
+            health = 1800;
+            armor = 12f;
+            hitSize = 9f;
+            targetAir = true;
+            targetGround = true;
+            weapons.add(new Weapon("lingZhenGuardWeapon"){{
+                x = 0f; y = 0f;
+                mirror = false;
+                rotate = true;
+                reload = 45f;
+                range = 110f;
+                bullet = new BasicBulletType(3.6f, 34f){{
+                    width = 16f;
+                    height = 19f;
+                    lifetime = 42f;
+                    pierce = true;
+                    pierceCap = 2;
+                    frontColor = lightColor = NuColor.PaleColor;
+                    backColor = NuColor.PaleBackColor;
+                    shootEffect = Fx.sparkShoot;
+                    hitEffect = Fx.hitBulletSmall;
+                    smokeEffect = Fx.none;
+                }};
+            }});
+        }};
         darkMaple = new UnitType("darkMaple"){{
             constructor = ElevationMoveUnit::create;
             EntityMapping.nameMap.put(name, constructor);
@@ -3057,7 +3098,7 @@ public class FederalUnitTypes{
             hitSize = 16f;
             alwaysUnlocked = false;
             targetAir = true;
-            maxRange = 160f;
+            maxRange = 260f;
             healColor = lightColor = NuColor.PaleColor;
             engineOffset = -3;
             engineSize = 8f;
@@ -3083,6 +3124,37 @@ public class FederalUnitTypes{
             abilities.add(new ForceFieldAbility(20f, 0.2f, 1200f, 60f * 10, 12, 36f));
             abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
                 teamColor = true;
+            }});
+            // 母体一开火即刻结阵：以自身为中心铺开 n×n 方阵（n=SquareSize，偶数向上取奇；正中央是母体，士兵数 = n²-1），并喊「列阵！！」
+            abilities.add(new FormUpAbility(){{
+                guardType      = lingZhenGuard;
+                SquareSize     = 5;          // 方阵边长 n：方阵 n×n，士兵数 = n²-1（n=5 → 24 名；n 为偶数则向上取奇）
+                spacing        = 20f;        // 相邻阵位间距
+                window         = 60f * 6f;   // 本批士兵全灭后的空窗期
+                unitLifetime   = 60f * 30f;  // 抵御单位存活 30 秒后自行死亡
+                loseDelay      = 60f * 3f;   // 长官停火 3 秒视为脱离控制
+                bufferTime     = 60f * 5f;   // 失控后 5 秒缓冲期内不掉血
+                decayPerSecond = 0.25f;      // 缓冲期过后每秒掉 25% 最大生命
+            }});
+            weapons.add( new DragonClawWeapon ( "my-claw" ){{
+                x = 0f ; y = 4f ;
+                mirror = true ;
+                clawRange      = 260f ; // 索敌/作战距离
+                reloadInterval = 360f ; // 两记拍击间隔（帧）
+                edgeDamage     = 900f ; // 建筑范围伤害（纯伤害，不秒杀）
+                unitDamage     = 900f ; // 单位范围伤害（纯伤害，不秒杀）
+            }});
+            weapons.add(new Weapon("flowee"){{
+                x = 0f;y = 0f;reload = 60f;range = 180f;
+                recoil = 0.1f;
+                bullet = new BasicBulletType(0.5f,90f){{
+                   frontColor = lightColor = trailColor = NuColor.BloodColor;
+                   backColor = hitColor = NuColor.BloodBackColor;
+                   lifetime = 60f;accel = 5.5f/60;
+                   trailLength = 12;trailWidth = 2.4f;
+                    width = 12f;
+                    height = 31f;
+                }};
             }});
         }};
         brightCrow = new UnitType("brightCrow"){{
@@ -3198,6 +3270,10 @@ public class FederalUnitTypes{
             abilities.add(new MoveEffectAbility(0f, -7f, NuColor.PaleColor, Fx.missileTrailShort, 4f) {{
                 teamColor = true;
             }});
+            abilities.add( new DamageRedirectAbility (){{
+                range = 120f ; // 范围（像素）
+                redirectFactor = 0.75f ;// 转移比例（75%）
+                }});
         }};
         HolyDay = new MissileUnitType("HolyDay"){{
             constructor = TimedKillUnit::create;
@@ -3745,6 +3821,225 @@ public class FederalUnitTypes{
                     }};
                 }};
             }});
+        }};
+        flame = new UnitType("flame"){{
+            constructor = WhiteColorEntity::create;
+            controller = u -> new ReturnAI();
+            useUnitCap = false;
+            abilities.add(new RingAuraAbility(){{
+                radius = 80f;
+                cycleTime = 3f;
+            }});
+            speed = 4.5f;
+            accel = 0.08f;
+            flying = true;
+            drawCell = true;  flyingLayer = Layer.flyingUnit;
+            armor = 7;
+            hitSize = 7f;
+        }};
+        amicable = new UnitType("amicable"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            flying = true;
+            drawCell = true;
+            circleTarget = true;
+            itemCapacity = 230;
+            health = 16000;
+            speed = 0.95f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 34;
+            hitSize = 28f;
+            targetAir = true;
+            buildRange = 560f;
+            trailLength = 12;
+            drag = 0.1f;
+            buildSpeed = 4f;
+            payloadCapacity = 14400f;
+            isEnemy = true;
+            abilities.add(new DevourAbility(){{
+                childType = flame;
+                evolveUnitType = CalamityUnitTypes.CangzhuoNameless;
+                spawnInterval = 30f;
+                evolveTime = 60*30f;
+                returnChildTypes.addAll("flame");
+            }});
+            weapons.add(new PointDefenseWeapon("na"){{
+                x = 9f;
+                y = 5f;
+                reload = 5f;
+                targetInterval = 1f;
+                targetSwitchInterval = 1f;
+                range = 320f;
+                mirror = true;
+                predictTarget = true;
+                color = NuColor.SailColor;
+                bullet = new BulletType(){{
+                    shootEffect = Fx.sparkShoot;
+                    hitEffect = Fx.pointHit;
+                    maxRange = 320f;
+                    damage = 2000f;
+                }};
+            }});
+            weapons.add(new PointDefenseWeapon("na"){{
+                x = 9f;
+                y = -5f;
+                mirror = true;
+                reload = 5f;
+                targetInterval = 1f;
+                targetSwitchInterval = 1f;
+                range = 320f;
+                predictTarget = true;
+                color = NuColor.SailColor;
+                bullet = new BulletType(){{
+                    shootEffect = Fx.sparkShoot;
+                    hitEffect = Fx.pointHit;
+                    maxRange = 320f;
+                    damage = 2000f;
+                }};
+            }});
+            weapons.add(new RepairBeamWeapon("seue"){{
+                x = 3f;
+                y = -8f;
+                mirror = true;
+                shootCone = 90f;
+                repairSpeed = 4.5f;
+                targetBuildings = true;
+                targetUnits = true;
+                controllable = false;
+                aiControllable = true;
+                autoTarget = true;
+                rotate = true;
+                bullet.maxRange = 240f;
+            }});
+            weapons.add(new RepairBeamWeapon("scue"){{
+                x = 6f;
+                y = 8f;
+                mirror = true;
+                shootCone = 90f;
+                repairSpeed = 4.5f;
+                targetBuildings = true;
+                targetUnits = true;
+                controllable = false;
+                aiControllable = true;
+                autoTarget = true;
+                rotate = true;
+                bullet.maxRange = 240f;
+            }});
+            abilities.add(new RepairFieldAbility(120f,45f,160f,1f));
+            abilities.add(new ShieldRegenFieldAbility(120f,4500f,45f,160f));
+        }};
+            subjects = new UnitType("subjects"){{
+                constructor =  UnitEntity::create;
+                EntityMapping.nameMap.put(name,constructor);
+                controller = u -> new MinerAI();
+                defaultCommand = UnitCommand.mineCommand;
+                flying = true;
+                drawCell = true;
+                circleTarget = true;
+                itemCapacity = 35;
+                health = 1800;
+                speed = 4.2f;
+                researchCostMultiplier = 1.25f;
+                flyingLayer = Layer.flyingUnit;
+                armor = 8;
+                hitSize = 6f;
+                isEnemy = false;
+                alwaysUnlocked = false;
+                mineWalls = true;
+                mineFloor = true;
+                mineSpeed = 1.1f;
+                mineTier = 2;
+                engineSize = 2f;
+            }};
+            doc = new UnitType("doc"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            controller = u -> new BuilderAI();
+            defaultCommand = UnitCommand.rebuildCommand;
+            flying = true;
+            drawCell = true;
+            circleTarget = true;
+            itemCapacity = 100;
+            health = 8000;
+            speed = 3.5f;
+            researchCostMultiplier = 1.25f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 12;
+            hitSize = 12f;
+            alwaysUnlocked = false;
+            targetAir = true;
+            maxRange = 80f;
+            buildSpeed = 2f;
+            buildRange = 180f;
+            mineWalls = true;
+            mineFloor = true;
+            mineSpeed = 1.5f;
+            mineTier = 3;
+            engineOffset = 7.5f;
+            engineSize = 3.4f;
+            setEnginesMirror(
+                    new UnitEngine(0f, -9f, 2.5f, -90f),
+                    new UnitEngine(7f, -14.3f, 2f, -45f),
+                    new UnitEngine(-7f, -14.3f, 2f, -135f),
+                    new UnitEngine(-9f, -4f, 2f, -135f),
+                    new UnitEngine(9f, -4f, 2f, -45f)
+            );
+            abilities.add(new UnitSpawnAbility(subjects,60*35f,0f,0f));
+            mineItems = Seq.with(NuItems.bigIron,NuItems.frailPolyester,NuItems.sulFurFrag,NuItems.pumice);
+            weapons.add(new Weapon("yuan"){{
+                x = -8f;
+                y = 1f;
+                reload = 45f;
+                shoot = new ShootPattern(){{
+                   shots = 3;
+                   shotDelay = 9f;
+                }};
+                mirror = false;rotate = false;inaccuracy = 6f;
+                bullet = new LightningBulletType(){{
+                   lightningLength = 10;damage = 50f;
+                   collidesTeam = pierceBuilding = pierce = true;
+                   pierceCap = 10;hitColor = lightningColor = NuColor.SailColor;
+                   healPercent = 1.5f;
+                   lightningType = new BulletType(){{
+                      speed = 2.5f;damage = 10f; lifetime = 10f;
+                      status = StatusEffects.shocked;statusDuration = 60f;
+                      healPercent = 1f;collidesTeam = true;
+                   }};
+                }};
+            }});
+        }};
+        jargon = new UnitType("jargon"){{
+            constructor =  UnitEntity::create;
+            EntityMapping.nameMap.put(name,constructor);
+            flying = true;
+            drawCell = true;
+            circleTarget = true;
+            itemCapacity = 80;
+            health = 16000;
+            speed = 1.45f;
+            researchCostMultiplier = 1.8f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 23;
+            hitSize = 32f;
+            abilities.add(new InvisibleAbility(){{
+                fullyInvisible       = true;
+                visibleToAllies      = true;
+                stealthDotSize       = 3f;
+                revealDamageDuration = 60f * 10;
+            }});
+            abilities.add(new ShockwaveAbility(30f,320f,600f,6,NuColor.BloodColor){{
+                expandSpeed = 400f;
+                ringWidth = 16f;
+                bubbleRadius = 16f;
+                bubbleDuration = 25f;
+                bubbleHealPerSec = 12f;
+            }});
+            // 环形进度条演示：显示冲击波冷却进度
+            abilities.add(new RingAuraAbility(){{
+                radius = 60f;
+                cycleTime = 30f; // 与冲击波冷却同步
+            }});
+            targetFlags = new BlockFlag[]{BlockFlag.battery,BlockFlag.drill,BlockFlag.shield};
         }};
         humorous = new ErekirUnitType("humorous"){{
             constructor = BuildingTetherPayloadUnit::create;

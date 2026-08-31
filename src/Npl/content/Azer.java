@@ -5,11 +5,12 @@ import arc.util.Time;
 import mindustry.content.Planets;
 import mindustry.game.Rules;
 import mindustry.game.Team;
+import mindustry.graphics.Shaders;
 import mindustry.graphics.g3d.*;
 import mindustry.type.ItemStack;
 import mindustry.type.Planet;
 import mindustry.world.meta.Env;
-import Npl.content.NuItems;  // 你的物品
+import Npl.content.NuItems;
 import Npl.newSth.*;
 import mindustry.maps.planet.SerpuloPlanetGenerator;
 import static mindustry.graphics.g3d.PlanetRenderer.outlineColor;
@@ -35,11 +36,7 @@ public class Azer {
             defaultCore = NuBlocks.FederalJuniorCore;
             launchCapacityMultiplier = 0.6F;
             // ===== 地形生成 =====
-            // 使用六边形网格（标准行星）
-            meshLoader = () -> new HexMesh(this, 6);
             sectorApproxRadius = 0.4f;
-            // 使用自定义地形生成器（如果不需要特殊地形，用默认的）
-            // generator = new MyPlanetGenerator();  // 需要自定义的话
 
             // ===== 规则设置 =====
             ruleSetter = r -> {
@@ -63,30 +60,24 @@ public class Azer {
             // ===== 大气和环境 =====
             atmosphereColor = Color.valueOf("5BFFAD");    // 大气颜色
             landCloudColor = Color.valueOf("CDBFA3");     // 陆地云层颜色
-            atmosphereRadIn = 0.2f;                      // 大气内半径
-            atmosphereRadOut = 0.45f;                     // 大气外半径
+            atmosphereRadIn = 0.5f;                      // 大气内半径
+            atmosphereRadOut = 0.58f;                     // 大气外半径
             bloom = true;
             generator= new AzerPlanetGenerator();
-            // ===== 轨道环（可选） =====
-            // 如果要做环，需要创建 cloudMeshLoader
-            meshLoader = () -> new NoiseMesh(
-                    Azer,           // 星球对象
-                    123,              // 种子
-                    6,                  // 网格细分
-                    1.24f,                // 半径
-                    12, 0.3f, 1.2f, 1.2f,  // 地形噪声参数
-                    Color.valueOf("CDBFA3"),        // 颜色1：绿色（陆地）
-                    Color.valueOf("C5FFE2"),         // 颜色2：蓝色（海洋）
-                    1,                  // 颜色噪声八度
-                    0.25f,               // 颜色噪声持久性
-                    0.6f,               // 颜色噪声频率
-                    0.55f                // 颜色阈值：噪声>0.4显示蓝色，否则显示绿色
+            // ===== 星球外观（纯 NoiseMesh 分层，不含生成器地形）=====
+            // 底层两片绿色 = 海洋球体；沙 / 灰两层浮在其上 = 大陆色块；最外层白色极冠
+            meshLoader = () -> new MultiMesh(
+                    new NoiseMesh(Azer, 15, 8, Color.valueOf("90FBC6"), 1.30f, 6, 0.18f, 2.0f, 0.7f),
+                    new NoiseMesh(Azer, 15, 8, Color.valueOf("C5FFE2"), 1.31f, 8, 0.42f, 1.0f, 0.8f),
+                    new NoiseMesh(Azer, 35, 8, Color.valueOf("CDBFA3"), 1.35f, 6, 0.42f, 1.0f, 0.8f),
+                    new NoiseMesh(Azer, 35, 8, Color.valueOf("A8A195"), 1.355f, 8, 0.52f, 2.0f, 0.8f),
+                    new HexMesh(Azer, new PolarMesher(1.05f, Color.white, Color.white, 0.5f, 99), 8, Shaders.planet)
             );
             cloudMeshLoader = () -> new MultiMesh(
                     // 第一层云
-                    new HexSkyMesh(this, 11, 0.15f, 0.14f, 5, Color.valueOf("C5FFE2").a(0.75f), 2, 0.45f, 0.9f, 0.38f),
+                    new HexSkyMesh(this, 111, 0.15f, 0.18f, 5, Color.valueOf("C5FFE2").a(0.75f), 2, 0.45f, 0.9f, 0.38f),
                     // 第二层云
-                    new HexSkyMesh(this, 3, 0.6f, 0.15f, 5, Color.valueOf("C5FFE2").a(0.75f), 2, 0.45f, 1f, 0.41f)
+                    new HexSkyMesh(this, 31, 0.6f, 0.21f, 5, Color.valueOf("C5FFE2").a(0.75f), 2, 0.45f, 1f, 0.41f)
             );
         }};
     }

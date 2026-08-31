@@ -3,9 +3,12 @@ package Npl.newSth;
 import arc.func.*;
 import arc.*;
 import arc.audio.*;
+import arc.graphics.g2d.*;
+import arc.graphics.gl.Shader;
 import arc.math.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
+import mindustry.graphics.*;
 import mindustry.world.meta.*;
 import mindustry.entities.*;
 import mindustry.game.*;
@@ -66,6 +69,9 @@ import mindustry.world.blocks.defense.turrets.PowerTurret;
  */
 public class ShadeConTurret extends PowerTurret{
 
+    /** 蓝色流动光晕 shader（所有 ShadeConTurret 实例共用一个，加载一次）。 */
+    public static Shader auraShader;
+
     /** 是否把"满血友方单位"作为兜底目标（用于施加护盾）。false 时只瞄准①②类目标。 */
     public boolean targetShielding = true;
 
@@ -74,6 +80,65 @@ public class ShadeConTurret extends PowerTurret{
      *  <p>例：0.5 → 每个友方单位最多叠 50% 最大血量的护盾；
      *  如果所有扫描到的满血友方护盾都已达到上限，炮塔会停止选该目标（从而停止射击，节省电力）。*/
     public float maxShieldRatio = 0.5f;
+
+    /** 光晕颜色 RGB（0~1）。默认天蓝。 */
+    public float auraR = 0.25f, auraG = 0.6f, auraB = 1.0f;
+    /** 光晕整体强度（0~1）。默认 0.7。 */
+    public float auraIntensity = 0.7f;
+
+    /** 懒加载光晕 shader：不在 load() 里编译（避免内容加载阶段 GL 编译崩溃），
+     *  首次 draw 时才创建。编译失败则 auraShader 保持 null，降级为无光晕。 */
+    private static Shader getAuraShader(){
+        if(auraShader != null) return auraShader;
+        synchronized(ShadeConTurret.class){
+            if(auraShader != null) return auraShader;
+            try {
+                Log.info("[ShadeConTurret] 懒加载 aura shader（内联 GLSL，无 atan）...");
+                System.out.flush();
+                auraShader = new Shader(AURA_VERT, AURA_FRAG);
+                Log.info("[ShadeConTurret] aura shader 加载成功");
+                System.out.flush();
+            } catch(Throwable e){
+                Log.err("[ShadeConTurret] aura shader load failed", e);
+                System.out.flush();
+                auraShader = null;
+            }
+            return auraShader;
+        }
+    }
+
+    /** 光晕 vertex shader（内联）。 */
+    private static final String AURA_VERT =
+        "attribute vec4 a_position;\n" +
+        "attribute vec2 a_texCoord0;\n" +
+        "varying vec2 v_texCoords;\n" +
+        "void main(){\n" +
+        "    v_texCoords = a_texCoord0;\n" +
+        "    gl_Position = a_position;\n" +
+        "}\n";
+
+    /** 光晕 fragment shader（内联）。
+     *  注意：去掉了 atan(c.y, c.x)，老 AMD 驱动对双参数 atan 容易编译崩溃，
+     *  改用 sin/cos 组合模拟角向流动。 */
+    private static final String AURA_FRAG =
+        "varying vec2 v_texCoords;\n" +
+        "uniform float u_time;\n" +
+        "uniform vec3  u_color;\n" +
+        "uniform float u_intensity;\n" +
+        "void main(){\n" +
+        "    vec2 c = v_texCoords - 0.5;\n" +
+        "    float dist = length(c);\n" +
+        "    float glow = 1.0 - smoothstep(0.0, 0.5, dist);\n" +
+        // 角向流动：用 sin/cos 组合替代 atan，避免老驱动崩溃
+        "    float ang = sin(c.x * 12.0 + u_time * 2.0) * cos(c.y * 12.0 - u_time * 1.5);\n" +
+        "    float w1 = ang * 0.5 + 0.5;\n" +
+        "    float w2 = sin(dist * 25.0 - u_time * 3.0) * 0.5 + 0.5;\n" +
+        "    float flow = w1 * 0.6 + w2 * 0.4;\n" +
+        "    float pulse = 0.5 + 0.5 * sin(u_time * 1.5);\n" +
+        "    float alpha = glow * (0.4 + 0.6 * flow) * (0.6 + 0.4 * pulse) * u_intensity;\n" +
+        "    vec3 col = u_color + vec3(0.15) * flow;\n" +
+        "    gl_FragColor = vec4(col, alpha);\n" +
+        "}\n";
 
     public ShadeConTurret(String name){
         super(name);
@@ -127,6 +192,29 @@ public class ShadeConTurret extends PowerTurret{
     }
 
     public class ShadeConTurretBuild extends PowerTurretBuild{
+
+        @Override
+        public void draw(){
+            super.draw();
+
+            // 蓝色流动光晕：叠加在炮塔本体之上
+            // 注意：必须用 Draw.draw(z, runnable) 包裹，否则 sorting 开启时设置 shader 会崩
+            Draw.draw(Layer.effect, () -> {
+                Shader s = ShadeConTurret.getAuraShader();
+                if(s == null) return;
+                try {
+                    Draw.shader(s);
+                    s.setUniformf("u_time", Time.time / 60f);
+                    s.setUniformf("u_color", auraR, auraG, auraB);
+                    s.setUniformf("u_intensity", auraIntensity);
+                    // 光晕 quad 略大于方块本体（每 tile 8 像素 + 6 像素外扩）
+                    float size = block.size * 8f + 6f;
+                    Fill.rect(x, y, size, size);
+                } finally {
+                    Draw.shader(null);
+                }
+            });
+        }
 
         @Override
         protected void findTarget(){

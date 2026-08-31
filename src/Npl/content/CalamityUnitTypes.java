@@ -2,19 +2,21 @@ package Npl.content;
 
 import arc.graphics.Color;
 import arc.util.Log;
+import arc.*;
 import mindustry.content.StatusEffects;
-import mindustry.entities.bullet.ArtilleryBulletType;
-import mindustry.entities.bullet.BombBulletType;
-import mindustry.entities.bullet.LaserBulletType;
-import mindustry.entities.bullet.SapBulletType;
+import mindustry.entities.bullet.*;
 import mindustry.graphics.Pal;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
 import Npl.newSth.AI.WormAI;
-import Npl.newSth.Type.FedUnitEntity;
-import Npl.newSth.Type.SegmentUnitEntity;
-import Npl.newSth.Type.SegmentWormEntity;
-
+import Npl.content.*;
+import Npl.newSth.*;
+import Npl.newSth.Type.*;
+import mindustry.*;
+import arc.graphics.g2d.*;
+import mindustry.ui.*;
+import mindustry.graphics.*;
+import arc.scene.ui.TextButton; // 注意：是 mindustry，不是 mindusty
 /**
  * 多节（虫子）单位加载类。
  * <p>
@@ -52,7 +54,9 @@ public class CalamityUnitTypes {
         arcnelidia,            // 电弧虫头部
         arcnelidiaSegment,     // 电弧虫段身
         toxobyte,              // 毒疫虫头部
-        toxobyteSegment;       // 毒疫虫段身
+        toxobyteSegment,       // 毒疫虫段身
+        CangzhuoNameless,      // 苍灼无名
+        whiteColorUnit;         // 白色单位（每受击减20%血量）
 
     /**
      * 加载所有多节单位。在 mod 的 loadContent 阶段被调用一次。
@@ -76,18 +80,8 @@ public class CalamityUnitTypes {
         // 要求每个自定义 Entity class 有唯一 classId，必须在 idMap 占一个空 slot
         FedUnitEntity.register(SegmentWormEntity.class, SegmentWormEntity::new);
         FedUnitEntity.register(SegmentUnitEntity.class, SegmentUnitEntity::new);
-
-        // ═══════════════════════════════════════════════════════════
-        //  Arcnelidia (电弧虫) —— PU132 同名单位移植
-        //  - 9 段（segmentLength=9）
-        //  - segmentOffset=22.7f (PU132 23f - 0.3f)
-        //  - hitSize=19.75f (段间距 22.7 > 半径之和 19.75, 不重叠)
-        //  - angleLimit=30f, wobble=true (轻微晃动)
-        //  - 头部武器：双激光 (mirror=true, LaserBulletType, surge 黄色)
-        //  - 段身武器：投弹 (BombBulletType, splashDamage=250)
-        //  - 不可分裂/合并 (splittable=false, chainable=false)
-        // ═══════════════════════════════════════════════════════════
-
+        FedUnitEntity.register(EvolveEntity.class, EvolveEntity::new);
+        FedUnitEntity.register(WhiteColorEntity.class, WhiteColorEntity::new);
         // —— 段身 UnitType（先创建，头部 config 要引用它）——
         dragonTail = new UnitType("dragonTail") {{
             health = 100000;  // ★ 提高段身血量（头部800×2），避免段身太脆
@@ -101,20 +95,15 @@ public class CalamityUnitTypes {
             faceTarget = false;
             // ★ 关闭 wobble（PU132 原版静止时不晃动）
             wobble = false;
-
             // 用 SegmentUnitEntity（禁用 AI 和自身移动）
             constructor = SegmentUnitEntity::create;
-
             // ★ 隐藏段身（不出现在数据库/Spawner，玩家无法单独召唤）
             hidden = true;
-
             // ★ 段身不计入单位上限（PU132 WormSegmentUnit.isCounted 返回 false）
             useUnitCap = false;
-
             // ★ 段身关闭物理碰撞（physics=false），避免撞墙时被弹开导致尾部乱甩
             physics = false;
             hittable = true;
-
             // ===== 段身武器：BombBullet（PU132 原版，匿名武器无贴图） =====
             // 电弧虫段身投弹：splashDamage=250，爆炸色同电弧
             weapons.add(new Weapon() {{
@@ -139,7 +128,6 @@ public class CalamityUnitTypes {
                 }};
             }});
         }};
-
         // —— 头部 Arcnelidia 飞行分段虫子 ——
         dragon = new UnitType("dragon") {{
             // ===== 基础属性（PU132 原值） =====
@@ -162,12 +150,10 @@ public class CalamityUnitTypes {
             wobble = false;
             // ★ drag 用飞行单位合理值（默认 0.3f 对飞行单位太大，速度衰减太快显得僵硬）
             drag = 0.018f;
-
             // 用自定义 Entity（SegmentWormEntity）
             constructor = SegmentWormEntity::create;
             // ★ 使用 WormAI（待机静止，不自动朝 spawn 移动）
             aiController = () -> new WormAI();
-
             // ===== 头部武器：双激光（PU132 原配置） =====
             // PU132 UnityUnitTypes.java：匿名武器，无炮台贴图
             weapons.add(new Weapon() {{
@@ -181,9 +167,9 @@ public class CalamityUnitTypes {
                 bullet = new LaserBulletType(450f) {{  // 200 + 250
                     // PU132 原配置：surge 颜色（电弧激光，黄色）
                     colors = new Color[]{
-                        Pal.surge.cpy().mul(1f, 1f, 1f, 0.4f),
-                        Pal.surge,
-                        Color.white
+                            Pal.surge.cpy().mul(1f, 1f, 1f, 0.4f),
+                            Pal.surge,
+                            Color.white
                     };
                     drawSize = 400f;
                     collidesAir = false;
@@ -195,7 +181,6 @@ public class CalamityUnitTypes {
                 }};
             }});
         }};
-
         // ★ 注册 arcnelidia 段身配置到 configs Map ★
         // PU132 原版 segmentLength=9, segmentOffset=23f
         // 段间距 22.7f（PU132 23f - 0.3f，用户要求稍小一点）
@@ -204,11 +189,10 @@ public class CalamityUnitTypes {
         // anglePhysicsSmooth=0.5f（更平滑的转向，段身自然跟随头部）
         // segmentCast=6, jointStrength=0.6f（增大传播范围，减小关节强度防止脱节）
         SegmentWormEntity.configs.put(dragon.name,
-            new SegmentWormEntity.SegmentConfig(dragonTail, 9, 22.7f, 0f, 0, true, false, false,
-                30f, 6f, 0.1f, 0.6f, 6, 0.5f, false, 0f));
+                new SegmentWormEntity.SegmentConfig(dragonTail, 9, 22.7f, 0f, 0, true, false, false,
+                        30f, 6f, 0.1f, 0.6f, 6, 0.5f, false, 0f));
         // 电弧虫：每秒回10血
         SegmentWormEntity.configs.get(dragon.name).healPerSecond = 10f;
-
         // 用反射设置 shootSound 和 visualElevation，避开编译期字段差异（v150 vs v154）
         try {
             Class<?> soundsClass = Class.forName("mindustry.gen.Sounds");
@@ -217,14 +201,17 @@ public class CalamityUnitTypes {
             arc.audio.Sound sound = (arc.audio.Sound) snd;
             dragon.weapons.first().shootSound = sound;
         } catch (Throwable t) {
-            try { Log.err("set shootSound failed", t); } catch (Throwable ignored) {}
+            try {
+                Log.err("set shootSound failed", t);
+            } catch (Throwable ignored) {
+            }
         }
         // PU132：visualElevation=0.8f（可能已移除该字段，静默忽略）
         try {
             java.lang.reflect.Field ve = dragon.getClass().getSuperclass().getField("visualElevation");
             ve.setFloat(dragon, 0.8f);
-        } catch (Throwable ignored) {}
-
+        } catch (Throwable ignored) {
+        }
         // ═══════════════════════════════════════════════════════════
         //  Toxobyte (毒疫虫) —— PU132 同名单位移植
         //  - 25 段（segmentLength=25, maxSegments=25）
@@ -240,7 +227,6 @@ public class CalamityUnitTypes {
         //  - circleTarget=true + omniMovement=false (WormAI 走 circleAttack(120f) 环绕盘旋分支)
         //  - 每秒回15血
         // ═══════════════════════════════════════════════════════════
-
         // —— 段身 UnitType（先创建，头部 config 要引用它）——
         toxobyteSegment = new UnitType("toxobyte-segment") {{
             health = 400f;   // ★ 提高段身血量（头部200×2），避免段身太脆
@@ -260,7 +246,6 @@ public class CalamityUnitTypes {
             hittable = true;
             // ★ 关闭 wobble（PU132 原版静止时不晃动）
             wobble = false;
-
             // ===== 段身武器：ArtilleryBullet（瘟疫炮弹） =====
             // PU132 原版匿名武器，无炮台贴图
             // splashDamage=25, splashDamageRadius=25, 瘟疫色
@@ -284,7 +269,6 @@ public class CalamityUnitTypes {
                 }};
             }});
         }};
-
         // —— 头部 Toxobyte 飞行分段虫子 ——
         toxobyte = new UnitType("toxobyte") {{
             // ===== 基础属性（PU132 原值） =====
@@ -312,7 +296,6 @@ public class CalamityUnitTypes {
             constructor = SegmentWormEntity::create;
             // ★ 使用 WormAI（待机静止，有目标时环绕盘旋）
             aiController = () -> new WormAI();
-
             // ===== 头部武器：12 发发散 SapBullet（瘟疫激光） =====
             // PU132 原版匿名武器，无炮台贴图
             // SapBulletType 自动回血（吸取敌人血量），对应 PU132 的 drain 效果
@@ -337,7 +320,6 @@ public class CalamityUnitTypes {
                 }};
             }});
         }};
-
         // ★ 注册 toxobyte 段身配置到 configs Map ★
         // PU132 原版：segmentLength=25, segmentOffset=16.25f
         // regenTime=6f*60f（每6秒再生一节段身，PU132 原版 15秒，缩短让玩家更快看到再生效果）
@@ -347,11 +329,10 @@ public class CalamityUnitTypes {
         // segmentDamageScl=3f（段身受击伤害×3，让段身更易被打掉触发分裂）
         // angleLimit=30f, segmentCast=8, jointStrength=0.5f, anglePhysicsSmooth=0.5f
         SegmentWormEntity.configs.put(toxobyte.name,
-            new SegmentWormEntity.SegmentConfig(toxobyteSegment, 25, 16.25f, 6f * 60f, 25, false, true, true,
-                30f, 3f, 0.1f, 0.5f, 8, 0.5f, false, 0f));
+                new SegmentWormEntity.SegmentConfig(toxobyteSegment, 25, 16.25f, 6f * 60f, 25, false, true, true,
+                        30f, 3f, 0.1f, 0.5f, 8, 0.5f, false, 0f));
         // 毒疫虫：每秒回15血
         SegmentWormEntity.configs.get(toxobyte.name).healPerSecond = 15f;
-
         // 用反射设置 shootSound，避开编译期字段差异
         // 头部 SapBullet 武器：shootSap
         // 段身 Artillery 武器：shootArtillery
@@ -363,7 +344,59 @@ public class CalamityUnitTypes {
             f = soundsClass.getField("shootArtillery");
             toxobyteSegment.weapons.first().shootSound = (arc.audio.Sound) f.get(null);
         } catch (Throwable t) {
-            try { Log.err("set toxobyte shootSound failed", t); } catch (Throwable ignored) {}
+            try {
+                Log.err("set toxobyte shootSound failed", t);
+            } catch (Throwable ignored) {
+            }
         }
+        CangzhuoNameless = new UnitType("Cangzhuo-Nameless") {{
+            constructor = EvolveEntity::create;
+            health = 400000;
+            armor = 300;
+            hitSize = 88f;
+            speed = 0f;
+            abilities.add(new ShockwaveAbility(true,60*6f){{
+                maxBubbles = 0;
+            }});
+            weapons.add( new DragonClawWeapon ( "my-claw" ){{
+                x = 0f ; y = 4f ;
+                mirror = false ;
+                clawRange      = 260f ; // 索敌/作战距离
+                reloadInterval = 360f ; // 两记拍击间隔（帧）
+                edgeDamage     = 900f ; // 建筑范围伤害（纯伤害，不秒杀）
+                unitDamage     = 900f ; // 单位范围伤害（纯伤害，不秒杀）
+            }});
+        }};
+        // 白色单位 - 每受击一次扣除指定百分比最大生命值
+        whiteColorUnit = new FedUnitType("white-color-unit") {{
+            damagePercent = 0.1f; // 每次受击扣除10%最大血量
+            constructor = WhiteColorEntity::create;
+            health = 1000f;
+            speed = 1.5f;
+            accel = 0.05f;
+            rotateSpeed = 3f;
+            hitSize = 20f;
+            flyingLayer = Layer.flyingUnit;
+            armor = 0f;
+            flying = true;
+            range = 100f;
+            // 武器配置（可选）
+            weapons.add(new Weapon() {{
+                x = 0f;
+                y = 0f;
+                reload = 60f;
+                mirror = false;
+                rotate = true;
+                bullet = new BasicBulletType(5f, 10f) {{
+                    width = 7f;
+                    height = 9f;
+                    lifetime = 30f;
+                }};
+            }});
+        }};
+        // 日志输出（绝对安全）
+        Log.info("血量: " + CangzhuoNameless.health);
+        Log.info("白色单位已注册，health=" + whiteColorUnit.health + ", damagePercent=" + ((FedUnitType)whiteColorUnit).damagePercent);
     }
 }
+

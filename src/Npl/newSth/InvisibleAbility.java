@@ -42,8 +42,9 @@ import static mindustry.Vars.*;
  *    ② revealDamageTick / revealRadarTick 倒计时（供"显形条件"参考）：
  *       被打时延长 damage 倒计时，被 AntiStealthRadar 扫到时延长 radar 倒计时。
  *
- *  AntiStealthRadar 改做"强制给该团队开动态短时迷雾"，
- *  具体见 AntiStealthRadar.java —— 实现"雷达扫到哪里，哪里就显形，没扫到立刻恢复迷雾"。
+ *  AntiStealthRadar 通过 markRadarRevealed(...) 按扫描周期给范围内的隐身单位续杯
+ *  revealRadarTick，被续杯的单位由本类的 draw() 单独手动重画 → "雷达扫到哪里，哪里才显形"。
+ *  另外 markRadarRevealed 会返回本次真正被续杯的隐身单位数，供雷达面板统计（一次空间查询同时完成显形+统计）。
  * =======================================================
  */
 public class InvisibleAbility extends Ability {
@@ -446,18 +447,27 @@ public class InvisibleAbility extends Ability {
      *                  对外工具
      * ====================================================== */
 
-    /** 反隐雷达调用：给指定单位延长 radar 显形倒计时 */
-    public static void markRadarRevealedOne(Unit u, float durationTick) {
-        if (u == null) return;
+    /**
+     * 反隐雷达调用：给指定单位延长 radar 显形倒计时。
+     * @return 该单位是否带 InvisibleAbility（true = 这次调用真的把它显形了）
+     */
+    public static boolean markRadarRevealedOne(Unit u, float durationTick) {
+        if (u == null) return false;
         for (Ability ab : u.abilities) {
             if (ab instanceof InvisibleAbility ia) {
                 ia.revealRadarTick = Math.max(ia.revealRadarTick, durationTick);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
-    /** 反隐雷达按圆范围批量调用（保留旧接口兼容性，不做 UnitType 级修改） */
+    /**
+     * 反隐雷达按圆范围批量调用：给范围内所有敌方隐身单位续杯显形。
+     * 顺带把"命中数"返回给雷达做面板统计 —— 显形和统计合并成一次空间查询，
+     * 雷达就不用再自己遍历一遍 stealthedUnits 了。
+     * @return 本次实际被续杯的隐身单位数
+     */
     public static int markRadarRevealed(Team radarTeam, float rx, float ry, float range, float durationTick) {
         if (range <= 0f) return 0;
         final int[] cnt = {0};
@@ -466,8 +476,7 @@ public class InvisibleAbility extends Ability {
             if (u == null || u.team == null) return;
             if (u.team == radarTeam) return;        // 不扫队友
             float dx = u.x - rx, dy = u.y - ry;
-            if (dx * dx + dy * dy <= r2) {
-                markRadarRevealedOne(u, durationTick);
+            if (dx * dx + dy * dy <= r2 && markRadarRevealedOne(u, durationTick)) {
                 cnt[0]++;
             }
         });

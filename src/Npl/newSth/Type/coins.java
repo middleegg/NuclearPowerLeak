@@ -240,7 +240,9 @@ public class coins extends Item {
             if(uiTable != null){
                 uiTable.invalidateHierarchy();
             }
-        }catch(Exception ignored){}
+        }catch(RuntimeException ignored){
+            // UI 可能已销毁，忽略
+        }
     }
 
     /* ===================== 核心显示 ===================== */

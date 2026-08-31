@@ -15,17 +15,99 @@ import Npl.content.*;
 import Npl.events.*;
 import Npl.content.envBlocks;
 import Npl.newSth.NewItemsType;
+import Npl.newSth.RadiationSystem;
+import Npl.newSth.BlackHoleSystem;
+import Npl.newSth.NarrativeDialogSystem;
+import Npl.newSth.DayNightSystem;
+import Npl.newSth.PlayerMeleeSystem;
+import Npl.newSth.InfiniteWorldSystem;
 import Npl.newSth.Type.*;
 import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
 import mindustry.ui.*;
 
 import static mindustry.Vars.*;
+import Npl.content.UI.*;
+import Npl.Rouge.*;
+import arc.scene.Group;
 
 public class nu extends Mod {
 
+    public static BossBarManager bossBarManager;
+
     public nu(){
         Events.on(ClientLoadEvent.class, e -> {
+
+            // ─── 星图 Bloom 泛光（星球选择界面，全场景共用）───
+            // threshold：亮度阈值，越低参与泛光的像素越多（原版 0.8）
+            // bloomIntensity：泛光强度，越高越亮（原版默认 1）
+            // blurPasses：模糊次数，越多光晕越大越柔（原版 6）
+            renderer.planets.bloom.setThreshold(0.8f);
+            renderer.planets.bloom.setBloomIntensity(1.5f);
+            renderer.planets.bloom.blurPasses = 6;
+            // ─── 辐射区系统（元素损伤式累积，机制详见 RadiationSystem 类注释）───
+            RadiationSystem.init();
+            // ─── 黑洞扭曲背景后处理系统（NuFx.blackHole 触发后由本系统做全屏 shader 扭曲）───
+            BlackHoleSystem.init();
+            // ─── 无限世界系统（已封存，取消注释即可恢复）───
+            // InfiniteWorldSystem.init();
+            // ─── 昼夜系统（波次推进逐渐极黑，机制详见 DayNightSystem 类注释）───
+            DayNightSystem.init();
+            // ─── 剧情对话系统（屏幕内嵌对话框，详见 NarrativeDialogSystem 类注释）───
+            NarrativeDialogSystem.init();
+            // ─── Rouge 模式初始化 ───
+            RougeNet.init();
+            RougeLobby.init();
+            RougeGameControl.init();
+            RougeMenu.init();
+            WarningLineManager.init();
+            // ─── Boss血条管理器初始化 ───
+            bossBarManager = new BossBarManager();
+            // 指定 CangzhuoNameless 为Boss
+            bossBarManager.setBossType(CalamityUnitTypes.CangzhuoNameless);
+            // 世界加载时：强制重新挂载所有血条到 hudGroup
+            Events.on(WorldLoadEvent.class, ev -> {
+                // 重置血条状态（击败倒计时等不跨存档保留）
+                bossBarManager.resetAll();
+                Group hudGroup = (ui != null) ? ui.hudGroup : null;
+                if (hudGroup != null) {
+                    for (NewBossHUD bar : bossBarManager.getBars()) {
+                        if (bar.parent != null) bar.parent.removeChild(bar, true);
+                        hudGroup.addChild(bar);
+                        bar.pack();
+                    }
+                }
+            });
+
+            // 每帧更新血条
+            Events.run(Trigger.update, () -> {
+                // 懒挂载
+                if (ui != null && ui.hudGroup != null) {
+                    for (NewBossHUD bar : bossBarManager.getBars()) {
+                        if (bar.parent == null) {
+                            ui.hudGroup.addChild(bar);
+                            bar.pack();
+                            Log.info("[BossBar] 懒挂载血条到 hudGroup");
+                        }
+                    }
+                }
+                // 更新管理器
+                bossBarManager.update();
+                // 定位
+                float screenW = Core.graphics.getWidth();
+                float screenH = Core.graphics.getHeight();
+                float topMargin = 130f;
+                int visibleIndex = 0;
+                for (NewBossHUD bar : bossBarManager.getBars()) {
+                    if (!bar.visible) continue;
+                    float barH = bar.getHeight() + 8f;
+                    if (barH <= 0f) barH = 50f;
+                    float barW = bar.getWidth();
+                    if (barW <= 0f) barW = 750f;
+                    bar.setPosition((screenW - barW) / 2f, screenH - topMargin - visibleIndex * barH);
+                    visibleIndex++;
+                }
+            });
 
             /* 启动 10 秒后弹出「青蛙主弹窗」 */
             Time.runTask(10f, () -> {
@@ -93,8 +175,9 @@ public class nu extends Mod {
         NuItems.load();
         NuLiquid.load();
         Azer.load();
+        CuteUnitTypes.load();
+        CalamityUnitTypes.load();   // 必须在 FederalUnitTypes 之前，因为 Saint 的 DevourAbility 引用 CangzhuoNameless
         FederalUnitTypes.load();
-        CalamityUnitTypes.load();
         NuBlocks.load();
         // ══════════════════════════════════════════════════════════════════
         // ⭐ coins 贴图：★强制锁定显示 coins1.png（不管 atlas 怎么打包，直接读 PNG 文件最靠谱）★
@@ -132,7 +215,9 @@ public class nu extends Mod {
                     coinsRegion = new TextureRegion(tex);
                     pm.dispose();
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+                // 绝对路径读取失败，继续尝试 atlas key 穷举
+            }
         }
         // 兜底：12 种 atlas key 穷举（打包后 classpath 文件可能读不到，但 atlas 里是有的）
         if (coinsRegion == null || coinsRegion.texture == null) {
@@ -169,6 +254,7 @@ public class nu extends Mod {
         envBlocks.load();
         OneEvent.load();
         NuTree.load();
+        PlayerMeleeSystem.load();   // 玩家手动挥砍系统（默认 V 键，可在 PlayerMeleeSystem.key 改）
     }
     /* ──────────────────────────────────────────────────────
        跳转到的「青蛙档案」界面

@@ -49,12 +49,10 @@ import mindustry.entities.units.WeaponMount;
  *   液压装饰（WormDecal）保留，仅 oppression 压迫者有，其他单位为 null。
  */
 public class SegmentUnitEntity extends UnitEntity {
-
     /** 工厂方法（UnitType.constructor 用这个创建实例） */
     public static SegmentUnitEntity create() {
         return new SegmentUnitEntity();
     }
-
     /**
      * 返回注册的 classId（绕过 v154.3 的 checkEntityMapping 检查）
      * ★ 为什么需要这个：v154.3 要求每个自定义 Entity class 有唯一 classId，
@@ -64,7 +62,6 @@ public class SegmentUnitEntity extends UnitEntity {
     public int classId() {
         return FedUnitEntity.classId(SegmentUnitEntity.class);
     }
-
     /** 引用头部（用于死亡通知、状态转移、控制权转移） */
     public SegmentWormEntity head = null;
 

@@ -19,7 +19,7 @@ import Npl.content.*;
 import Npl.newSth.*;
 
 public class NuStatus{
-    public static OriStatus chaos,paralysis,lack,radiation,enrich,divineWrath,breathHeal,
+    public static OriStatus chaos,paralysis,lack,radiation,radPoison,enrich,divineWrath,breathHeal,
     pulse,accelerate,hormone,poison;
     public static void load(){
         chaos = new OriStatus("chaos"){{
@@ -58,6 +58,12 @@ public class NuStatus{
             damage = 1.5f;
             healthMultiplier = 0.75f;
             injuredMultiplier = 2f;
+            show = true;
+        }};
+        // 辐射中毒：RadiationSystem 爆表后施加。
+        // 染色发光与 % 最大生命持续伤害均由 RadiationSystem 结算，这里只提供状态标记与图标
+        radPoison = new OriStatus("radPoison"){{
+            color = NuColor.RadiationColor;
             show = true;
         }};
         enrich = new OriStatus("enrich"){{

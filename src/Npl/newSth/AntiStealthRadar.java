@@ -18,149 +18,78 @@ import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
 
-import java.lang.reflect.*;
-
 import static mindustry.Vars.*;
 
 /**
  * 【反隐雷达 AntiStealthRadar】
  * =======================================================
  * 功能：
- *   1. 原版 Radar 一样有雾半径（fogRadius），探索战争迷雾
- *   2. 额外：以 detectionRange 为半径扫描范围内所有敌方 InvisibleAbility 隐身单位
- *      → 命中的单位会被强制"显形"（InvisibleAbility.radarRevealedTick 被延长到 revealPerStep）
- *   3. 每隔 scanTick 做一次扫描（默认 30 tick = 0.5 秒扫一次，性能友好）
- *   4. 旋转天线动画 + 扫描扇形视觉效果 + 发现目标时的警告光圈
- *   5. 要求电力：无效率 = 0，无法显形单位，只能保留基础开雾功能
+ *   1. 和原版 Radar 一样有开雾半径（Block.fogRadius，单位：格），只有预热 + 有电才满半径
+ *   2. 额外：以 detectionRange 为半径，给范围内所有敌方隐身单位"续杯显形"
+ *      → InvisibleAbility.revealRadarTick = max(当前, 续杯时长)
+ *      → InvisibleAbility.draw() 会在最后 20 tick 内淡出，所以续杯时长必须能覆盖到下一次扫描
+ *   3. 扫描按 scanTick 周期执行（默认 12 tick = 0.2 秒一次），不是每 tick 执行
+ *   4. 旋转天线动画 + 扫描扇形 + 发现目标时的红色警示发光
+ *   5. 可配置是否需要电力：没电时只保留开雾，不反隐
  *
- * 放置/使用方法：
- *   在 NuBlocks.java 中注册后，像放置普通 Radar 一样摆放即可：
- *     antiStealthRadar = new AntiStealthRadar("anti-stealth-radar"){{
- *         requirements(Category.effect, with(
- *             Items.silicon, 120,
- *             Items.plastanium, 40,
- *             Items.surgeAlloy, 25
- *         ));
- *         size = 2;
- *         health = 2400;
- *         fogRadius = 12;                // 开雾半径（格）
- *         detectionRange = 12 * tilesize; // 反隐探测范围（像素，默认 12 格 = 开雾半径一致）
- *     }};
+ * 【本次优化要点】
+ *   - 扫描从"每 tick"改为"每 scanTick"（默认 12 tick → 开销降到 1/12，配置 30 tick 时降到 1/30）
+ *   - 续杯时长自动取 max(revealPerStep, scanTick + 30)，保证两次扫描之间不会落进 20 tick 淡出窗口 → 不闪烁
+ *     （原来靠每 tick 续杯来避免闪烁，现在用"时长覆盖周期"这个更便宜的办法）
+ *   - 一次扫描同时完成"显形 + 统计"，删掉了原先每 tick 遍历 InvisibleAbility.stealthedUnits 的 O(N) 统计循环
+ *   - 删除了从未被调用的 FogControl 私有字段反射方案（dynamicEventQueue / FogData.dynamicUpdated），
+ *     静态状态与反射权限风险一并消失；如需恢复"强制开动态迷雾"版本，改回修改前的 AntiStealthRadar.java 即可
+ *   - 修正字段隐藏：不再声明 float fogRadius 覆盖 Block.fogRadius(int)，改回和原版 Radar 一样用父类字段
+ *   - 修正 detectionRange 单位混乱造成的"探测半径只有 1 格"问题（详见字段注释）
+ *
+ * 放置/使用方法（在 NuBlocks.java 中注册）：
+ *   antiStealthRadar = new AntiStealthRadar("anti-stealth-radar"){{
+ *       requirements(Category.effect, with(Items.silicon, 120, Items.plastanium, 40, Items.surgeAlloy, 25));
+ *       size = 2;
+ *       health = 2400;
+ *       fogRadius = 12;                          // 开雾半径（格，int）——父类字段
+ *       detectionRange = 12 * tilesize;          // 反隐半径（像素！想按格写就乘 tilesize）
+ *       consumePower(10f);                       // 耗电由 consumePower(x) 声明（会自动置 hasPower）
+ *   }};
  *
  * 需要的贴图（放在 sprites/ 下，名字匹配方块 name）：
  *   anti-stealth-radar.png       → 旋转天线（region，自动加载）
- *   anti-stealth-radar-base.png  → 固定底座（baseRegion，load 里手动找）
- *   anti-stealth-radar-glow.png  → 发光层（glowRegion，可选，找不到会自动回退成不画）
+ *   anti-stealth-radar-base.png  → 固定底座（baseRegion，load 里手动找，找不到用 region 兜底）
+ *   anti-stealth-radar-glow.png  → 发光层（glowRegion，可选，找不到就不画）
  * =======================================================
  */
 public class AntiStealthRadar extends Block {
 
     /* ======================================================
-     * 【核心】反射访问 FogControl 的 private 动态开雾通道
-     * ======================================================
-     * 原版迷雾系统的开雾分为两条：
-     *   - staticEvents（静态/永久：写入 Bits staticData → 地图一旦被探索过就永久亮）
-     *   - dynamicEventQueue（动态/短时：仅写入 volatile Bits read → 下一帧不写就会消失）
-     *
-     * 我们要的"雷达照到哪里哪里显形、关掉雷达雾又回去"正是第二条 dynamicEventQueue，
-     * 但它在 FogControl 里是 private final LongSeq，没有公开 API。
-     * 所以这里做一次静态 Reflect 缓存，拿到 3 个关键成员后直接调用，
-     * 失败（比如反射权限被禁）会自动回退为"只开静态雾"，不会崩溃。
-     * ====================================================== */
-    static boolean reflectInited = false;
-    static boolean reflectOk    = false;
-    static Field   fc_dynamicEventQueue;   // FogControl.dynamicEventQueue (LongSeq)
-    static Field   fc_fog;                 // FogControl.fog (FogData[])
-    static Field   fd_dynamicUpdated;      // FogControl$FogData.dynamicUpdated (boolean)
-    static Class<?> fogEventClass;         // mindustry.game.FogControl$FogEventStruct
-    static Method  fogEvent_get;           // FogEventStruct.get(int x,int y,int radius,int team) → long
-
-    static void initReflect() {
-        if (reflectInited) return;
-        reflectInited = true;
-        try {
-            Class<?> fcCls = Class.forName("mindustry.game.FogControl");
-            fc_dynamicEventQueue = fcCls.getDeclaredField("dynamicEventQueue");
-            fc_dynamicEventQueue.setAccessible(true);
-            fc_fog = fcCls.getDeclaredField("fog");
-            fc_fog.setAccessible(true);
-
-            // FogData.dynamicUpdated（内部静态类）
-            Class<?> fdCls = Class.forName("mindustry.game.FogControl$FogData");
-            fd_dynamicUpdated = fdCls.getDeclaredField("dynamicUpdated");
-            fd_dynamicUpdated.setAccessible(true);
-
-            // FogEventStruct.get(x,y,radius,team) 返回 long
-            fogEventClass = Class.forName("mindustry.game.FogControl$FogEventStruct");
-            fogEvent_get  = fogEventClass.getDeclaredMethod("get", int.class, int.class, int.class, int.class);
-            fogEvent_get.setAccessible(true);
-
-            reflectOk = true;
-        } catch (Throwable ignored) {
-            reflectOk = false;
-        }
-    }
-
-    /**
-     * 给雷达所属团队强制开"动态短时视野"（最核心的反隐可视化方法）
-     *  - 只会修改 Bits read（动态实时视野），不会改 Bits staticData（永久已探索图）
-     *  - 下一 tick 不调用的话，等 FogControl 动态刷新周期（默认 40ms = 25FPS）过了就会失效
-     *  - 所以 Radar updateTile() 必须每 tick 都调用一次，维持反隐视野
-     *
-     * @param team    哪个团队能看到这块区域（一般就是雷达自己的 team）
-     * @param cx      中心 tile 坐标 x（World.toTile(x)）
-     * @param cy      中心 tile 坐标 y
-     * @param radiusT 半径（单位 tile，比如 detectionRange/tilesize）
-     * @return 是否成功写入 dynamicEventQueue（失败可能是反射没权限）
-     */
-    static boolean forceRevealForTeam(Team team, int cx, int cy, int radiusT) {
-        if (team == null || radiusT <= 0 || !state.rules.fog) return false;
-        if (!reflectInited) initReflect();
-        if (!reflectOk || Vars.fogControl == null) return false;
-        try {
-            // 1) 构造 FogEventStruct.get(cx, cy, radiusT, team.id) → long packed
-            long packed = (Long) fogEvent_get.invoke(null, cx, cy, Math.max(1, radiusT), team.id);
-
-            // 2) 取 FogControl.dynamicEventQueue (LongSeq)，塞进去
-            LongSeq q = (LongSeq) fc_dynamicEventQueue.get(Vars.fogControl);
-            if (q != null) q.add(packed);
-
-            // 3) 把该 team 的 FogData.dynamicUpdated=true，强制下一个 25FPS 周期 flush 到 Bits read
-            Object[] fogArr = (Object[]) fc_fog.get(Vars.fogControl);
-            if (fogArr != null && team.id >= 0 && team.id < fogArr.length && fogArr[team.id] != null) {
-                fd_dynamicUpdated.setBoolean(fogArr[team.id], true);
-            }
-            return true;
-        } catch (Throwable ignored) {
-            return false;
-        }
-    }
-
-    /* ======================================================
      *                  对外可调参数（方块级）
      * ====================================================== */
 
-    /** 开雾预热时长（多少 tick 达到最大雾半径） */
+    /** 开雾预热时长（多少 tick 达到最大雾半径）。注意：开雾半径本身用父类 Block.fogRadius（int，单位：格）。 */
     public float discoveryTime = 60f * 8f;
 
     /** 天线旋转速度（度/秒基准），越大转得越快 */
     public float rotateSpeed = 3.2f;
 
-    /** 开雾半径（单位：格 = tilesize 像素）。原版 Radar 默认 10 格。 */
-    public float fogRadius = 10;
+    /**
+     * 反隐探测半径，单位是<b>像素</b>（Mindustry 世界单位）。
+     *   <= 1 时自动取 fogRadius * tilesize（= 和开雾一样大）。
+     *   ⚠ 别再写 detectionRange = fogRadius * 0.8f —— fogRadius 是"格"，乘出来的 11 像素比方块自己还小，
+     *     反隐会等于没开。正确写法：fogRadius * 0.8f * tilesize 或 格数 * tilesize。
+     */
+    public float detectionRange = -1f;
 
-    /** 反隐探测半径（像素）。默认和开雾半径一致；可以写死更大或更小。 */
-    public float detectionRange = 10f * 8f; /* 默认值会在 init 后被 fogRadius*tilesize 覆盖，这里只是占位 */
-
-    /** 扫描间隔 tick（默认 12 = 0.2 秒扫一次，因为现在每 tick 强制开动态雾，这里只用于统计/倒计时续杯，不是用于"可视化显形"）*/
+    /** 扫描周期（tick）。默认 12 = 0.2 秒一次；不是每 tick 扫描，周期越短越灵敏、越费 CPU。 */
     public float scanTick = 12f;
 
-    /** 每次扫描让隐身单位保持"被雷达照到"的 targetable 显形时长（tick）。
-     *  建议略大于 scanTick，保证下一帧扫描能续上，不会闪烁 targetable=false/true。 */
+    /**
+     * 每次扫描给命中单位续杯的显形时长（tick）。
+     * 实际下发的时长会自动取 max(revealPerStep, scanTick + 30)：
+     * InvisibleAbility 的淡出窗口是最后 20 tick，续杯必须 > 扫描周期 + 20 才不会中途开始淡出（闪烁）。
+     */
     public float revealPerStep = 30f;
 
-    /** 是否需要电力驱动扫描（true = 没电时只开雾不反隐）*/
-    public boolean consumePower = true;
+    /** 是否必须通电才反隐（true = 没电只开雾）。耗电量请用方块定义里的 consumePower(x) 声明。 */
+    public boolean requiresPower = true;
 
     /** 天线底座贴图（自动在 load() 中找 {name}-base） */
     public TextureRegion baseRegion;
@@ -182,40 +111,51 @@ public class AntiStealthRadar extends Block {
         solid = true;
         outlineIcon = true;
         flags = EnumSet.of(BlockFlag.hasFogRadius);
-        // 默认耗电（逻辑里再判断 consumePower）
-        hasPower = true;
+
+        // 开雾半径用父类 Block.fogRadius（int，单位：格），和原版 Radar 一致。
+        // 千万不要在子类里再声明一个 float fogRadius：那会隐藏父类字段，
+        // 游戏内部代码读 block.fogRadius 只会读到 0（开雾标记、面板数值都会出错）。
+        fogRadius = 10;
+
+        // 这里不再硬写 hasPower = true：耗电由方块定义里的 consumePower(x) 声明，
+        // ConsumePower.apply() 会自动把 hasPower 置为 true；
+        // 如果不需要电（requiresPower = false），也就不会白白接进电网。
     }
 
     @Override
     public void load() {
         super.load();
-        // —— 手动加载额外的贴图（@Load 注解是 Annotations 编译器用的，mod 直接 Core.atlas.find 即可）
-        // 底座：{name}-base
+        // —— 手动加载额外贴图（@Load 注解是 Annotations 编译器用的，mod 直接 Core.atlas.find 即可）
         baseRegion = Core.atlas.find(name + "-base");
         if (!baseRegion.found()) {
-            // 没提供 -base 的话就直接用 region 兜底，避免编译期 NPE
+            // 没提供 -base 就用本体贴图兜底，避免绘制期 NPE
             baseRegion = region;
         }
-        // 发光层：{name}-glow（没做就不会画）
         glowRegion = Core.atlas.find(name + "-glow");
-        // 没找到的话 glowRegion.found() 为 false，draw 里会跳过
+        // 没找到时 glowRegion.found() 为 false，draw() 会自动跳过
     }
 
     @Override
     public void init() {
         super.init();
-        // 如果用户没指定 detectionRange，默认和开雾一样大（像素）
-        if (detectionRange <= 1) detectionRange = fogRadius * tilesize;
+        if (detectionRange <= 1f) {
+            // 默认和开雾半径一致（fogRadius 是格，乘 tilesize 换成像素）
+            detectionRange = fogRadius * tilesize;
+        } else if (detectionRange < tilesize * 2f) {
+            // 单位写错的兜底提醒：detectionRange 是像素，不是格
+            Log.warn("[AntiStealthRadar] @ 的 detectionRange=@ 像素，比 2 格还小；" +
+                "该字段单位是像素，想按格配置请乘 tilesize", name, detectionRange);
+        }
     }
 
     @Override
     public TextureRegion[] icons() {
-        // 方块图标：底座+天线（如果两个 region 都是同一个图，这里也没事，渲染会自动重叠成一张）
+        // 方块图标：底座 + 天线
         return new TextureRegion[]{baseRegion, region};
     }
 
     /* ======================================================
-     *                  放置预览 / 选择时绘制
+     *                  放置预览
      * ====================================================== */
 
     @Override
@@ -225,7 +165,7 @@ public class AntiStealthRadar extends Block {
         float cy = y * tilesize + offset;
         // 1) 开雾范围（黄色虚线）
         Drawf.dashCircle(cx, cy, fogRadius * tilesize, Pal.accent);
-        // 2) 反隐探测范围（绿色虚线，和上面有区分）
+        // 2) 反隐探测范围（绿色虚线）
         Drawf.dashCircle(cx, cy, detectionRange, Pal.sapBullet);
     }
 
@@ -242,9 +182,14 @@ public class AntiStealthRadar extends Block {
         public float totalProgress;         // 天线旋转累计
 
         /* ---- 反隐扫描相关 ---- */
-        public float scanTimer = 0f;        // 扫描计时器（到 scanTick 就扫一次）
-        public boolean detectedThisFrame;   // 这一帧是否扫到了目标（用于视觉警示）
-        public int lastDetectedCount;       // 上一轮扫到的敌人数（用于统计面板）
+        /** 距离下一次扫描的计时（tick）。参与存档，保证读档后不会立刻连扫。 */
+        public float scanTimer = 0f;
+        /** 上一次扫描命中的隐身单位数（面板显示用，参与存档）。 */
+        public int lastDetectedCount = 0;
+        /** 上一次扫描是否发现目标（决定发光是否转红；语义是"上一次扫描"，不是"这一帧"）。 */
+        public boolean detectedLastScan = false;
+        /** 上电后立即扫一次，避免白白等一个 scanTick（不存档；读档后为 false → 立刻扫一次，正好）。 */
+        boolean scannedOnce = false;
 
         /* ===============================================
          *              基础 Building 生命周期
@@ -252,7 +197,7 @@ public class AntiStealthRadar extends Block {
 
         @Override
         public float fogRadius() {
-            // 开雾大小 = 方块雾半径 × 预热进度 × 平滑效率
+            // 开雾大小 = 开雾半径(格) × 预热进度 × 平滑效率
             return fogRadius * progress * smoothEfficiency;
         }
 
@@ -264,41 +209,42 @@ public class AntiStealthRadar extends Block {
                 Vars.fogControl.forceUpdate(team, this);
                 lastRadius = fogRadius();
             }
-            progress += edelta() / discoveryTime;
+            progress += edelta() / Math.max(1f, discoveryTime);
             progress = Mathf.clamp(progress);
             totalProgress += efficiency * edelta();
 
-            // —— 【★ 2026-08-05 每 tick 续杯 revealRadarTick，直接驱动 InvisibleAbility.draw 重画】
-            //    为什么不再等 scanTick 0.5 秒扫一次：因为 revealRadarTick < 20 tick 时，drawUnitManually 的 revealAlpha 会开始淡出，
-            //    0.5 秒扫一次会出现"半秒钟真隐身→突然闪烁显形"的难受效果。
-            //    所以现在每 tick 都 markRadarRevealed(team, x, y, range, revealPerStep)，
-            //    续杯 revealPerStep（默认 45 tick ≈ 0.75 秒），雷达扫到就稳定显形，
-            //    雷达关掉/出范围，revealRadarTick 自然衰减，最后 20 tick（0.33 秒）平滑淡出。
-            //    这样效果完美：雷达扫到哪里，哪里的单位就由 Ability.draw 单独手动重画显形；
-            //    没扫到的同类型单位 → UnitType 整类透明贴图 → type.draw() 一个像素都不画 → 真·完全隐身，
-            //    武器的子弹/激光/爆炸特效走 Groups.bullet EffectRenderer 照常画出来 →
-            //    就是用户截图里那种"只能看到攻击特效从雾里飞出来，不知道单位在哪"的经典效果。
-            float eff = consumePower ? Mathf.clamp(smoothEfficiency) : 1f;
-            if (eff > 0.02f) {
-                float range = detectionRange * eff;
-                // 每 tick 续杯（revealRadarTick = max(当前, revealPerStep)），稳定
-                InvisibleAbility.markRadarRevealed(team, x, y, range, revealPerStep);
-                // 顺便统计"当前范围内多少个"（纯 UI 显示用，每 tick 统计开销很小）
-                int cnt = 0;
-                for (Unit u : InvisibleAbility.stealthedUnits) {
-                    if (u != null && !u.dead && u.team != team && u.within(x, y, range)) cnt++;
-                }
-                lastDetectedCount = cnt;
-                detectedThisFrame = cnt > 0;
-            } else {
-                // 没通电：统计清零
+            // —— 反隐扫描：按 scanTick 周期执行 ——
+            // 为什么不再每 tick 续杯：每 tick 调用 markRadarRevealed 会每 tick 做一次空间查询，
+            // 30 tick 的周期就是 30 倍开销。改成"扫描时下发一个足够长的显形时长"，
+            // 只要 duration >= scanTick + 20(淡出窗口)，两次扫描之间的显形就不会开始淡出 → 一样稳定不闪。
+            float eff = requiresPower ? Mathf.clamp(smoothEfficiency) : 1f;
+            if (eff <= 0.02f) {
+                // 没电/无效率：清干净状态，不扫描
+                scanTimer = 0f;
+                scannedOnce = false;
                 lastDetectedCount = 0;
-                detectedThisFrame = false;
+                detectedLastScan = false;
+                return;
             }
 
-            // —— scanTick 周期保留（不需要了，但保留变量防止有人读档读不到字段崩）
+            float interval = Math.max(1f, scanTick);
             scanTimer += Time.delta;
-            if (scanTimer > scanTick * 10f) scanTimer = 0f;
+            if (!scannedOnce || scanTimer >= interval) {
+                // 保留余数（低帧率下不丢扫描次数）；首次上电时立即扫一次
+                scanTimer = scannedOnce ? scanTimer % interval : 0f;
+                scannedOnce = true;
+                scan(eff);
+            }
+            // 目标数只在上面的 scan() 里更新：detectedLastScan 会一直保持到下一次扫描，
+            // 所以"发现目标变红"的视觉警示会持续一整个扫描周期，而不是闪一下就没了。
+        }
+
+        /** 一次反隐扫描：给 detectionRange*eff 内的敌方隐身单位续杯显形，并统计命中数。 */
+        protected void scan(float eff) {
+            // 续杯时长必须覆盖"下一次扫描 + 20 tick 淡出窗口"，否则显形会在两次扫描之间开始淡出（闪烁）
+            float duration = Math.max(revealPerStep, Math.max(1f, scanTick) + 30f);
+            lastDetectedCount = InvisibleAbility.markRadarRevealed(team, x, y, detectionRange * eff, duration);
+            detectedLastScan = lastDetectedCount > 0;
         }
 
         @Override
@@ -321,7 +267,7 @@ public class AntiStealthRadar extends Block {
             // 开雾范围（accent 黄）
             Drawf.dashCircle(x, y, fogRadius() * tilesize, Pal.accent);
             // 反隐范围（sap 绿）
-            float eff = consumePower ? Mathf.clamp(smoothEfficiency) : 1f;
+            float eff = requiresPower ? Mathf.clamp(smoothEfficiency) : 1f;
             if (eff > 0.02f) {
                 Drawf.dashCircle(x, y, detectionRange * eff, Pal.sapBullet);
             }
@@ -340,38 +286,39 @@ public class AntiStealthRadar extends Block {
             float angle = rotateSpeed * totalProgress;
             Draw.rect(region, x, y, angle);
 
-            // 3) 发光层（脉冲动画，和原版 Radar 一样）—— 只有 .found() 才画
+            // 3) 发光层（脉冲动画）—— 只有 .found() 才画
             if (glowRegion != null && glowRegion.found()) {
                 float pulse = 1f - glowMag + Mathf.absin(glowScl, glowMag);
-                // 扫到目标时，发光变红色警告
-                Color use = detectedThisFrame ? Tmp.c1.set(Pal.remove).lerp(glowColor, 0.3f) : glowColor;
+                // 上一次扫描发现目标 → 发光偏红警示
+                Color use = detectedLastScan ? Tmp.c1.set(Pal.remove).lerp(glowColor, 0.3f) : glowColor;
                 Drawf.additive(glowRegion, Tmp.c2.set(use).a(glowColor.a * pulse),
                     x, y, angle, Layer.blockAdditive);
             }
 
-            // 4) 扫描扇形（绿色半透明扫光，只在"有电/可以反隐"时画）
-            float eff = consumePower ? Mathf.clamp(smoothEfficiency) : 1f;
+            // 4) 扫描扇形（绿色半透明扫光，只在有电/可反隐时画）
+            float eff = requiresPower ? Mathf.clamp(smoothEfficiency) : 1f;
             if (eff > 0.02f) {
                 float range = detectionRange * eff;
-                Draw.color(Tmp.c1.set(Pal.sapBullet).a(0.07f * eff));
-                // 扫扇形：用多个三角近似，避免过多 Draw 调用
-                float sweep = 22f; // 扇形开角
+                float sweep = 22f;   // 半角：扇形总开角 = 2 * sweep = 44°
                 int sides = 24;
+
+                // 扇形填充（多个三角形近似）
+                Draw.color(Tmp.c1.set(Pal.sapBullet).a(0.07f * eff));
                 float startA = angle - sweep;
                 float endA = angle + sweep;
                 for (int i = 0; i < sides; i++) {
                     float a1 = startA + (endA - startA) * (i / (float) sides);
                     float a2 = startA + (endA - startA) * ((i + 1) / (float) sides);
-                    float x1 = x + Angles.trnsx(a1, range);
-                    float y1 = y + Angles.trnsy(a1, range);
-                    float x2 = x + Angles.trnsx(a2, range);
-                    float y2 = y + Angles.trnsy(a2, range);
-                    Fill.tri(x, y, x1, y1, x2, y2);
+                    Fill.tri(x, y,
+                        x + Angles.trnsx(a1, range), y + Angles.trnsy(a1, range),
+                        x + Angles.trnsx(a2, range), y + Angles.trnsy(a2, range));
                 }
-                // 扇形边缘线（更清晰）
+
+                // 扇形边缘线：占比和起始角必须和上面的扇形一致
+                // （原来是 sweep/360 且从 angle 起画，只能画出半个扇形）
                 Draw.color(Tmp.c1.set(Pal.sapBullet).a(0.35f * eff));
                 Lines.stroke(1.2f);
-                Lines.arc(x, y, range, sweep / 360f, angle);
+                Lines.arc(x, y, range, (sweep * 2f) / 360f, startA);
                 Lines.stroke(1f);
                 Draw.color();
             }
@@ -386,10 +333,14 @@ public class AntiStealthRadar extends Block {
             table.table(t -> {
                 t.left();
                 t.add("[lightgray]当前探测目标数：[]").left();
-                t.add(String.valueOf(lastDetectedCount)).padLeft(10).color(lastDetectedCount > 0 ? Pal.remove : Pal.sapBullet).left();
+                t.add(String.valueOf(lastDetectedCount)).padLeft(10)
+                    .color(lastDetectedCount > 0 ? Pal.remove : Pal.sapBullet).left();
                 t.row();
                 t.add("[lightgray]扫描间隔：[]").left();
-                t.add(Strings.autoFixed(scanTick / 60f, 2) + " s").padLeft(10).left();
+                t.add(Strings.autoFixed(Math.max(1f, scanTick) / 60f, 2) + " s").padLeft(10).left();
+                t.row();
+                t.add("[lightgray]探测半径：[]").left();
+                t.add(Strings.autoFixed(detectionRange / tilesize, 1) + " 格").padLeft(10).left();
             }).row();
         }
 
@@ -408,7 +359,7 @@ public class AntiStealthRadar extends Block {
         @Override
         public void read(Reads read, byte revision) {
             super.read(read, revision);
-            // 新方块首次保存版本：一定带 progress + scanTimer + lastDetectedCount 三个字段
+            // 字段顺序保持不变，老存档可继续读取
             progress = read.f();
             scanTimer = read.f();
             lastDetectedCount = read.i();

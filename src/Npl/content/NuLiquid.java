@@ -11,18 +11,18 @@ public class NuLiquid {
     public static Liquid water,nuclearFluid,dirtySolution,liquidOxygen,strangeLiquid,
     prismLiquid,divineTears;
     public static void load(){
-        nuclearFluid=new Liquid("nuclearFluid",Color.valueOf("00FF00")){{
+        nuclearFluid=new Liquid("nuclearFluid",Color.valueOf("C9FFD4")){{
             temperature=5f;
-            lightColor=Color.valueOf("00FF0071");
+            lightColor=Color.valueOf("C9FFD471");
         }};
-        dirtySolution=new Liquid("dirtySolution",Color.valueOf("56118B")){{
+        dirtySolution=new Liquid("dirtySolution",Color.valueOf("AC8BCB")){{
             temperature=4.5f;
             viscosity=0.85f;
             flammability=3f;
             capPuddles=false;
             incinerable=true;
             blockReactive=true;
-            lightColor=Color.valueOf("56118BFF");
+            lightColor=Color.valueOf("AC8BCB70");
             canStayOn.addAll(water,strangeLiquid,liquidOxygen);
         }};
         liquidOxygen=new Liquid("liquidOxygen",Color.valueOf("66AAFF")){{
@@ -33,15 +33,15 @@ public class NuLiquid {
             boilPoint=1f;
             coolant=true;
         }};
-        strangeLiquid=new Liquid("strangeLiquid",Color.valueOf("6FA5FF")){{
+        strangeLiquid=new Liquid("strangeLiquid",Color.valueOf("98B9FF")){{
             temperature=-6f;
-            lightColor=Color.valueOf("6FA5FFFF");
+            lightColor=Color.valueOf("98B9FFB0");
             viscosity=0.1f;
             heatCapacity=0.5f;
         }};
-        prismLiquid = new Liquid("prismLiquid",Color.valueOf("F0FFFD")){{
+        prismLiquid = new Liquid("prismLiquid",Color.valueOf("9AA0D5")){{
             temperature=-3f;
-            lightColor=Color.valueOf("F0FFFDB0");
+            lightColor=Color.valueOf("9AA0D5B0");
             heatCapacity=1.6f;
             boilPoint=3f;
             viscosity=0.5f;

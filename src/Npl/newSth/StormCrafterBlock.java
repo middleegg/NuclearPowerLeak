@@ -21,60 +21,18 @@ import static mindustry.Vars.*;
 /**
  * 风暴合成器 StormCrafterBlock
  * ===============================================================
- * 继承 GenericCrafter：保留所有「原料消耗 / 产物产出 / 配方 / 耗电」逻辑。
- * 额外新增：三阶段视觉 + 真正的 LightningBulletType 发射。
+ * 继承 GenericCrafter：保留「原料消耗 / 产物产出 / 配方 / 耗电」全部逻辑。
  *
- * 三阶段（每栋 Building 独立状态机）：
- *   Phase 1 [0 ~ 300 tick = 5 秒]
- *       中心光圈 + 中心上方淡入光球；每 60 tick（1 秒）一波 5 粒子，
- *       从中心向随机 360° 发散，发散途中尺寸不断变大。
- *       ⚠ Phase 1 只进行一次，不复用。
+ * 视觉节奏：蓄能 → 爆发 → 余韵，循环往复（雷暴感）。
+ *   Phase 1 蓄能：外部能量粒子由外向内聚入核心；核心等离子球带高频电噪与电弧触须。
+ *   Phase 2 充能：外圈"感应线圈"被一圈高亮扫弧逐渐点亮，扫满 360° 线圈成型。
+ *   Phase 3 放电循环：
+ *       持续以 lightningFireInterval 释放常规闪电（保持输出）；
+ *       并以 burstCycle 为周期：
+ *         蓄势(核心收紧、线圈增亮) → 爆发(白闪 + 冲击波 + 密集放电) → 余韵(回落)。
  *
- *   Phase 2 [300 tick 起，直到填满圆环]
- *       保留光球，Phase 1 粒子不再生成；
- *       光球外 40 格（= 320 px）处，从 0° 起开始画弧线，
- *       弧线扫到 90° → 显示为 1/4 圆环；
- *       弧线扫到 360° → 完整圆环出现（圆环不会消失）。
- *       填满圆环后立刻进入 Phase 3。
- *       填满后继续循环：一道高亮扫弧不断在完整圆环上绕圈旋转。
- *
- *   Phase 3 [圆环首次填满后，永久持续，不收回]
- *       继承 Phase 2 全部视觉（光球 + 完整圆环 + 循环高亮扫弧）。
- *       额外：每隔 lightningFireInterval tick，从 Building 位置向随机 360°
- *       发射 lightningBullet（LightningBulletType），一次发射
- *       lightningFireCount 条（各自独立随机角度）。
- *       只要方块有效且有电，这个发射就永远继续，不自动结束。
+ * 每栋 Building 独立状态机，phase 会写入存档；粒子不存档（读档后自然重新生成）。
  * ===============================================================
- * 使用方法：
- *   在 NuBlocks 中：
- *     stormCrafter = new StormCrafterBlock("storm-crafter") {{
- *         requirements(Category.crafting, with(...));
- *         size = 2; health = 800;
- *         hasItems = hasPower = true;
- *         craftTime = 200f;
- *         outputItem = new ItemStack(NuItems.magent, 1);
- *         consumeItems(ItemStack.with(NuItems.bigIron, 2));
- *         consumePower(3.0f);
- *
- *         // ======= 风暴专属字段 =======
- *         stormColor = Color.valueOf("6F9BFF");
- *         lightningBullet = new LightningBulletType(){{
- *             damage = 12f;
- *             lightningLength = 22;
- *             lightningLengthRand = 5;
- *             lightningColor = Color.valueOf("E3F2FD");
- *             lightningType = new LightningBulletType(){{ // 二级分支链闪
- *                 damage = 6f;
- *                 lightningLength = 10;
- *                 lightningColor = Color.valueOf("B3E5FC");
- *             }};
- *         }};
- *         lightningFireInterval = 10;
- *         lightningFireCount = 2;
- *     }};
- *
- * 需要贴图：
- *   storm-crafter.png（方块本体，GenericCrafter 自动加载）
  */
 public class StormCrafterBlock extends GenericCrafter {
 
@@ -82,274 +40,296 @@ public class StormCrafterBlock extends GenericCrafter {
      *                  风暴外观颜色
      * ========================================================== */
 
-    /** 风暴主色（光球、光圈、圆环、闪电气氛光）*/
     public Color stormColor = new Color(0x6F9BFFff);
-
-    /** 风暴亮色（闪电本体、圆环扫弧高亮）*/
     public Color stormBrightColor = new Color(0xE3F2FDff);
-
-    /** 风暴暗色（外发光层）*/
     public Color stormGlowColor = new Color(0x3F5FFFaa);
 
     /* ==========================================================
-     *                  Phase 1 粒子
+     *                  Phase 1 聚能粒子
      * ========================================================== */
 
-    /** Phase 1 总时长（tick），默认 300 = 5 秒 */
+    /** Phase 1 总时长（tick）*/
     public float phase1Duration = 300f;
-    /** 粒子间隔波（默认 60 tick = 每 1 秒一波）*/
+    /** 粒子生成波间隔（tick）*/
     public float particleWaveInterval = 60f;
     /** 每波粒子数 */
     public int particlePerWave = 5;
-    /** 粒子速度（像素/tick）*/
+    /** 粒子向心速度（像素/tick）*/
     public float particleSpeed = 2.8f;
-    /** 粒子尺寸范围 */
+    /** 粒子尺寸（远处 → 近核心）*/
     public float particleSizeFrom = 1.5f;
     public float particleSizeTo   = 7f;
-    /** 粒子最远飞多远 */
+    /** 粒子生成半径（由该半径向内收拢）*/
     public float particleMaxDist = 240f;
+    /** 粒子螺旋偏移强度 */
+    public float particleSwirl = 0.8f;
 
     /* ==========================================================
-     *                  圆环 & 扫弧
+     *                  外圈感应线圈 & 扫弧
      * ========================================================== */
 
-    /** 外圈圆环半径（= 40 格 * 8 = 320 px）*/
+    /** 线圈半径（px）*/
     public float outerRingRadius = 40f * 8f;
-    /** 圆环宽度 */
+    /** 线圈线宽 */
     public float outerRingWidth = 3f;
-    /** 第一圈扫弧速度（度/tick），默认 3°/tick → 扫完一圈 120 tick ≈ 2 秒 */
+    /** Phase 2 充能扫弧速度（度/tick）*/
     public float ringSweepSpeedPhase2 = 3f;
-    /** 填满后，循环高亮扫弧的速度（度/tick）*/
+    /** Phase 3 循环高亮扫弧速度（度/tick）*/
     public float ringSweepSpeedPhase3 = 1.8f;
-    /** 循环高亮扫弧的覆盖角度（度）*/
+    /** 循环高亮扫弧覆盖角度（度）*/
     public float ringSweepSweepAngle = 45f;
-    /** 循环高亮扫弧的宽度 */
+    /** 循环高亮扫弧线宽 */
     public float ringSweepWidth = 5f;
-    /** 允许实际完成合成的最低阶段：
-     *   1 = Phase 1（粒子阶段）就允许生产（原版行为，无延迟）
-     *   2 = Phase 2（扫弧阶段）起才允许生产 ← 默认值
-     *   3 = 只有 Phase 3（完整圆环 + 闪电）才允许生产 */
+    /** 线圈绕组数量（径向短刻线）*/
+    public int ringCoilTicks = 40;
+    /** 允许实际完成合成的最低阶段：1/2/3 */
     public int craftStartPhase = 3;
+
     /* ==========================================================
-     *                  光球 / 光圈
+     *                  等离子核心
      * ========================================================== */
 
-    /** 光球大小（px）*/
+    /** 核心基础尺寸（px）*/
     public float coreSize = 40f;
-    /** 光圈半径（套在光球外面的细环）*/
+    /** 内层细环半径 / 线宽 */
     public float innerRingRadius = 56f;
     public float innerRingWidth  = 2f;
-    /** 光球迷你心跳速度 */
+    /** 核心心跳速度 / 幅度 */
     public float corePulseSpeed = 8f;
     public float corePulseAmp   = 0.1f;
+    /** 外发光层数 / 层厚系数 */
     public int   coreGlowLayers = 20;
     public float coreGlowMul    = 4f;
+    /** 核心电弧触须数量 */
+    public int coreTendrils = 6;
 
-    /** 光照半径（= 0 不加光照）*/
+    /** 光照半径（<=0 不加光照）*/
     public float lightRadius = 260f;
+
+    /* ==========================================================
+     *                  雷暴爆发节奏（Phase 3）
+     * ========================================================== */
+
+    /** 两次大爆发之间的周期（tick）*/
+    public float burstCycle = 220f;
+    /** 爆发前蓄势时长（tick）：核心收紧、线圈增亮 */
+    public float burstChargeTime = 70f;
+    /** 爆发白闪衰减时长（tick）*/
+    public float burstFlashTime = 26f;
+    /** 冲击波扩散时长（tick）*/
+    public float shockwaveTime = 34f;
+    /** 冲击波最大半径 / 线宽 */
+    public float shockwaveMaxRadius = 170f;
+    public float shockwaveWidth = 5f;
 
     /* ==========================================================
      *                  LightningBulletType 发射
      * ========================================================== */
 
-    /** Phase 3 使用的闪电子弹类型（必填，不填就不发射）*/
+    /** 使用的闪电子弹类型（为 null 则不发射）*/
     public BulletType lightningBullet = null;
-
-    /** 每隔多少 tick 发射一次闪电 */
+    /** 常规放电间隔（tick）*/
     public float lightningFireInterval = 10f;
-
-    /** 每次发射最少几条（各自随机角度）*/
+    /** 常规放电每次条数范围 */
     public int lightningFireCountMin = 2;
-    /** 每次发射最多几条（每次实际数量在此范围内随机）*/
     public int lightningFireCountMax = 5;
-
-    /** 闪电最短长度（格）。每次发射前随机一条 [min, max] 的长度写入 LightningBulletType */
+    /** 大爆发时额外放电条数范围 */
+    public int burstBoltMin = 5;
+    public int burstBoltMax = 9;
+    /** 单条闪电长度范围（格）*/
     public int lightningLengthMin = 8;
-    /** 闪电最短长度（格）。<= min 时退化为固定长度 */
     public int lightningLengthMax = 22;
-
-    /* ==========================================================
-     *                  构造
-     * ========================================================== */
 
     public StormCrafterBlock(String name) {
         super(name);
     }
 
     /* ==========================================================
-     *                  Building：状态机 + 渲染 + I/O
+     *                  Building
      * ========================================================== */
 
     public class StormCrafterBuild extends GenericCrafterBuild {
 
-        /* ---------- 阶段状态（写入 save）---------- */
-        /** 0=未启动 1=Phase1(粒子) 2=Phase2(扫弧中) 3=Phase3(永久) */
+        /* ---------- 阶段状态（写入存档）---------- */
+        /** 0=未启动 1=蓄能 2=充能 3=放电循环 */
         public int phase = 0;
-        /** 当前阶段累计 tick（启动 Phase1 起持续累加）*/
         public float phaseTick = 0f;
-        /** 第一圈扫弧的累计角度（0→360 表示完成第一圈）*/
         public float firstSweepAngle = 0f;
-        /** Phase3 循环高亮扫弧累计角度（0→∞，mod 360 用）*/
         public float loopSweepAngle = 0f;
-        /** Phase3 闪电发射计时 */
         public float fireCd = 0f;
-        /** 上一帧 progress（用于检测"正在生产"）*/
+        public float burstTimer = 0f;
         public float lastProgress = 0f;
 
-        /* ---------- 粒子（不写入 save，读档后没粒子也无所谓）---------- */
-        /** 每 4 float 为一个粒子：dist, angle, life, seed */
+        /* ---------- 临时视觉状态（不存档）---------- */
+        public float burstFlash = 0f;
+        public float shockwave = 1f;
+        public float particleWaveCd = 0f;
+        /** 每 4 float 一个粒子：dist, angle, life, swirl */
         public float[] particles = new float[0];
 
         @Override
         public void updateTile() {
-            // —— 基础合成逻辑（原 GenericCrafter） ——
             super.updateTile();
+
             if (phase < craftStartPhase && craftTime > 0f) {
                 progress = Math.min(progress, craftTime - 0.001f);
                 warmup = Mathf.approachDelta(warmup, 0f, 0.1f);
             }
-            // —— 阶段机：放置后不立即启动，只有真正生产时才启动。
-            //    启动条件：phase == 0 且 progress > lastProgress（配方进度在推进，
-            //    说明原料+电力都满足，正在实际生产）。
-            //    启动后 Phase3 永久持续，不因生产停止而收回（符合用户"不收回"需求）。
-            boolean producing = (progress > lastProgress + 0.0001f);
 
+            boolean producing = progress > lastProgress + 0.0001f;
             if (phase == 0 && producing) {
-                // 检测到生产开始 → 启动三阶段视觉（仅一次，读档后若 phase>0 不再触发）
                 phase = 1;
                 phaseTick = 0f;
+                particleWaveCd = 0f;
             }
             lastProgress = progress;
 
-            // Phase3 闪电是否允许发射 = 有电
             boolean enabled = efficiency > 0f;
+            float delta = Time.delta;
 
-            phaseTick += 1f;
+            phaseTick += delta;
 
-            // ---------- Phase 1：粒子 ----------
             if (phase == 1) {
-                // 每 particleWaveInterval tick 一波粒子
-                if ((int)phaseTick % (int)particleWaveInterval == 0 &&
-                    Mathf.equal(phaseTick, (float)(int)phaseTick, 0.4f)) {
+                particleWaveCd -= delta;
+                if (particleWaveCd <= 0f) {
                     spawnParticleWave();
+                    particleWaveCd += Math.max(1f, particleWaveInterval);
                 }
-                // 到点自动进 Phase 2
                 if (phaseTick >= phase1Duration) {
                     phase = 2;
                     firstSweepAngle = 0f;
                 }
             }
 
-            // ---------- Phase 2：扫弧填圆环 ----------
             if (phase == 2) {
-                firstSweepAngle += ringSweepSpeedPhase2;
-                // 扫弧到 360° = 填满 → 进入 Phase3
+                firstSweepAngle += ringSweepSpeedPhase2 * delta;
                 if (firstSweepAngle >= 360f) {
                     firstSweepAngle = 360f;
                     phase = 3;
                     loopSweepAngle = 0f;
                     fireCd = 0f;
+                    burstTimer = burstCycle;
+                    shockwave = 1f;
                 }
             }
 
-            // ---------- Phase 3：永久保持 + 循环高亮扫弧 + 发射闪电 ----------
             if (phase == 3) {
-                loopSweepAngle += ringSweepSpeedPhase3;
-                loopSweepAngle = loopSweepAngle % 360f;
+                loopSweepAngle = (loopSweepAngle + ringSweepSpeedPhase3 * delta) % 360f;
                 if (loopSweepAngle < 0f) loopSweepAngle += 360f;
 
-                if (enabled && lightningBullet != null) {
-                    fireCd += 1f;
-                    if (fireCd >= lightningFireInterval) {
-                        fireCd = 0f;
-                        fireLightning();
+                if (enabled) {
+                    burstTimer += delta;
+                    if (burstTimer >= burstCycle) {
+                        burstTimer -= burstCycle;
+                        triggerBurst();
+                    }
+                    if (lightningBullet != null) {
+                        fireCd += delta;
+                        if (fireCd >= lightningFireInterval) {
+                            fireCd = 0f;
+                            fireLightning(lightningFireCountMin, lightningFireCountMax);
+                        }
                     }
                 }
+
+                burstFlash = Mathf.approachDelta(burstFlash, 0f, delta / Math.max(1f, burstFlashTime));
+                shockwave = Mathf.clamp(shockwave + delta / Math.max(1f, shockwaveTime));
             }
 
-            // ---------- 所有阶段：更新已存在的粒子（向外移动 + 生命衰减）----------
             updateParticles();
         }
 
-        /** 生成一波粒子（粒子数据写入 particles 数组）*/
+        protected void triggerBurst() {
+            burstFlash = 1f;
+            shockwave = 0f;
+            if (efficiency > 0f && lightningBullet != null) {
+                fireLightning(burstBoltMin, burstBoltMax);
+            }
+        }
+
         protected void spawnParticleWave() {
-            float[] np = new float[particles.length + particlePerWave * 4];
+            int count = Math.max(0, particlePerWave);
+            if (count == 0) return;
+
+            float[] np = new float[particles.length + count * 4];
             System.arraycopy(particles, 0, np, 0, particles.length);
             int base = particles.length;
-            long timeSeed = Time.millis();
-            for (int i = 0; i < particlePerWave; i++) {
-                long s = timeSeed + i * 131L + tile.pos() * 7L;
-                float ang = Mathf.randomSeed(s, 0f, 360f);
-                long seed = (long)(ang * 100f) ^ s;
-                np[base + i * 4    ] = 0f;                 // dist
-                np[base + i * 4 + 1] = ang;                // angle
-                np[base + i * 4 + 2] = 0f;                 // life（从 0 起，tick 数）
-                np[base + i * 4 + 3] = (float)(seed & 0x7FFFFFFF);  // seed（float，够用）
+            long timeSeed = Time.millis() + tile.pos() * 7L;
+
+            for (int i = 0; i < count; i++) {
+                long s = timeSeed + i * 131L;
+                np[base + i * 4    ] = Mathf.randomSeed(s, particleMaxDist * 0.55f, particleMaxDist);
+                np[base + i * 4 + 1] = Mathf.randomSeed(s + 1L, 0f, 360f);
+                np[base + i * 4 + 2] = 0f;
+                np[base + i * 4 + 3] = Mathf.randomSeed(s + 2L, -1f, 1f);
             }
             particles = np;
         }
 
-        /** 更新粒子（移动物理 + 裁剪生命结束的）*/
         protected void updateParticles() {
-            if (particles.length == 0) return;
+            int n = particles.length;
+            if (n == 0) return;
+
             int alive = 0;
-            for (int i = 0; i < particles.length; i += 4) {
-                float life = particles[i + 2] + 1f;
-                float dist = particles[i] + particleSpeed;
-                if (dist > particleMaxDist) dist = particleMaxDist;
-                particles[i]     = dist;
-                particles[i + 2] = life;
-                // 存活判定：至少还有一小段寿命能画出来
-                float maxLife = particleMaxDist / particleSpeed + 30f;
-                if (life < maxLife && dist < particleMaxDist - 0.5f) alive++;
+            for (int i = 0; i < n; i += 4) {
+                float dist = particles[i] - particleSpeed * Time.delta;
+                particles[i] = dist;
+                particles[i + 1] += particles[i + 3] * particleSwirl * Time.delta;
+                particles[i + 2] += Time.delta;
+                if (dist > 1f) alive++;
             }
-            // 压缩死亡粒子
-            if (alive * 4 < particles.length * 3 / 4) {
+
+            if (alive * 4 < n * 3 / 4) {
                 float[] np = new float[alive * 4];
                 int w = 0;
-                float maxLife = particleMaxDist / particleSpeed + 30f;
-                for (int i = 0; i < particles.length; i += 4) {
-                    if (particles[i + 2] < maxLife && particles[i] < particleMaxDist - 0.5f) {
+                for (int i = 0; i < n; i += 4) {
+                    if (particles[i] > 1f) {
                         np[w++] = particles[i];
-                        np[w++] = particles[i+1];
-                        np[w++] = particles[i+2];
-                        np[w++] = particles[i+3];
+                        np[w++] = particles[i + 1];
+                        np[w++] = particles[i + 2];
+                        np[w++] = particles[i + 3];
                     }
                 }
                 particles = np;
             }
         }
 
-        /** 从 Building 中心随机角度发射 LightningBullet
-         *  数量本身也是随机的（lightningFireCountMin ~ lightningFireCountMax）
-         *  每条闪电长度也是随机的（lightningLengthMin ~ lightningLengthMax）*/
-        protected void fireLightning() {
+        /**
+         * 从建筑中心向随机角度发射闪电。
+         * count 条，每条独立随机角度与长度。
+         * 注意：LightningBulletType 是共享实例，长度字段用完必须还原，
+         * 否则会污染该 bullet 的所有其他使用者。
+         */
+        protected void fireLightning(int countMin, int countMax) {
             BulletType bt = lightningBullet;
             if (bt == null) return;
-            long baseSeed = Time.millis() * 31L + tile.pos() * 7L;
-            int count = (lightningFireCountMax > lightningFireCountMin)
-                ? (int) Mathf.randomSeed(baseSeed, lightningFireCountMin, lightningFireCountMax + 1)
-                : lightningFireCountMin;
 
-            // 只对 LightningBulletType 生效：动态设置 lightningLength / lightningLengthRand
-            // 实际长度 = lightningLength + random(0, lightningLengthRand) = [min, max]
-            mindustry.entities.bullet.LightningBulletType lbt = null;
-            if (lightningLengthMax > lightningLengthMin && bt instanceof mindustry.entities.bullet.LightningBulletType) {
-                lbt = (mindustry.entities.bullet.LightningBulletType) bt;
+            long baseSeed = Time.millis() * 31L + tile.pos() * 7L;
+            int count = (countMax > countMin)
+                ? Mathf.randomSeed(baseSeed, countMin, countMax + 1)
+                : countMin;
+
+            LightningBulletType lbt = (bt instanceof LightningBulletType && lightningLengthMax > lightningLengthMin)
+                ? (LightningBulletType) bt : null;
+            int oldLen = 0, oldRand = 0;
+            if (lbt != null) {
+                oldLen = lbt.lightningLength;
+                oldRand = lbt.lightningLengthRand;
             }
 
             for (int i = 0; i < count; i++) {
                 long seed = baseSeed + i * 131L;
                 float angle = Mathf.randomSeed(seed + 7L, 0f, 360f);
-
-                // 每条闪电随机长度：把 [min,max] 拆成 base + rand
                 if (lbt != null) {
-                    int len = (int) Mathf.randomSeed(seed + 19L, lightningLengthMin, lightningLengthMax + 1);
-                    lbt.lightningLength = len;
-                    lbt.lightningLengthRand = 0;   // 长度已随机，不再叠加 rand
+                    lbt.lightningLength = Mathf.randomSeed(seed + 19L, lightningLengthMin, lightningLengthMax + 1);
+                    lbt.lightningLengthRand = 0;
                 }
-
                 bt.create(this, team, x, y, angle, 1f);
+            }
+
+            if (lbt != null) {
+                lbt.lightningLength = oldLen;
+                lbt.lightningLengthRand = oldRand;
             }
         }
 
@@ -359,138 +339,184 @@ public class StormCrafterBlock extends GenericCrafter {
 
         @Override
         public void draw() {
-            super.draw();   // 画 sprites/storm-crafter.png + 进度条等原版内容
-
-            // 方块上的风暴视觉
+            super.draw();
             if (phase <= 0) return;
+
             float cx = x, cy = y;
+            float keepA = Mathf.clamp(phaseTick / 40f);
+            float p2Enter = (phase == 1) ? 0f
+                : (phase == 2) ? Mathf.clamp(firstSweepAngle / 90f)
+                               : 1f;
 
-            // 阶段可见性
-            float p1FadeIn = Mathf.clamp(phaseTick / 40f);           // Phase1 前 40 tick 淡入
-            float p2Enter  = (phase == 1) ? 0f :
-                (phase == 2) ? Mathf.clamp(firstSweepAngle / 90f)   // 扫过 90° 已很明显
-                             : 1f;
-            float keepA = Mathf.clamp(p1FadeIn);
+            float charge = 0f;
+            if (phase == 3 && burstCycle > burstChargeTime) {
+                float start = burstCycle - burstChargeTime;
+                if (burstTimer >= start) {
+                    charge = Mathf.clamp((burstTimer - start) / burstChargeTime);
+                }
+            }
+            float flash = burstFlash;
 
-            // -------- 1) 核心光球（Phase1 淡入，之后一直存在）--------
+            float cs = coreSize * (0.35f + 0.65f * keepA);
             if (keepA > 0.01f) {
-                float cs = coreSize * (0.35f + 0.65f * keepA);
+                int tb = (int) (Time.time * 0.5f);
+                float noise = Mathf.randomSeed(tb * 7L + tile.pos(), -0.05f, 0.05f);
                 float pulse = Mathf.sin(Time.time * corePulseSpeed) * corePulseAmp;
-                cs *= (1f + pulse);
-                for (int g = coreGlowLayers; g >= 1; g--) {
-                    float gs = cs * (0.6f + g * coreGlowMul / coreGlowLayers);
-                    float ga = keepA * (0.08f + 0.12f * (coreGlowLayers - g) / coreGlowLayers);
-                    Draw.color(stormColor, ga);
-                    Fill.circle(cx, cy, gs);
-                }
-                Draw.color(stormColor, keepA);
-                Fill.circle(cx, cy, cs);
-                Draw.color(stormBrightColor, keepA * 0.8f);
-                Fill.circle(cx, cy, cs * 0.6f);
-                Draw.color(Color.white, keepA);
-                Fill.circle(cx, cy, cs * 0.35f);
+                cs *= 1f + pulse + noise - charge * 0.18f + flash * 0.5f;
             }
 
-            // -------- 2) 光圈（细环套光球外，Phase1 起就有）--------
-            if (keepA > 0.01f) {
-                float a = keepA * 0.7f;
-                Draw.color(stormColor, a);
-                Lines.stroke(innerRingWidth);
-                Lines.circle(cx, cy, innerRingRadius);
-                Draw.color(stormColor, keepA * 0.25f);
-                Lines.stroke(innerRingWidth * 3f);
-                Lines.circle(cx, cy, innerRingRadius);
+            drawCore(cx, cy, cs, keepA, flash);
+            drawInnerRing(cx, cy, keepA);
+            drawParticles(cx, cy, keepA);
+            drawCoil(cx, cy, keepA, p2Enter, charge, flash);
+
+            if (shockwave < 1f && keepA > 0.01f) {
+                Draw.color(stormBrightColor, keepA * (1f - shockwave) * 0.85f);
+                Lines.stroke(shockwaveWidth * (1f - shockwave));
+                Lines.circle(cx, cy, shockwaveMaxRadius * shockwave);
             }
 
-            // -------- 3) 粒子 --------
-            if (particles.length > 0) {
-                float maxLife = particleMaxDist / particleSpeed + 30f;
-                for (int i = 0; i < particles.length; i += 4) {
-                    float dist = particles[i];
-                    float ang  = particles[i + 1];
-                    float life = particles[i + 2];
-                    if (life <= 0f) continue;
-                    float sz = Mathf.lerp(particleSizeFrom, particleSizeTo,
-                                           Mathf.clamp(life * 0.05f));
-                    float al = keepA * (1f - Mathf.clamp(life / maxLife));
-                    if (al < 0.01f || dist < 0.5f) continue;
-                    float px = cx + Angles.trnsx(ang, dist);
-                    float py = cy + Angles.trnsy(ang, dist);
-                    Draw.color(stormColor, al * 0.4f);
-                    Fill.circle(px, py, sz * 2.2f);
-                    Draw.color(stormBrightColor, al);
-                    Fill.circle(px, py, sz);
-                }
-            }
-
-            // -------- 4) 外圈扫弧 / 完整圆环 --------
-            if (phase >= 2 && p2Enter > 0.01f) {
-                float r = outerRingRadius;
-                float a = keepA * Mathf.clamp(p2Enter);
-
-                if (phase == 2) {
-                    // 第一阶段扫弧
-                    float sw = Mathf.clamp(firstSweepAngle, 0f, 360f);
-                    Draw.color(stormColor, a * 0.9f);
-                    Lines.stroke(outerRingWidth);
-                    drawArc(cx, cy, r, 0f, sw);
-                    if (sw > 0.5f) {
-                        Draw.color(stormGlowColor, a * 0.35f);
-                        Lines.stroke(outerRingWidth * 3.2f);
-                        drawArc(cx, cy, r, 0f, sw);
-                    }
-                }
-
-                if (phase == 3) {
-                    // 完整圆环底色（不消失）
-                    Draw.color(stormColor, keepA * 0.85f);
-                    Lines.stroke(outerRingWidth);
-                    Lines.circle(cx, cy, r);
-                    Draw.color(stormGlowColor, keepA * 0.3f);
-                    Lines.stroke(outerRingWidth * 3f);
-                    Lines.circle(cx, cy, r);
-
-                    // 循环高亮扫弧（再一次）
-                    float to = loopSweepAngle;
-                    float from = to - ringSweepSweepAngle;
-                    float hx = cx + Angles.trnsx(to, r);
-                    float hy = cy + Angles.trnsy(to, r);
-                    Draw.color(stormBrightColor, keepA);
-                    Lines.stroke(ringSweepWidth);
-                    drawArc(cx, cy, r, from, to);
-                    Draw.color(Color.white, keepA);
-                    Fill.circle(hx, hy, ringSweepWidth * 1.3f);
-                }
-            }
-
-            // -------- 5) 光照 --------
             if (lightRadius > 0.1f) {
-                Drawf.light(cx, cy, lightRadius, stormColor, 0.9f * keepA);
+                float boost = 1f + charge * 0.6f + flash * 1.5f;
+                Drawf.light(cx, cy, lightRadius * (1f + flash * 0.6f), stormColor,
+                            Math.min(1f, 0.9f * keepA * boost));
             }
 
             Draw.reset();
         }
 
-        private void drawArc(float x, float y, float r, float angFrom, float angTo) {
-            float span = angTo - angFrom;
-            if (span <= 0f) { angTo += 360f; span = angTo - angFrom; }
-            if (span <= 0.1f) return;
-            int segs = Math.max(2, (int) Math.ceil(span / 7.5f));
-            for (int i = 0; i < segs; i++) {
-                float t0 = i / (float) segs;
-                float t1 = (i + 1) / (float) segs;
-                float a0 = angFrom + span * t0;
-                float a1 = angFrom + span * t1;
-                float x0 = x + Angles.trnsx(a0, r);
-                float y0 = y + Angles.trnsy(a0, r);
-                float x1 = x + Angles.trnsx(a1, r);
-                float y1 = y + Angles.trnsy(a1, r);
-                Lines.line(x0, y0, x1, y1, false);
+        private void drawCore(float cx, float cy, float cs, float keepA, float flash) {
+            if (keepA <= 0.01f || cs <= 0.01f) return;
+
+            for (int g = coreGlowLayers; g >= 1; g--) {
+                float gs = cs * (0.6f + g * coreGlowMul / coreGlowLayers);
+                float ga = keepA * (0.08f + 0.12f * (coreGlowLayers - g) / coreGlowLayers);
+                Draw.color(stormColor, ga);
+                Fill.circle(cx, cy, gs);
+            }
+
+            Draw.color(stormColor, keepA);
+            Fill.circle(cx, cy, cs);
+            Draw.color(stormBrightColor, keepA * 0.8f);
+            Fill.circle(cx, cy, cs * 0.6f);
+            Draw.color(Color.white, keepA);
+            Fill.circle(cx, cy, cs * 0.35f);
+
+            if (flash > 0.01f) {
+                Draw.color(Color.white, keepA * flash);
+                Fill.circle(cx, cy, cs * (1.1f + flash * 0.8f));
+            }
+
+            if (coreTendrils <= 0) return;
+            int tb = (int) (Time.time * 0.5f);
+            Draw.color(stormBrightColor, keepA * 0.9f);
+            Lines.stroke(1.6f);
+            for (int i = 0; i < coreTendrils; i++) {
+                long s = tb * 131L + i * 977L + tile.pos();
+                float ang = Mathf.randomSeed(s, 0f, 360f);
+                float len = cs * (1.25f + Mathf.randomSeed(s + 1L, 0.2f, 0.75f));
+                float x0 = cx + Angles.trnsx(ang, cs * 0.95f);
+                float y0 = cy + Angles.trnsy(ang, cs * 0.95f);
+                float midAng = ang + Mathf.randomSeed(s + 2L, -22f, 22f);
+                float mx = cx + Angles.trnsx(midAng, (cs + len) * 0.5f);
+                float my = cy + Angles.trnsy(midAng, (cs + len) * 0.5f);
+                float x1 = cx + Angles.trnsx(ang, len);
+                float y1 = cy + Angles.trnsy(ang, len);
+                Lines.line(x0, y0, mx, my, false);
+                Lines.line(mx, my, x1, y1, false);
+            }
+        }
+
+        private void drawInnerRing(float cx, float cy, float keepA) {
+            if (keepA <= 0.01f) return;
+            Draw.color(stormColor, keepA * 0.7f);
+            Lines.stroke(innerRingWidth);
+            Lines.circle(cx, cy, innerRingRadius);
+            Draw.color(stormColor, keepA * 0.25f);
+            Lines.stroke(innerRingWidth * 3f);
+            Lines.circle(cx, cy, innerRingRadius);
+        }
+
+        private void drawParticles(float cx, float cy, float keepA) {
+            if (particles.length == 0 || keepA <= 0.01f) return;
+
+            for (int i = 0; i < particles.length; i += 4) {
+                float dist = particles[i];
+                if (dist <= 1f) continue;
+                float ang = particles[i + 1];
+                float t = Mathf.clamp(1f - dist / particleMaxDist);
+                float sz = Mathf.lerp(particleSizeFrom, particleSizeTo, t);
+                float al = keepA * (0.2f + 0.8f * t);
+                if (al < 0.01f) continue;
+
+                float px = cx + Angles.trnsx(ang, dist);
+                float py = cy + Angles.trnsy(ang, dist);
+                Draw.color(stormColor, al * 0.4f);
+                Fill.circle(px, py, sz * 2.2f);
+                Draw.color(stormBrightColor, al);
+                Fill.circle(px, py, sz);
+            }
+        }
+
+        private void drawCoil(float cx, float cy, float keepA, float p2Enter, float charge, float flash) {
+            if (phase < 2 || p2Enter <= 0.01f) return;
+
+            float r = outerRingRadius;
+            float a = keepA * p2Enter;
+
+            if (phase == 2) {
+                float sw = Mathf.clamp(firstSweepAngle, 0f, 360f);
+                Draw.color(stormColor, a * 0.9f);
+                Lines.stroke(outerRingWidth);
+                Lines.arc(cx, cy, r, sw / 360f, -90f);
+                if (sw > 0.5f) {
+                    Draw.color(stormGlowColor, a * 0.35f);
+                    Lines.stroke(outerRingWidth * 3.2f);
+                    Lines.arc(cx, cy, r, sw / 360f, -90f);
+                }
+                return;
+            }
+
+            float baseA = keepA * (0.85f + charge * 0.15f + flash * 0.5f);
+            Draw.color(stormColor, Math.min(1f, baseA));
+            Lines.stroke(outerRingWidth);
+            Lines.circle(cx, cy, r);
+            Draw.color(stormGlowColor, keepA * (0.3f + charge * 0.3f + flash * 0.4f));
+            Lines.stroke(outerRingWidth * 3f);
+            Lines.circle(cx, cy, r);
+
+            if (ringCoilTicks > 0) {
+                Draw.color(stormColor, keepA * 0.5f);
+                Lines.stroke(2f);
+                for (int i = 0; i < ringCoilTicks; i++) {
+                    float ca = i * 360f / ringCoilTicks;
+                    float ix = cx + Angles.trnsx(ca, r - outerRingWidth * 2f);
+                    float iy = cy + Angles.trnsy(ca, r - outerRingWidth * 2f);
+                    float ox = cx + Angles.trnsx(ca, r + outerRingWidth * 2f);
+                    float oy = cy + Angles.trnsy(ca, r + outerRingWidth * 2f);
+                    Lines.line(ix, iy, ox, oy, false);
+                }
+            }
+
+            float to = loopSweepAngle;
+            float from = to - ringSweepSweepAngle;
+            float hx = cx + Angles.trnsx(to, r);
+            float hy = cy + Angles.trnsy(to, r);
+            Draw.color(stormBrightColor, keepA);
+            Lines.stroke(ringSweepWidth + charge * 2f);
+            Lines.arc(cx, cy, r, ringSweepSweepAngle / 360f, from);
+            Draw.color(Color.white, keepA);
+            Fill.circle(hx, hy, ringSweepWidth * 1.3f);
+
+            if (flash > 0.01f) {
+                Draw.color(Color.white, keepA * flash * 0.8f);
+                Lines.stroke(6f * flash);
+                Lines.circle(cx, cy, r * (1f + (1f - flash) * 0.15f));
             }
         }
 
         /* ==========================================================
-         *                  统计 / 写入 save
+         *                  存档
          * ========================================================== */
 
         @Override
@@ -501,6 +527,7 @@ public class StormCrafterBlock extends GenericCrafter {
             write.f(firstSweepAngle);
             write.f(loopSweepAngle);
             write.f(fireCd);
+            write.f(burstTimer);
         }
 
         @Override
@@ -511,8 +538,10 @@ public class StormCrafterBlock extends GenericCrafter {
             firstSweepAngle = read.f();
             loopSweepAngle  = read.f();
             fireCd          = read.f();
-            lastProgress    = 0f;  // 读档后重置，下一帧 super.updateTile() 会推进 progress
-            // 读档后粒子数组是空的（不写入），不影响后续功能
+            burstTimer      = read.f();
+            lastProgress    = 0f;
+            burstFlash      = 0f;
+            shockwave       = 1f;
         }
     }
 }

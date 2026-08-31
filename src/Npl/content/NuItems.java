@@ -2,12 +2,14 @@
 // 点击装订区域中的 <icon src="AllIcons.Actions.Execute"/> 图标。
 package Npl.content;
 
+import arc.*;
 import arc.graphics.Color;
 import arc.struct.Seq;
 import mindustry.content.Items.*;
 import mindustry.type.Item;
 import Npl.newSth.NewItemsType;
 import Npl.newSth.Type.coins;
+import Npl.Rouge.TemporalStorageCrystal;
 
 public class NuItems {
     // 1. 声明你的自定义物品（类型使用 NewItemsType）
@@ -18,6 +20,7 @@ public class NuItems {
     public static Item
     graphite,sand,pyratite;
     public static coins coinsItem;
+    public static TemporalStorageCrystal temporalStorageCrystal;
     public static void load() {
         bigIron= new NewItemsType("bigIron",Color.valueOf("7e7e7e")){{
             hardness=1;
@@ -77,7 +80,7 @@ public class NuItems {
             hardness = 3;
             flammability = 2.35f;
         }};
-        prismCrystal = new NewItemsType("prismCrystal",Color.valueOf("E1FFFB")){{
+        prismCrystal = new NewItemsType("prismCrystal",Color.valueOf("9AA0D5")){{
             alwaysUnlocked = false;
             cost = 1f;
             hardness = 4;
@@ -105,7 +108,7 @@ public class NuItems {
             radioactivity = 0.9f;
             explosiveness = 0.4f;
         }};
-        thallium = new NewItemsType("thallium",Color.valueOf("C98FFF")){{
+        thallium = new NewItemsType("thallium",Color.valueOf("C4A1F7")){{
             alwaysUnlocked = false;
             hardness = 4;
             cost = 0.8f;
@@ -129,7 +132,7 @@ public class NuItems {
             explosiveness=0.1f;
             charge = 1.4f;
         }};
-        thallide = new NewItemsType("thallide",Color.valueOf("9a7da1")){{
+        thallide = new NewItemsType("thallide",Color.valueOf("9F83C5")){{
             alwaysUnlocked = false;
             reversible = 2f;
             stability = 0.2f;
@@ -159,6 +162,12 @@ public class NuItems {
         coinsItem = new coins("coins", Color.valueOf("C6C6C6")){{
             frames = 8;
         }};
+
+        // Rouge 模式货币 - 时序储晶
+        temporalStorageCrystal = new TemporalStorageCrystal("temporalStorageCrystal", Color.valueOf("9B59B6")){{
+            frames = 6;
+        }};
+        TemporalStorageCrystal.uiIcon = Core.atlas.find("nu-TemporalStorageCrystal");
 
         // 如果你以后需要像 NH 那样添加物品到特定分类，参考：
         // mindustry.content.Items.serpuloItems.addAll(/* your items */);

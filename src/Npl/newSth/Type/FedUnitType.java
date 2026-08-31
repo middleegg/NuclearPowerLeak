@@ -43,6 +43,10 @@ public class FedUnitType extends UnitType{
     public Seq<Weapon> bottomWeapons = new Seq<>();
     /** 武器初始 x 坐标列表，供 ShootArmorAbility 等能力做镜像偏移用 */
     public FloatSeq weaponXs = new FloatSeq();
+    /** 每次受击扣除的最大血量百分比（0.2 = 20%），用于 WhiteColorEntity */
+    public float damagePercent = 0.2f;
+    /** 可回归的子单位类型名称列表，ReturnAi 会自动识别并钻入 */
+    public Seq<String> returnChildTypes = new Seq<>();
 
     /**
      * @param name 单位内部名（不带 mod 前缀，atlas 会自动加 modname-）

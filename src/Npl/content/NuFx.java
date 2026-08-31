@@ -16,6 +16,7 @@ import mindustry.world.*;
 import mindustry.world.blocks.units.UnitAssembler.*;
 import Npl.content.*;
 import Npl.newSth.BulletTailEffect;
+import Npl.newSth.BlackHoleSystem;
 import Npl.newSth.effects.CuneEffect;
 import Npl.newSth.expEffect;
 import Npl.newSth.LightningStormEffect;
@@ -1671,4 +1672,407 @@ public class NuFx {
         drawOutlines   = false;
         nextEffect     = NuFx.ExplosionNuclear;
     }};
+    // 原版 Fx.lava 的 Honor 色版（完整大小，360° 均匀扩散）
+    public static Effect lavaHonor = new Effect(40, 100f, e -> {
+        color(NuColor.HonorColor, NuColor.HonorBackColor, e.fin());
+        randLenVectors(e.id, 12, e.finpow() * 60f, e.rotation, 25f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 1.2f + e.fout() * 2.5f);
+        });
+    });
+
+    public static Effect PaleLava = new Effect(80, 120f, e -> {
+        color(NuColor.PaleColor, NuColor.PaleBackColor, e.fin());
+        randLenVectors(e.id, 12, e.finpow() * 60f, e.rotation, 25f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 1.2f + e.fout() * 2.5f);
+        });
+    });
+
+    // 原版 Fx.lava 的 Honor 色版（缩小 50%，360° 均匀扩散，适合小型方块）
+    public static Effect lavaHonorSmall = new Effect(40, 50f, e -> {
+        color(NuColor.HonorColor, NuColor.HonorBackColor, e.fin());
+        randLenVectors(e.id, 8, e.finpow() * 30f, 0f, 360f, (x, y) -> {
+            Fill.circle(e.x + x, e.y + y, 0.8f + e.fout() * 1.5f);
+        });
+    });
+
+    // 去掉整片 Fill.circle 大圆盘（大量塔同时释放时 overdraw 极高），只保留细线扩散环
+    public static Effect healWave = new Effect(360f, e -> {
+        float maxRadius = e.data instanceof Float f ? f : 100f;
+        float r = e.fin() * maxRadius;
+        Draw.color(Pal.heal);
+        Draw.alpha(e.fout());
+        Lines.stroke(3f);
+        Lines.circle(e.x, e.y, r);
+        Lines.stroke(2f);
+        Lines.circle(e.x, e.y, r * 0.85f);
+        Lines.stroke(1f);
+        Lines.circle(e.x, e.y, r * 0.7f);
+        Draw.alpha(1f);
+    });
+
+    public static class HealBurstData {
+        public float maxRadius;
+        public float yOffset;
+
+        public HealBurstData(float maxRadius, float yOffset) {
+            this.maxRadius = maxRadius;
+            this.yOffset = yOffset;
+        }
+    }
+
+    public static Effect healBurst = new Effect(60f, e -> {
+        float maxRadius = 100f;
+        float yOffset = 20f;
+        if (e.data instanceof HealBurstData d) {
+            maxRadius = d.maxRadius;
+            yOffset = d.yOffset;
+        }
+        color(Pal.heal, Color.white, e.fin());
+        float progress = e.fin();
+        float radius = maxRadius;
+
+        float alpha = 1f - progress;
+        alpha *= 0.5f + 0.5f * Mathf.sin(progress * 25f);
+        Draw.alpha(alpha);
+
+        int sides = 12;
+        for (int i = 0; i < sides; i++) {
+            float angle1 = i / (float) sides * Mathf.PI2 + progress * 5f;
+            float angle2 = (i + 1) / (float) sides * Mathf.PI2 + progress * 5f;
+            float r1 = radius * (0.85f + 0.3f * Mathf.sin(i * 2.5f + progress * 20f));
+            float r2 = radius * (0.85f + 0.3f * Mathf.sin((i + 1) * 2.5f + progress * 20f));
+            Lines.line(
+                e.x + Mathf.cos(angle1) * r1,
+                e.y + yOffset + Mathf.sin(angle1) * r1,
+                e.x + Mathf.cos(angle2) * r2,
+                e.y + yOffset + Mathf.sin(angle2) * r2
+            );
+        }
+    });
+
+    /** heal 模式切换特效：绿色脉冲波纹 + 中心治疗十字。
+     *  调用：healSwitch.at(x, y); */
+    public static Effect healSwitch = new Effect(60f, e -> {
+        float p = e.fin();
+        float radius = 8f + p * 48f;
+
+        // 外圈脉冲波纹
+        Draw.color(Pal.heal);
+        Draw.alpha(1f - p);
+        Lines.stroke(3f * (1f - p) + 0.5f);
+        Lines.circle(e.x, e.y, radius);
+
+        // 内圈脉冲波纹（相位错开，形成脉冲感）
+        Draw.alpha((1f - p) * 0.6f);
+        Lines.stroke(2f * (1f - p) + 0.3f);
+        Lines.circle(e.x, e.y, radius * 0.6f);
+
+        // 中心治疗十字
+        float cross = 14f * (1f - p) + 3f;
+        float thick = cross * 0.3f;
+        Draw.alpha(Mathf.clamp(1f - p * 1.4f));
+        Fill.rect(e.x - cross, e.y - thick / 2f, cross * 2f, thick);
+        Fill.rect(e.x - thick / 2f, e.y - cross, thick, cross * 2f);
+
+        Drawf.light(e.x, e.y, radius * 2.2f, Pal.heal, 0.6f * (1f - p));
+    });
+
+    /** heal 模式开火炮口特效：一圈平滑扩散的绿色光环 + 十字闪光。
+     *  调用：healMuzzle.at(x, y, rotation); */
+    public static Effect healMuzzle = new Effect(30f, e -> {
+        float p = e.fin();
+        float radius = 4f + p * 16f;
+
+        Draw.color(Pal.heal);
+        Draw.alpha(1f - p);
+        Lines.stroke(2.5f * (1f - p) + 0.4f);
+        Lines.circle(e.x, e.y, radius);
+
+        float cross = 8f * (1f - p) + 2f;
+        float thick = cross * 0.32f;
+        Draw.alpha(Mathf.clamp(1f - p * 1.3f));
+        Fill.rect(e.x - cross, e.y - thick / 2f, cross * 2f, thick);
+        Fill.rect(e.x - thick / 2f, e.y - cross, thick, cross * 2f);
+
+        Drawf.light(e.x, e.y, radius * 3f, Pal.heal, 0.5f * (1f - p));
+    });
+
+    /** heal 扫描场上浮治疗光点：绿色小光点缓慢上浮并淡出。
+     *  调用：healMote.at(x, y); */
+    public static Effect healMote = new Effect(55f, e -> {
+        float p = e.fin();
+        float rise = p * 20f;
+        float a = 1f - p;
+
+        Draw.color(Pal.heal);
+        Draw.alpha(a * 0.9f);
+        Fill.circle(e.x, e.y + rise, 2.4f * (1f - p * 0.4f));
+
+        Draw.color(Color.white);
+        Draw.alpha(a * 0.5f);
+        Fill.circle(e.x, e.y + rise, 1.1f * (1f - p * 0.4f));
+
+        Drawf.light(e.x, e.y + rise, 14f, Pal.heal, 0.35f * a);
+    });
+
+    private static final Color HEAL_BLUE = Color.valueOf("4FC3F7");
+    private static final Color HEAL_GREEN = Color.valueOf("4CAF50");
+
+    public static Effect healRuneCompress = new Effect(90f, e -> {
+        float maxRadius = e.data instanceof Float f ? f : 100f;
+        Tmp.c1.set(HEAL_BLUE).lerp(HEAL_GREEN, e.fin());
+        Draw.color(Tmp.c1);
+        float progress = e.fin();
+        float radius = maxRadius * (1f - progress);
+        float yOffset = 20f;
+
+        Draw.alpha(1f - progress);
+        Lines.stroke(2f);
+
+        for (int i = 0; i < 6; i++) {
+            float angle1 = i / 6f * Mathf.PI2 + progress * 10f;
+            float angle2 = (i + 1) / 6f * Mathf.PI2 + progress * 10f;
+            Lines.line(
+                e.x + Mathf.cos(angle1) * radius,
+                e.y + yOffset + Mathf.sin(angle1) * radius,
+                e.x + Mathf.cos(angle2) * radius,
+                e.y + yOffset + Mathf.sin(angle2) * radius
+            );
+        }
+
+        for (int i = 0; i < 6; i++) {
+            float angle = i / 6f * Mathf.PI2 + progress * 10f;
+            Lines.line(
+                e.x + Mathf.cos(angle) * radius * 0.5f,
+                e.y + yOffset + Mathf.sin(angle) * radius * 0.5f,
+                e.x + Mathf.cos(angle) * radius,
+                e.y + yOffset + Mathf.sin(angle) * radius
+            );
+        }
+
+        Draw.alpha(1f);
+        Draw.reset();
+    });
+
+    public static Effect healEnergyBeam = new Effect(120f, e -> {
+        float maxHeight = e.data instanceof Float f ? f : 200f;
+        Tmp.c1.set(HEAL_BLUE).lerp(HEAL_GREEN, e.fin());
+        Draw.color(Tmp.c1);
+        float progress = e.fin();
+
+        for (int i = 0; i < 8; i++) {
+            float angle = Mathf.randomSeed(e.id + i) * Mathf.PI2;
+            float speed = Mathf.randomSeed(e.id + i + 100) * 0.5f + 0.5f;
+            float height = progress * maxHeight * speed;
+            float offset = Mathf.sin(progress * Mathf.PI) * 10f * Mathf.randomSeed(e.id + i + 200);
+
+            Draw.alpha(1f - progress);
+            Fill.circle(
+                e.x + Mathf.cos(angle) * offset,
+                e.y + height,
+                2f * (1f - progress)
+            );
+        }
+
+        Draw.alpha(1f);
+        Draw.reset();
+    });
+
+    public static Effect healShockwave = new Effect(150f, e -> {
+        float maxRadius = e.data instanceof Float f ? f : 100f;
+        Tmp.c1.set(HEAL_BLUE).lerp(HEAL_GREEN, e.fin());
+        Draw.color(Tmp.c1);
+        float progress = e.fin();
+        float radius = maxRadius * progress;
+        float inv = 1f - progress;
+
+        Draw.alpha(0.22f * inv);
+        Fill.circle(e.x, e.y, radius * 0.7f);
+        Draw.alpha(0.1f * inv);
+        Fill.circle(e.x, e.y, radius * 0.4f);
+
+        Draw.alpha(0.07f * inv);
+        Fill.circle(e.x, e.y, radius * 1.15f);
+
+        Draw.alpha(inv);
+        Lines.stroke(2f * inv);
+        Lines.circle(e.x, e.y, radius);
+
+        Draw.alpha(0.35f * inv);
+        Lines.stroke(1f * inv);
+        Lines.circle(e.x, e.y, radius * 0.8f);
+
+        for (int i = 0; i < 16; i++) {
+            float angle = i / 16f * Mathf.PI2 + progress * 3f;
+            float seed = Mathf.randomSeed(e.id + i * 17);
+            float dist = radius * (0.15f + seed * 0.85f);
+            float len = (5f + seed * 8f) * inv;
+
+            float x1 = e.x + Mathf.cos(angle) * dist;
+            float y1 = e.y + Mathf.sin(angle) * dist;
+            float x2 = e.x + Mathf.cos(angle) * (dist + len);
+            float y2 = e.y + Mathf.sin(angle) * (dist + len);
+
+            Draw.alpha(0.45f * inv);
+            Lines.stroke(1.5f * inv);
+            Lines.line(x1, y1, x2, y2);
+        }
+
+        Draw.alpha(1f);
+        Draw.reset();
+    });
+
+    public static Effect healEnergyBlade = new Effect(180f, e -> {
+        float maxRadius = e.data instanceof Float f ? f : 100f;
+        Tmp.c1.set(HEAL_BLUE).lerp(HEAL_GREEN, e.fin());
+        Draw.color(Tmp.c1);
+        float progress = e.fin();
+        float radius = maxRadius * (0.3f + 0.7f * progress);
+
+        for (int i = 0; i < 4; i++) {
+            float angle = i / 4f * Mathf.PI2 + progress * 8f;
+            float nextAngle = (i + 0.5f) / 4f * Mathf.PI2 + progress * 8f;
+
+            Draw.alpha(1f - progress);
+            Lines.stroke(2f);
+            Lines.line(
+                e.x + Mathf.cos(angle) * radius * 0.3f,
+                e.y + Mathf.sin(angle) * radius * 0.3f,
+                e.x + Mathf.cos(nextAngle) * radius,
+                e.y + Mathf.sin(nextAngle) * radius
+            );
+        }
+
+        Draw.alpha(1f);
+        Draw.reset();
+    });
+
+    // ========================================================
+    // 黑洞（shader 版）：背景径向扭曲 + 事件视界 + 紫光晕 + 螺旋粒子
+    // 触发方式：NuFx.blackHole.at(x, y);
+    //
+    // 工作原理：
+    //   ① 本 Effect 在 Layer.effect 渲染时调 BlackHoleSystem.register(x, y, maxR, strength)
+    //      把扭曲参数注册到 BlackHoleShader
+    //   ② BlackHoleSystem 在 Trigger.preDraw 把整帧渲染捕获到 FrameBuffer（仅当上一帧有黑洞时）
+    //   ③ BlackHoleSystem 在 Trigger.postDraw 用 BlackHoleShader 把 buffer 贴回屏幕
+    //   ④ shader 内对每个 fragment 根据距离所有黑洞中心的距离做径向位移 + 中心暗化 + 紫光
+    //   ⑤ Effect 本身叠加非扭曲内容（螺旋粒子 + 切线吸积流）在扭曲背景之上
+    //
+    // 注：因为 preDraw 时本帧还没 Effect.draw，第一帧扭曲不会生效，
+    //     从第二帧起扭曲生效（对 90 帧 lifetime 无感知）
+    // ========================================================
+    public static Effect blackHole = new Effect(90f, 320f, e -> {
+        float f = e.fin();        // 0~1 整体进度
+        float fout = e.fout();    // 1~0 渐出
+        float maxR = 80f;
+        float alpha = fout * fout;
+
+        // —— ① 注册全屏扭曲参数到 BlackHoleShader ——
+        // 阶段：形成（0~0.25）/ 持续（0.25~0.75）/ 消散（0.75~1）
+        float phaseIn = Mathf.clamp(f / 0.25f);
+        float phaseOut = f < 0.75f ? 1f : 1f - (f - 0.75f) / 0.25f;
+        float strength = phaseIn * phaseOut;
+        if(strength > 0.02f){
+            BlackHoleSystem.register(e.x, e.y, maxR, strength);
+        }
+
+        // —— ①.5 生成 gameplay 实体（引力拉扯 + 撕裂伤害），只在第一帧创建一次 ——
+        if(f < 0.01f){
+            BlackHoleSystem.spawnGameplay(e.x, e.y, maxR);
+        }
+
+        // —— ② 叠加在扭曲背景之上的视觉细节 ——
+        // 旋转吸积流（沿切线方向的短弧）
+        float rotation = e.time * 3f;
+        Draw.color(new Color(1f, 0.8f, 0.4f, alpha));
+        Lines.stroke(2f);
+        for (int i = 0; i < 8; i++) {
+            float a1 = i * 45f + rotation;
+            float a2 = a1 + 25f;
+            float rr = maxR * 1.4f;
+            Lines.line(
+                e.x + trnsx(a1, rr), e.y + trnsy(a1, rr),
+                e.x + trnsx(a2, rr), e.y + trnsy(a2, rr)
+            );
+        }
+
+        // 螺旋吸入粒子（从外向中心螺旋接近）
+        for (int i = 0; i < 16; i++) {
+            float baseA = i * (360f / 16f);
+            float spiralA = baseA + e.time * 5f;
+            float dist = maxR * 2f * (1f - f) + maxR * 0.3f;
+            float px = e.x + trnsx(spiralA, dist);
+            float py = e.y + trnsy(spiralA, dist);
+            Draw.color(new Color(0.8f, 0.6f, 1f, alpha));
+            Fill.circle(px, py, 1.5f * fout);
+        }
+
+        Draw.reset();
+    }).layer(Layer.effect);
+
+    // ========================================================
+    // 挥砍刀光：弧形刀光 + 起点闪光 + 命中粒子
+    // 用法：NuFx.slash.at(x, y, rotation);  rotation 为挥砍方向角度（度）
+    // ========================================================
+    public static Effect slash = new Effect(18f, 80f, e -> {
+        float f = e.fin();        // 0~1 进度
+        float fout = e.fout();    // 1~0 渐出
+        float angle = e.rotation; // 挥砍方向
+
+        // 弧形刀光参数：80° 跨度的弧，长度随进度增长
+        int segs = 14;
+        float arcSpan = 80f;
+        float startAngle = angle - arcSpan / 2f;
+        float maxLen = 40f * Interp.pow2Out.apply(f);
+
+        // ① 弧形刀光本体（沿切线方向画一段粗弧）
+        Draw.color(new Color(1f, 1f, 1f, fout));
+        Lines.stroke(2.5f * fout + 0.5f);
+        float prevX = e.x + trnsx(startAngle, 0);
+        float prevY = e.y + trnsy(startAngle, 0);
+        for (int i = 1; i <= segs; i++) {
+            float t = i / (float) segs;
+            float a = startAngle + arcSpan * t;
+            float r = maxLen * (0.25f + 0.75f * t);  // 内圈短、外圈长，呈扇形
+            float nx = e.x + trnsx(a, r);
+            float ny = e.y + trnsy(a, r);
+            Lines.line(prevX, prevY, nx, ny);
+            prevX = nx;
+            prevY = ny;
+        }
+
+        // ② 起点闪光（刀柄处的小亮点）
+        Draw.color(new Color(1f, 1f, 1f, fout * 0.9f));
+        Fill.circle(e.x, e.y, 3f * fout);
+
+        // ③ 刀光外圈柔光（白色低 alpha 加粗一遍，制造辉光感）
+        Draw.color(new Color(0.8f, 0.9f, 1f, 0.4f * fout));
+        Lines.stroke(5f * fout + 1f);
+        prevX = e.x + trnsx(startAngle, 0);
+        prevY = e.y + trnsy(startAngle, 0);
+        for (int i = 1; i <= segs; i++) {
+            float t = i / (float) segs;
+            float a = startAngle + arcSpan * t;
+            float r = maxLen * (0.25f + 0.75f * t);
+            float nx = e.x + trnsx(a, r);
+            float ny = e.y + trnsy(a, r);
+            Lines.line(prevX, prevY, nx, ny);
+            prevX = nx;
+            prevY = ny;
+        }
+
+        // ④ 命中粒子（沿刀光路径飞溅 6 颗）
+        Draw.color(new Color(1f, 1f, 1f, fout));
+        for (int i = 0; i < 6; i++) {
+            float t = (i + 0.5f) / 6f;
+            float a = startAngle + arcSpan * t;
+            float r = maxLen * (0.25f + 0.75f * t);
+            float px = e.x + trnsx(a, r);
+            float py = e.y + trnsy(a, r);
+            Fill.circle(px, py, 1.5f * fout);
+        }
+
+        Draw.reset();
+    }).layer(Layer.effect);
 }

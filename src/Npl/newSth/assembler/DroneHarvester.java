@@ -339,7 +339,7 @@ public class DroneHarvester extends Block {
             }
         ));
         addBar("queue", (DroneHarvesterBuild e) -> new Bar(
-            () -> "待采: " + e.mineQueue.size,
+            () -> "可采: " + e.mineQueue.size,
             () -> Pal.place,
             () -> 1f
         ));
@@ -488,22 +488,18 @@ public class DroneHarvester extends Block {
 
         @Override
         public void buildConfiguration(Table table){
-            table.table(Styles.black3, t -> {
+            table.table(Styles.black6,t -> {
                 t.add("无人机: " + activeDrones + "/" + dronesCreated).color(Color.lightGray).left().row();
                 t.add("待采矿格: " + mineQueue.size).color(Color.lightGray).left().row();
                 t.add("冷却中: " + cooldownMap.size).color(Color.lightGray).left().row();
                 t.add(selectedMinerals.isEmpty() ? "选中矿物: 全部" : "选中矿物: " + selectedMinerals.size)
                  .color(Color.lightGray).left();
             }).row();
-
             table.add().row();
-
             Seq<Item> allMinerals = getUniqueMinerals(tile);
-
             if(allMinerals.size > 0){
                 table.add("选择可采矿种（可多选，空=全采）").color(Color.lightGray).row();
-
-                table.table(sel -> {
+                table.table(Tex.pane,sel -> {
                     sel.button("全选", Styles.defaultt, () -> {
                         selectedMinerals.clear();
                     }).width(60f);
@@ -560,26 +556,22 @@ public class DroneHarvester extends Block {
                 table.add("区域内无矿物").color(Color.lightGray);
             }
             table.row();
-            table.add("冷却速度倍率").left().padRight(10f);
-
+            //table.add("冷却速度倍率").left().padRight(10f);
             // 创建滑块，范围0.1~3.0，步长0.1，初始值=current coolingSpeed
-            Slider speedSlider = new Slider(1f, 20f, 0.1f, false);
-            speedSlider.setValue(this.coolingSpeed);
-
+            //Slider speedSlider = new Slider(1f, 20f, 0.1f, false);
+            //speedSlider.setValue(this.coolingSpeed);
             // 滑块值改变时更新建筑实例的冷却速度
-            speedSlider.changed(() -> {
-                this.coolingSpeed = speedSlider.getValue();
+            //speedSlider.changed(() -> {
+                //this.coolingSpeed = speedSlider.getValue();
                 // 可选：实时更新UI显示当前值
-            });
-
+            //});
             // 显示当前值的标签
-            Label valueLabel = new Label(Float.toString(this.coolingSpeed));
-            speedSlider.changed(() -> {
-                valueLabel.setText(String.format("%.1f", this.coolingSpeed));
-            });
-
-            table.add(speedSlider).width(200f).padRight(10f);
-            table.add(valueLabel).width(40f);
+            //Label valueLabel = new Label(Float.toString(this.coolingSpeed));
+            //speedSlider.changed(() -> {
+            //    valueLabel.setText(String.format("%.1f", this.coolingSpeed));
+            //});
+            //table.add(speedSlider).width(200f).padRight(10f);
+            //table.add(valueLabel).width(40f);
         }
 
         @Override

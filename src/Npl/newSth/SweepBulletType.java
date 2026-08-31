@@ -59,6 +59,10 @@ public class SweepBulletType extends BulletType {
     public float pulseSpeed = 0f;
     /** 呼吸脉冲幅度（0~1，透明度波动范围） */
     public float pulseMagnitude = 0.1f;
+    /** 是否在扫描扇形内持续生成上升的治疗光点（绿色治疗氛围） */
+    public boolean healMotes = false;
+    /** 治疗光点生成间隔（tick），越小越密 */
+    public float healMoteInterval = 5f;
     /** 是否自动瞄准受伤友军（true = 扫描场自动转向血量最低的受伤友军） */
     public boolean autoHealTarget = false;
     /** 友军血量低于多少比例才被锁定（0~1，0.99 = 只要不满血就锁） */
@@ -146,6 +150,17 @@ public class SweepBulletType extends BulletType {
 
         float centerAng = b.rotation();
         float halfAngle = fieldAngle / 2f;
+
+        // ———— 治疗光点：在扇形内随机位置持续上浮（独立计时器 3）————
+        if (healMotes && b.timer(3, healMoteInterval)) {
+            float t = Mathf.random(-halfAngle, halfAngle);
+            float a = centerAng + t;
+            float r = Mathf.random(scanRadius * 0.15f, scanRadius * 0.95f);
+            NuFx.healMote.at(
+                b.x + Angles.trnsx(a, r) + Mathf.range(4f),
+                b.y + Angles.trnsy(a, r) + Mathf.range(4f)
+            );
+        }
 
         // ———— 伤害/治疗按 damageInterval 间隔触发，不是每 tick 都触发 ————
         // timer ID 用 2（0 被 updateTrail 占用，1 被 ContinuousBulletType 占用）

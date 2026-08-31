@@ -45,18 +45,17 @@ import mindustry.world.draw.*;
 import mindustry.world.meta.*;
 import mindustry.ui.dialogs.*;
 import arc.util.Log;
-import Npl.content.*;
 
-import static mindustry.Vars.*;
-import static mindustry.type.ItemStack.*;
 
 public class envBlocks {
     public static Block
     //cluster
     crystalCluster,
     //environmentBlocks
-    desert,desertWall,yellowStone,yellowStoneWall,brownStone,brownStoneWall,rubberTree,rubberFloor,
+    desert,desertWall,yellowStone,yellowStoneWall,brownStone,brownStoneWall,rubberTree,rubberFloor,GoldLeafSand,
     hollyFloor,hollyWall,glossy,darkness,altar,hollyTree,lossLiquid,huiye,harborWater,uranCrystalWall,crystalCune,
+    //zoneSource
+    infectionZone,symbiosisZone,
     //ores
     bigIronOre,coalHill,sulfurFragOre,frailPolyesterOre,pumiceMegaOre,thalliumOre,prismCrystalOre,
     //WallOres
@@ -100,6 +99,14 @@ public class envBlocks {
             variants = 2;
             attributes.set(Attribute.water, 0.1f);
         }};
+        GoldLeafSand = new Floor("GoldLeafSand"){{
+            itemDrop = Items.sand;
+            playerUnmineable = true;
+            speedMultiplier = 1.1f;
+            useColor = true;
+            variants = 3;
+            attributes.set(Attribute.water, 0.3f);
+        }};
         brownStoneWall= new StaticWall("brownStoneWall"){{
             attributes.set(Attribute.sand, 1f);
             attributes.set(NuAttribute.oriRubber, 0.3f);
@@ -129,6 +136,22 @@ public class envBlocks {
             useColor = true;
             variants = 4;
             attributes.set(NuAttribute.dirty, 0.1f);
+        }};
+        //感染区源：铺在地图上即形成感染区（紫），由 RadiationSystem 判定
+        infectionZone = new Floor("infectionZone"){{
+            playerUnmineable = true;
+            useColor = true;
+            variants = 0;
+            speedMultiplier = 0.8f;
+            attributes.set(NuAttribute.dirty, 0.25f);
+        }};
+        //共生区源：铺在地图上即形成共生区（红），由 RadiationSystem 判定
+        symbiosisZone = new Floor("symbiosisZone"){{
+            playerUnmineable = true;
+            useColor = true;
+            variants = 0;
+            speedMultiplier = 0.8f;
+            attributes.set(NuAttribute.dirty, 0.25f);
         }};
         hollyFloor = new Floor("hollyFloor"){{
            useColor = true;
@@ -236,7 +259,7 @@ public class envBlocks {
             oreDefault = true;
             oreThreshold = 0.864f;
             oreScale = 24.904762f;
-            variants = 3;
+            variants = 2;
         }};
         //wallores
 
@@ -254,7 +277,7 @@ public class envBlocks {
         }};
         frailPolyesterWores = new OreBlock("frailPolyesterWores", NuItems.frailPolyester){{
             wallOre = true;
-            variants = 3;
+            variants = 2;
         }};
         pumiceMegaWores = new OreBlock("pumiceMegaWores", NuItems.pumice){{
             wallOre = true;
@@ -266,7 +289,7 @@ public class envBlocks {
         }};
         prismCrystalWores = new OreBlock("prismCrystalWores",NuItems.prismCrystal){{
             wallOre = true;
-            variants = 4;
+            variants = 2;
         }};
     }
 

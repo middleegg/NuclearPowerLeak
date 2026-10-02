@@ -179,18 +179,15 @@ public class ArtifactManager {
             // 使用反射设置规则字段
             float dmgMult = 1f + getEffect(EffectType.UNIT_DAMAGE);
             float hpMult = 1f + getEffect(EffectType.UNIT_HEALTH);
-            float spdMult = 1f + getEffect(EffectType.UNIT_SPEED);
             float bldHpMult = 1f + getEffect(EffectType.BUILDING_HEALTH);
 
             Class<?> clazz = rules.getClass();
             java.lang.reflect.Field unitDmgField = clazz.getField("unitDamageMultiplier");
             java.lang.reflect.Field unitHpField = clazz.getField("unitHealthMultiplier");
-            java.lang.reflect.Field unitSpdField = clazz.getField("unitSpeedMultiplier");
             java.lang.reflect.Field blockHpField = clazz.getField("blockHealthMultiplier");
 
             unitDmgField.setFloat(rules, unitDmgField.getFloat(rules) * dmgMult);
             unitHpField.setFloat(rules, unitHpField.getFloat(rules) * hpMult);
-            unitSpdField.setFloat(rules, unitSpdField.getFloat(rules) * spdMult);
             blockHpField.setFloat(rules, blockHpField.getFloat(rules) * bldHpMult);
         } catch (Exception e) {
             Log.err("Failed to apply artifact effects to rules", e);

@@ -19,6 +19,7 @@ import Npl.newSth.BulletTailEffect;
 import Npl.newSth.BlackHoleSystem;
 import Npl.newSth.effects.CuneEffect;
 import Npl.newSth.expEffect;
+import Npl.newSth.GlitchEffect;
 import Npl.newSth.LightningStormEffect;
 import Npl.newSth.TextPopupEffect;
 import Npl.newSth.OutlineBurstEffect;
@@ -2075,4 +2076,122 @@ public class NuFx {
 
         Draw.reset();
     }).layer(Layer.effect);
+
+    /* ============================================================
+     *  🅶 故障艺术（Glitch Art）系列
+     *      基于 GlitchEffect 模块化类
+     *      模拟数字故障/信号干扰视觉效果
+     * ============================================================ */
+
+    // ① 故障爆发：强烈的RGB分离 + 撕裂 + 扫描线，适合技能释放/EMP命中
+    public static GlitchEffect glitchBurst = new GlitchEffect(45f, 220f){{
+        coreColor       = Color.valueOf("FF00FF");
+        contrastColor   = Color.valueOf("00FFFF");
+        highlightColor  = Color.white;
+        separationStrength = 12f;
+        scanlineIntensity  = 0.7f;
+        scanlineSpacing    = 3f;
+        scanlineScroll     = 3f;
+        tearCount          = 6;
+        tearMaxOffset      = 20f;
+        tearMinHeight      = 2f;
+        tearMaxHeight      = 10f;
+        mosaicSize         = 4f;
+        mosaicChance       = 0.4f;
+        noiseBlockCount    = 12;
+        noiseBlockSize     = 8f;
+        noiseFlickerRate   = 0.4f;
+        jitterStrength     = 4f;
+        jitterRate         = 0.6f;
+        drawCore           = true;
+        coreRadius         = 18f;
+        coreSides          = 4;
+        coreRotationSpeed  = 60f;
+        sizeScale          = 1f;
+        fadeStart          = 0.5f;
+    }};
+
+    // ② 故障碎片：更强烈的撕裂效果 + 密集噪块，适合爆炸/破碎视觉
+    public static GlitchEffect glitchShatter = new GlitchEffect(35f, 250f){{
+        coreColor       = Color.valueOf("FF4444");
+        contrastColor   = Color.valueOf("44FF44");
+        highlightColor  = Color.valueOf("FFFF44");
+        separationStrength = 15f;
+        scanlineIntensity  = 0.3f;
+        scanlineSpacing    = 5f;
+        scanlineScroll     = 1f;
+        tearCount          = 10;
+        tearMaxOffset      = 30f;
+        tearMinHeight      = 1f;
+        tearMaxHeight      = 8f;
+        mosaicSize         = 6f;
+        mosaicChance       = 0.5f;
+        noiseBlockCount    = 20;
+        noiseBlockSize     = 10f;
+        noiseFlickerRate   = 0.5f;
+        jitterStrength     = 6f;
+        jitterRate         = 0.7f;
+        drawCore           = true;
+        coreRadius         = 22f;
+        coreSides          = 6;
+        coreRotationSpeed  = 90f;
+        sizeScale          = 1.2f;
+        fadeStart          = 0.4f;
+    }};
+
+    // ③ 故障静电：柔和的扫描线 + 轻微RGB分离，适合持续干扰/环境效果
+    public static GlitchEffect glitchStatic = new GlitchEffect(60f, 180f){{
+        coreColor       = Color.valueOf("8888FF");
+        contrastColor   = Color.valueOf("FF8888");
+        highlightColor  = Color.valueOf("CCCCFF");
+        separationStrength = 5f;
+        scanlineIntensity  = 0.8f;
+        scanlineSpacing    = 2f;
+        scanlineScroll     = 4f;
+        tearCount          = 2;
+        tearMaxOffset      = 8f;
+        tearMinHeight      = 4f;
+        tearMaxHeight      = 15f;
+        mosaicSize         = 3f;
+        mosaicChance       = 0.2f;
+        noiseBlockCount    = 6;
+        noiseBlockSize     = 5f;
+        noiseFlickerRate   = 0.2f;
+        jitterStrength     = 2f;
+        jitterRate         = 0.3f;
+        drawCore           = true;
+        coreRadius         = 12f;
+        coreSides          = 0;
+        coreRotationSpeed  = 20f;
+        sizeScale          = 0.8f;
+        fadeStart          = 0.7f;
+    }};
+
+    // ④ 故障脉冲：快速闪烁 + 强抖动，适合暴击/冲击瞬间
+    public static GlitchEffect glitchPulse = new GlitchEffect(20f, 160f){{
+        coreColor       = Color.valueOf("FFFFFF");
+        contrastColor   = Color.valueOf("FF0080");
+        highlightColor  = Color.valueOf("00FF80");
+        separationStrength = 18f;
+        scanlineIntensity  = 0.9f;
+        scanlineSpacing    = 2f;
+        scanlineScroll     = 8f;
+        tearCount          = 3;
+        tearMaxOffset      = 25f;
+        tearMinHeight      = 5f;
+        tearMaxHeight      = 20f;
+        mosaicSize         = 0f;
+        mosaicChance       = 0f;
+        noiseBlockCount    = 15;
+        noiseBlockSize     = 12f;
+        noiseFlickerRate   = 0.8f;
+        jitterStrength     = 8f;
+        jitterRate         = 0.9f;
+        drawCore           = true;
+        coreRadius         = 10f;
+        coreSides          = 3;
+        coreRotationSpeed  = 120f;
+        sizeScale          = 0.9f;
+        fadeStart          = 0.3f;
+    }};
 }

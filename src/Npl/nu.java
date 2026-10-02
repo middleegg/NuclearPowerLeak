@@ -24,6 +24,7 @@ import Npl.newSth.InfiniteWorldSystem;
 import Npl.newSth.Type.*;
 import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
+import mindustry.gen.Unit;
 import mindustry.ui.*;
 
 import static mindustry.Vars.*;
@@ -96,14 +97,26 @@ public class nu extends Mod {
                 // 定位
                 float screenW = Core.graphics.getWidth();
                 float screenH = Core.graphics.getHeight();
-                float topMargin = 130f;
+                float topMargin = 100f;
                 int visibleIndex = 0;
                 for (NewBossHUD bar : bossBarManager.getBars()) {
+                    // 距离淡化：远离玩家的Boss血条降低不透明度，减少遮挡视野
+                    Unit barTarget = bar.getTarget();
+                    float fade = 0f;
+                    if (barTarget != null && player != null && player.unit() != null) {
+                        float dx = barTarget.x - player.unit().x;
+                        float dy = barTarget.y - player.unit().y;
+                        float dist = (float)Math.sqrt(dx * dx + dy * dy);
+                        fade = (dist - NewBossHUD.closeRange) / (NewBossHUD.fadeRange - NewBossHUD.closeRange);
+                        if (fade < 0f) fade = 0f;
+                        if (fade > 1f) fade = 1f;
+                    }
+                    bar.setDistanceFade(fade);
                     if (!bar.visible) continue;
-                    float barH = bar.getHeight() + 8f;
-                    if (barH <= 0f) barH = 50f;
+                    float barH = bar.getHeight() + 6f;
+                    if (barH <= 0f) barH = 40f;
                     float barW = bar.getWidth();
-                    if (barW <= 0f) barW = 750f;
+                    if (barW <= 0f) barW = 620f;
                     bar.setPosition((screenW - barW) / 2f, screenH - topMargin - visibleIndex * barH);
                     visibleIndex++;
                 }

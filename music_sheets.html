@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>核泄漏 - 编曲谱集 (FL Studio 参考)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #0a0e14;
+            color: #e0e0e0;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+        .scene-section {
+            background: #121820;
+            border: 1px solid #1e2a3a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        .scene-title {
+            color: #00d4ff;
+            font-size: 20px;
+            margin-bottom: 8px;
+            border-left: 4px solid #00d4ff;
+            padding-left: 12px;
+        }
+        .scene-info {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .scene-info span {
+            margin-right: 20px;
+            color: #aaa;
+        }
+        .scene-info strong {
+            color: #fff;
+        }
+
+        /* Piano Roll Grid */
+        .piano-roll {
+            background: #0d1117;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .roll-header {
+            display: flex;
+            align-items: center;
+            background: #161b22;
+            padding: 8px 12px;
+            border-bottom: 1px solid #21262d;
+        }
+        .roll-title {
+            color: #7ee787;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .roll-grid {
+            display: flex;
+            position: relative;
+            height: 200px;
+            overflow-x: auto;
+        }
+        .note-labels {
+            width: 50px;
+            flex-shrink: 0;
+            background: #161b22;
+            border-right: 1px solid #30363d;
+        }
+        .note-label {
+            height: 16px;
+            font-size: 9px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            padding-left: 6px;
+            border-bottom: 1px solid #21262d;
+        }
+        .note-label.c-note { color: #888; font-weight: bold; }
+        .note-label.black-key { background: #0d1117; }
+        .roll-area {
+            flex: 1;
+            position: relative;
+            min-width: 800px;
+        }
+        .beat-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: #21262d;
+        }
+        .beat-line.beat-strong {
+            background: #30363d;
+        }
+        .beat-line.bar-line {
+            background: #484f58;
+            width: 2px;
+        }
+        .row-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #1a1f28;
+        }
+        .row-line.black-row { background: #0f1419; }
+        .note-block {
+            position: absolute;
+            height: 12px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: rgba(255,255,255,0.8);
+            cursor: default;
+        }
+        .note-block.melody {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            box-shadow: 0 0 6px rgba(0,212,255,0.4);
+        }
+        .note-block.bass {
+            background: linear-gradient(135deg, #ff6b6b, #cc4444);
+        }
+        .note-block.chord {
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+        }
+        .note-block.pad {
+            background: linear-gradient(135deg, #34d399, #059669);
+            opacity: 0.7;
+        }
+
+        /* Chord Chart */
+        .chord-chart {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .chord-item {
+            background: #1e2a3a;
+            border: 1px solid #2d3a4a;
+            border-radius: 6px;
+            padding: 8px 14px;
+            text-align: center;
+        }
+        .chord-name {
+            color: #00d4ff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .chord-notes {
+            color: #888;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        /* ASCII Piano Roll */
+        .ascii-roll {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.2;
+            background: #0a0e14;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 12px;
+            overflow-x: auto;
+            white-space: pre;
+            color: #7ee787;
+        }
+
+        /* Section divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1e2a3a, transparent);
+            margin: 20px 0;
+        }
+
+        .legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-color {
+            width: 14px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .tip-box {
+            background: #1a2332;
+            border-left: 3px solid #f0883e;
+            padding: 10px 16px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🎹 NuclearPowerLeak 编曲谱集</h1>
+<p class="subtitle">FL Studio 钢琴卷帘参考 · 核工业主题</p>
+
+<!-- ==================== SCENE 1 ==================== -->
+<div class="scene-section">
+    <div class="scene-title">场景一：主菜单 / 星球概览</div>
+    <div class="scene-info">
+        <span>🎵 <strong>D小调</strong></span>
+        <span>⏱ <strong>BPM: 88</strong></span>
+        <span>🎭 <strong>氛围 / 漂浮 / 科幻</strong></span>
+    </div>
+
+    <div class="chord-chart">
+        <div class="chord-item">
+            <div class="chord-name">Dm</div>
+            <div class="chord-notes">D F A</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Bb</div>
+            <div class="chord-notes">Bb D F</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Gm</div>
+            <div class="chord-notes">G Bb D</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Am</div>
+            <div class="chord-notes">A C E</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Dm</div>
+            <div class="chord-notes">D F A</div>
+        </div>
+    </div>
+
+    <p style="color:#aaa; font-size:13px; margin:12px 0;">🎹 钢琴卷帘 — 主旋律 (右手, 一个循环 = 8小节)</p>
+
+    <div class="ascii-roll">
+网格说明: █=旋律音 │ 每行=16分音符 │ 空格=休止
+
+第1小节 [Dm]
+音高:  A4 ├────────────────────────────────
+       G4 ├────────────────────────────────
+       F4 ├────────██──────██──────────────
+       E4 ├────────────────────────────────
+       D4 ├─██────────────────────██────────
+       C4 ├────────────────────────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第2小节 [Dm]
+音高:  A4 ├────────────────────────────────
+       G4 ├────────██──────██──────────────
+       F4 ├────────────────────────────────
+       E4 ├─██────────────────────██────────
+       D4 ├────────────────────────────────
+       C4 ├────────────────────────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第3小节 [Bb]
+音高:  A4 ├────────────────────────────────
+       G4 ├────────────────────────────────
+       F4 ├─██────────────────────██────────
+       E4 ├────────────────────────────────
+       D4 ├────────██──────██──────────────
+       C4 ├────────────────────────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第4小节 [Bb]
+音高:  A4 ├────────██──────██──────────────
+       G4 ├────────────────────────────────
+       F4 ├────────────────────────────────
+       E4 ├────────────────────────────────
+       D4 ├─██────────────────────██────────
+       C4 ├────────────────────────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第5小节 [Gm]
+音高:  A4 ├────────────────────────────────
+       G4 ├─██────────────────────██────────
+       F4 ├────────────────────────────────
+       E4 ├────────────────────────────────
+       D4 ├────────██──────██──────────────
+       C4 ├────────────────────────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第6小节 [Gm]
+音高:  A4 ├────────────────────────────────
+       G4 ├────────────────────────────────
+       F4 ├────────██──────██──────────────
+       E4 ├────────────────────────────────
+       D4 ├────────────────────██────────────
+       C4 ├────────────────────────────────
+       B3 ├──██──────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第7小节 [Am]
+音高:  A4 ├─██────────────────────██────────
+       G4 ├────────────────────────────────
+       F4 ├────────────────────────────────
+       E4 ├────────██──────██──────────────
+       D4 ├────────────────────────────────
+       C4 ├────────────────────██────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+
+第8小节 [Am→Dm]
+音高:  A4 ├────────██──────██────██────────
+       G4 ├────────────────────────────────
+       F4 ├────────────────────────██──────
+       E4 ├─██──────────────────────────────
+       D4 ├────────────────────██────────────
+       C4 ├────────────────────────────────
+       B3 ├────────────────────────────────
+       A3 ├────────────────────────────────
+拍位:    1 . . . 2 . . . 3 . . . 4 . . .
+    </div>
+
+    <div class="tip-box">
+        💡 <strong>FL Studio 操作提示:</strong> 在 Piano Roll 中用笔画出上述音符，主旋律选择 "Celesta" 或 "Bell" 音色，叠加一层 Reverb (衰减 3-4秒)。低音区铺一个持续 D2 作为 Pad 底。
+    </div>
+</div>
+
+<!-- ==================== SCENE 2 ==================== -->
+<div class="scene-section">
+    <div class="scene-title">场景二：工厂运营 / 建造阶段</div>
+    <div class="scene-info">
+        <span>🎵 <strong>A小调</strong></span>
+        <span>⏱ <strong>BPM: 115</strong></span>
+        <span>🎭 <strong>律动 / 机械 / 推进</strong></span>
+    </div>
+
+    <div class="chord-chart">
+        <div class="chord-item">
+            <div class="chord-name">Am</div>
+            <div class="chord-notes">A C E</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">F</div>
+            <div class="chord-notes">F A C</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">C</div>
+            <div class="chord-notes">C E G</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">G</div>
+            <div class="chord-notes">G B D</div>
+        </div>
+    </div>
+
+    <p style="color:#aaa; font-size:13px; margin:12px 0;">🎹 主旋律 — 4小节循环 (Am-F-C-G)</p>
+
+    <div class="ascii-roll">
+[Am] 第1小节 ── 工厂主题动机
+拍位:  1...2...3...4...
+旋律:  A4██    C5██  E5██  C5██
+       A4██              C5██
+       
+[Am] 第2小节 ── 变化
+拍位:  1...2...3...4...
+旋律:  A4██    C5██  B4██  A4██
+                         G4██  
+
+[F] 第3小节
+拍位:  1...2...3...4...
+旋律:  F4██    A4██  C5██  A4██
+       F4██                      
+
+[F] 第4小节
+拍位:  1...2...3...4...
+旋律:  F4██    A4██  G4██  F4██
+                         E4██  
+
+[C] 第5小节
+拍位:  1...2...3...4...
+旋律:  C5██    E5██  G5██  E5██
+       C5██                      
+
+[C] 第6小节
+拍位:  1...2...3...4...
+旋律:  C5██    D5██  C5██  B4██
+                              
+
+[G] 第7小节
+拍位:  1...2...3...4...
+旋律:  G4██    B4██  D5██  B4██
+       G4██                      
+
+[G] 第8小节 (回到Am)
+拍位:  1...2...3...4...
+旋律:  A4██  B4██  C5██  E5██
+       G4██                    
+    </div>
+
+    <p style="color:#aaa; font-size:13px; margin:12px 0;">🎹 低音脉冲 — 工业感低音线 (A1)</p>
+
+    <div class="ascii-roll">
+低音脉冲 (根音 + 五度跳进):
+拍位:  1.e+a2.e+a3.e+a4.e+a
+       ↓   ↑ ↓   ↑ ↓   ↑ ↓   ↑
+       A1  E2 A1  E2 A1  A1  A1  A1
+
+FL Studio中:
+- 使用 3xOSC 或 Sawer 合成低音
+- A1 = 第1轨根音 (全音符)
+- E2 = 五度泛音 (8分音符点缀)
+- 加入 Sidechain 压缩 (kick触发)
+    </div>
+
+    <div class="tip-box">
+        💡 <strong>工厂氛围技巧:</strong> 叠加一个白噪音通道，用 LFO 调制滤波器 (速率 1/8)，模拟机械运转声。旋律音色推荐 "Music Box" 或短促的 "Synth Pluck"。
+    </div>
+</div>
+
+<!-- ==================== SCENE 3 ==================== -->
+<div class="scene-section">
+    <div class="scene-title">场景三：战斗 / 敌人波次来袭</div>
+    <div class="scene-info">
+        <span>🎵 <strong>C小调</strong></span>
+        <span>⏱ <strong>BPM: 138</strong></span>
+        <span>🎭 <strong>紧张 / 进行曲 / 战斗</strong></span>
+    </div>
+
+    <div class="chord-chart">
+        <div class="chord-item">
+            <div class="chord-name">Cm</div>
+            <div class="chord-notes">C Eb G</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Ab</div>
+            <div class="chord-notes">Ab C Eb</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Eb</div>
+            <div class="chord-notes">Eb G Bb</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">Bb</div>
+            <div class="chord-notes">Bb D F</div>
+        </div>
+    </div>
+
+    <p style="color:#aaa; font-size:13px; margin:12px 0;">🎹 战斗主旋律 — 上行推进型</p>
+
+    <div class="ascii-roll">
+[战斗动机] ── 下行八分音符推进 + 休止符
+
+第1小节 [Cm]
+拍位:  1...2...3...4...
+右手:  G4██E4██C4██....Eb4██D4██C4██....
+       ← 快速下行后上行 →
+
+第2小节 [Cm]
+拍位:  1...2...3...4...
+右手:  C5██....G4██....C5██C5██C5██....
+       ← 攻击点 →
+
+第3小节 [Ab]
+拍位:  1...2...3...4...
+右手:  Eb5██C5██Ab4██....C5██Eb5██....
+       ← 上行跳进 →
+
+第4小节 [Ab→Cm]
+拍位:  1...2...3...4...
+右手:  G5██Eb5██C5██Eb5██─── 回到G4██
+       ← 高潮解决 →
+
+==== 低音 Ostinato (循环) ====
+拍位:  1.e+a2.e+a3.e+a4.e+a
+       ↓       ↑   ↓   ↑   ↓
+       C2      G2  C2  Eb2 G2
+
+==== 节奏层 (Snare/Hat) ====
+拍位:  1.e+a2.e+a3.e+a4.e+a
+HiHat: x.x.x.x.x.x.x.x.  (16分音符)
+Snare: ....o.......o...    (2,4拍反拍)
+Kick:  o.......o.......    (1,3拍)
+    </div>
+
+    <div class="tip-box">
+        💡 <strong>动态层次:</strong> 波次升级时逐步叠加乐器层 → 第1波: 低音ostinato → 第2波: +主旋律 → 第3波: +鼓组全量 → Boss波: +铜管/合成器层。用 FL 的 Playlist 排列实现动态切换。
+    </div>
+</div>
+
+<!-- ==================== SCENE 4 ==================== -->
+<div class="scene-section">
+    <div class="scene-title">场景四：核设施 / 污染区域</div>
+    <div class="scene-info">
+        <span>🎵 <strong>E小调 (Phrygian)</strong></span>
+        <span>⏱ <strong>BPM: 75</strong></span>
+        <span>🎭 <strong>暗黑 / 不安 / 辐射</strong></span>
+    </div>
+
+    <div class="chord-chart">
+        <div class="chord-item">
+            <div class="chord-name">Em</div>
+            <div class="chord-notes">E G B</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">D</div>
+            <div class="chord-notes">D F# A</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">C</div>
+            <div class="chord-notes">C E G</div>
+        </div>
+        <div class="chord-item">
+            <div class="chord-name">B7</div>
+            <div class="chord-notes">B D# F# A</div>
+        </div>
+    </div>
+
+    <p style="color:#aaa; font-size:13px; margin:12px 0;">🎹 氛围铺底 — 不和谐音程 + 留白</p>
+
+    <div class="ascii-roll">
+[核设施氛围] ── 稀疏 + 紧张感
+
+Pad层 (长音):
+和弦进行:  Em(2小节) → D(1小节) → C(1小节) → B7(2小节)
+
+Pad钢琴卷帘 (每个和弦持续半小节):
+时间轴:  |----Em----|--Em--|-D-|-C-|--B7---|--B7---|
+和弦:    E3-G3-B3    不变   D3-F#3-A3  C3-E3-G3  B2-D#3-F#3-A3
+
+旋律点缀 (极稀疏):
+拍位:  1.......2.......3.......4.......
+       ↑       ↑               ↑
+       (休止)  B4..            E4..
+                 (弱音)          (衰减长)
+
+Geiger计数器节奏 (噪音采样):
+拍位:  1.e+a2.e+a3.e+a4.e+a
+       .o.. ..o. ..o. o..o
+       (不规则短促点击声)
+
+环境噪音层:
+- 白噪音 → 低通滤波 (截止频率 2kHz)
+- LFO 调制音量 (随机速率)
+- 偶尔加入金属回响 (Delay + 大混响)
+    </div>
+
+    <div class="tip-box">
+        💡 <strong>FL Studio 音色推荐:</strong> 使用 FLEX 的 "Dark Ambient" 或 "Cinematic" 预设包。Pad 用 Fruity Convolver 加一个大空间混响 (IR: Large Hall)。Geiger 计数器可用 Slicex 加载自定义采样。
+    </div>
+</div>
+
+<!-- ==================== BONUS ==================== -->
+<div class="scene-section">
+    <div class="scene-title">🎁 通用和弦速查表 (FL Studio 直接用)</div>
+
+    <div class="ascii-roll">
+╔══════════════════════════════════════════════════════════════════╗
+║  和弦名称     构成音 (MIDI音符号)     情绪关键词              ║
+╠══════════════════════════════════════════════════════════════════╣
+║  Dm           D4 F4 A4                忧郁、深邃               ║
+║  Dm7          D4 F4 A4 C5             氛围、爵士感             ║
+║  Bb           Bb4 D5 F5               温暖、宽广               ║
+║  Gm           G4 Bb4 D5               沉思、柔和               ║
+║  Am           A4 C4 E4                中性、流动               ║
+║  Am7          A4 C4 E4 G4             放松、漂浮               ║
+║  F            F4 A4 C5                开阔、希望               ║
+║  C            C4 E4 G4                明亮、稳定               ║
+║  G            G4 B4 D5                推进、向上               ║
+║  Cm           C4 Eb4 G5              紧张、黑暗               ║
+║  Ab           Ab4 C5 E5               辉煌、壮丽               ║
+║  Eb           Eb4 G4 Bb4              庄重、力量               ║
+║  Bb           Bb4 D5 F5               稳定、结束感             ║
+║  Em           E4 G4 B4                不安、神秘               ║
+║  D            D4 F#4 A4               明亮、解决               ║
+║  B7           B4 D#5 F#5 A5           紧张、期待解决           ║
+║  Csus4        C4 F4 G4                悬停、未解决             ║
+║  Dsus2        D4 E4 A4                梦幻、开放               ║
+╚══════════════════════════════════════════════════════════════════╝
+    </div>
+
+    <div class="tip-box">
+        💡 <strong>FL Studio 快速输入:</strong> 选中钢琴卷帘 → 右键 → "Chord" 工具 → 选择和弦类型 → 在目标音高处点击即可自动输入完整和弦。也可以打开 "Stamp" 工具 (快捷键 Alt+V) 选择预设和弦图案。
+    </div>
+</div>
+
+<div class="divider" style="margin-top:40px;"></div>
+<p style="text-align:center; color:#444; font-size:12px;">
+    NuclearPowerLeak 编曲参考谱 · 2026 · 适用于 FL Studio 钢琴卷帘
+</p>
+
+</body>
+</html>

@@ -371,7 +371,10 @@ public class RougeGameControl {
             default:
                 // 进攻/防守节点：25%概率获得1个藏品
                 if(Mathf.chance(0.25)){
-                    ArtifactDialog.showAcquired(ArtifactDatabase.getRandom(new Rand()), null);
+                    Artifact reward = ArtifactDatabase.getRandom(new Rand());
+                    if(reward != null){
+                        ArtifactDialog.showAcquired(reward, null);
+                    }
                 }
                 break;
         }

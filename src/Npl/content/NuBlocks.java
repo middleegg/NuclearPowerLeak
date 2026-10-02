@@ -623,7 +623,7 @@ public class NuBlocks {
             craftEffect = new MultiEffect(new WaveEffect(){{
                 colorFrom = NuItems.remakeSource.color;colorTo = Color.white;
                 lightColor = NuLiquid.divineTears.lightColor;
-                sizeFrom = 90f;sizeTo = 24f;
+                sizeFrom = 36f;sizeTo = 80f;
                 strokeFrom = 2.5f;strokeTo = 8.75f;interp = Interp.pow2InInverse;
                lifetime = 120f;startDelay = 75f;
             }},new ParticleEffect(){{
@@ -634,11 +634,7 @@ public class NuBlocks {
                 sizeTo = 3f;
                 colorFrom = NuItems.remakeSource.color;
                 colorTo = Color.white;lifetime = 60f;
-            }},new ExplosionEffect(){{
-                lifetime = 120f;waveColor = NuItems.remakeSource.color;waveLife=100f;waveStroke = 5f;
-                waveRad = 65f;waveRadBase = 40f;smokeColor = NuItems.remakeSource.color;smokes = 0;//Mathf.random(1,5);
-                smokeSize = 10f;smokeSizeBase = 5.9f;sparks = 0;
-            }});
+            }},NuFx.glitchShatter);
             drawer = new DrawMulti(new DrawLiquidTile(){{
                 drawLiquid = NuLiquid.prismLiquid;padding = 1f;
             }},new DrawDefault(),new DrawCraftRing(){{
@@ -2359,15 +2355,15 @@ public class NuBlocks {
             plans.add(new AssemblerUnitPlan(FederalUnitTypes.bloodLotus,
                     60*60f*12, PayloadStack.list(FederalUnitTypes.brightCrow,10,GodForsakenParts,12,Lotus,10)));
         }};
-        MoonlightSummoningPlatform = new UnitCargoLoader("MoonlightSummoningPlatfrom"){{
+        MoonlightSummoningPlatform = new ProjectorPlatform("MoonlightSummoningPlatfrom"){{
             requirements(Category.units,BuildVisibility.worldProcessorOnly,with());
-            unitBuildTime = 1800f;unitType = CuteUnitTypes.SmallMoonLight;privileged = true;
+            BuildingTime = 1800f;ProUnit = CuteUnitTypes.SmallMoonLight;privileged = true;
             consumeItems(ItemStack.with(NuItems.monoSiliCrystal,150));
             size = 2;itemCapacity = 400;
         }};
-        WilderProjectionPlatform = new UnitCargoLoader("WilderProjectorPlatform"){{
+        WilderProjectionPlatform = new ProjectorPlatform("WilderProjectorPlatform"){{
             requirements(Category.units,BuildVisibility.worldProcessorOnly,with());
-            unitBuildTime = 1500f;unitType = CuteUnitTypes.Wilder;privileged = true;
+            BuildingTime = 1500f;ProUnit= CuteUnitTypes.Wilder;privileged = true;
             size = 2;itemCapacity = 300;
             consumeItems(ItemStack.with(NuItems.graphite,100));
         }};

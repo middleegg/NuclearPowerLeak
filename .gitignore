@@ -149,6 +149,8 @@ gradle-app.setting
 
 # 参考文件夹（包含其他 mod 的源码、贴图、音效等，仅用于本地参考，不入库）
 /参考/
+# 上游 Mindustry 源码副本（调研临时文件，可随时删除）
+/.mindustry-src/
 /build/
 /android/build/
 /core/build/

@@ -34,6 +34,7 @@ public class ArtifactDialog {
 
     /** 展示获取的藏品 */
     public static void showAcquired(Artifact artifact, Runnable onClose) {
+        if (artifact == null) return;
         Dialog dialog = new Dialog("");
 
         dialog.cont.table(Styles.black6, t -> {
@@ -70,14 +71,22 @@ public class ArtifactDialog {
         // 生成3个随机商品
         Rand rand = new Rand();
         Seq<Artifact> offers = new Seq<>();
-        offers.add(ArtifactDatabase.getRandom(rand, Rarity.N));
-        offers.add(ArtifactDatabase.getRandom(rand, Rarity.R));
-        offers.add(ArtifactDatabase.getRandom(rand, Rarity.SR));
+        Artifact a1 = ArtifactDatabase.getRandom(rand, Rarity.N);
+        Artifact a2 = ArtifactDatabase.getRandom(rand, Rarity.R);
+        Artifact a3 = ArtifactDatabase.getRandom(rand, Rarity.SR);
+        if (a1 != null) offers.add(a1);
+        if (a2 != null) offers.add(a2);
+        if (a3 != null) offers.add(a3);
+
+        if (offers.isEmpty()) {
+            ui.showInfoToast("[red]暂无商品可出售[]", 2f);
+            return;
+        }
 
         ObjectMap<Artifact, Integer> prices = new ObjectMap<>();
         prices.put(offers.get(0), 50);
-        prices.put(offers.get(1), 100);
-        prices.put(offers.get(2), 200);
+        if (offers.size >= 2) prices.put(offers.get(1), 100);
+        if (offers.size >= 3) prices.put(offers.get(2), 200);
 
         dialog.cont.table(Styles.black6, t -> {
             t.add("[accent]藏品商店[]").color(Pal.accent).pad(10).row();

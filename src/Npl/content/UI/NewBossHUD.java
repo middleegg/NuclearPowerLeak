@@ -15,8 +15,17 @@ import mindustry.ui.Bar;
  * Boss血条
  * 名称在上方，血量数字显示在血条内部（叠加在Bar上）
  * 如果Boss有护盾，额外叠加显示一条护盾条（用 NuColor.CoreColor）
+ * Boss离玩家越远整条越淡（最近 1.0 → 超过 1600 距离降到 0.35），减少遮挡视野
  */
 public class NewBossHUD extends Table {
+    /** 血条宽度 / 高度（缩小后不再横向铺满、遮挡视野） */
+    private static final float barWidth = 620f;
+    private static final float barHeight = 22f;
+    /** 玩家距离小于 closeRange 时完全不透明，超过 fadeRange 时降到 minAlpha */
+    public static final float closeRange = 700f;
+    public static final float fadeRange = 1600f;
+    private static final float minAlpha = 0.35f;
+
     private Unit target;
     private final Bar bar;
     private final Bar shieldBar;
@@ -26,6 +35,8 @@ public class NewBossHUD extends Table {
     private static final float defeatedDuration = 180f;
     private float defeatedTimer = 0f;
     private float maxShieldSeen = 0f;
+    /** 本帧的远程淡化系数（0 = 玩家附近，1 = 超过 fadeRange），由 BossBarManager 每帧设置 */
+    private float distanceFade = 0f;
 
     public NewBossHUD() {
         // 血条
@@ -66,13 +77,13 @@ public class NewBossHUD extends Table {
         nameLabel = new Label("");
         nameLabel.setAlignment(Align.center);
         nameLabel.setColor(Color.valueOf("ffffff"));
-        nameLabel.setFontScale(1.1f);
+        nameLabel.setFontScale(1.05f);
 
         // 血量数字 — 叠加在血条内部
         hpLabel = new Label("");
         hpLabel.setAlignment(Align.center);
         hpLabel.setColor(Color.white);
-        hpLabel.setFontScale(0.9f);
+        hpLabel.setFontScale(0.85f);
 
         // Stack 叠加：血条(底) → 护盾条(中) → 血量数字(顶)
         Stack barStack = new Stack();
@@ -82,12 +93,13 @@ public class NewBossHUD extends Table {
 
         // 布局
         add(nameLabel).padBottom(2f).row();
-        add(barStack).width(750f).height(28f);
+        add(barStack).width(barWidth).height(barHeight);
 
         update(() -> {
             // ========== 击败倒计时显示（递减由管理器 tickDefeat 驱动） ==========
             if (defeatedTimer > 0f) {
                 visible = true;
+                color.a = 1f; // 击败提示始终清晰
                 String name = (target != null && target.type != null) ? target.type.localizedName : "Boss";
                 nameLabel.setText("[gray]已击败: " + name + "[]");
                 hpLabel.setText("");
@@ -99,6 +111,7 @@ public class NewBossHUD extends Table {
             // ========== Boss 存活状态 ==========
             if (target == null || target.type == null || target.dead || !target.isAdded()) {
                 visible = false;
+                color.a = 1f;
                 nameLabel.setText("");
                 hpLabel.setText("");
                 shieldBar.visible = false;
@@ -107,6 +120,8 @@ public class NewBossHUD extends Table {
             }
 
             visible = true;
+            // 远处淡出：贴脸 1.0，超过 fadeRange 平滑降到 minAlpha
+            color.a = 1f - distanceFade * (1f - minAlpha);
 
             // 名称
             nameLabel.setText(target.type.localizedName);
@@ -119,10 +134,11 @@ public class NewBossHUD extends Table {
             hpLabel.setColor(Color.white);
 
             // ========== 护盾条 ==========
-            if (target.shield > 0f) {
-                if (target.shield > maxShieldSeen) {
-                    maxShieldSeen = target.shield;
-                }
+            // 以"当前护盾"为基准，而不是历史峰值：否则首次挂载时基准为 0，护盾条永远不显示
+            if (target.shield > maxShieldSeen) {
+                maxShieldSeen = target.shield;
+            }
+            if (target.shield > 0f && maxShieldSeen > 0f) {
                 shieldBar.visible = true;
             } else {
                 shieldBar.visible = false;
@@ -138,13 +154,33 @@ public class NewBossHUD extends Table {
         setTransform(true);
     }
 
-    public void setTarget(Unit unit) {
+    /**
+     * 分配/切换目标。只有目标真的变化时才重置状态，
+     * 并且不触碰 defeatedTimer —— 否则击败提示会被后续活Boss的分配抹掉。
+     */
+    public void assignTarget(Unit unit) {
+        if (this.target == unit) return;
         this.target = unit;
         this.defeatedTimer = 0f;
-        this.maxShieldSeen = 0f;
+        // 以新目标的当前护盾为基准，护盾条才能立即显示
+        this.maxShieldSeen = (unit != null) ? Math.max(0f, unit.shield) : 0f;
+        this.distanceFade = 0f;
         if (unit != null) {
             visible = true;
         }
+    }
+
+    /** 兼容旧调用（等价于 assignTarget） */
+    public void setTarget(Unit unit) {
+        assignTarget(unit);
+    }
+
+    /**
+     * 由 BossBarManager 每帧传入与玩家的「距离淡化系数」（0 = 贴脸，1 = 足够远），
+     * 避免在全屏范围硬切可见性。
+     */
+    public void setDistanceFade(float t) {
+        this.distanceFade = (t < 0f) ? 0f : (t > 1f) ? 1f : t;
     }
 
     public Unit getTarget() {

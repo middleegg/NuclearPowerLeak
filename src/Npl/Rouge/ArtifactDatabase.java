@@ -220,6 +220,7 @@ public class ArtifactDatabase {
 
     /** 获取随机藏品（按稀有度权重） */
     public static Artifact getRandom(Rand rand) {
+        if (artifacts.isEmpty()) load();
         int roll = rand.nextInt(100);
         Rarity targetRarity;
         if (roll < 50) targetRarity = Rarity.N;
@@ -234,16 +235,19 @@ public class ArtifactDatabase {
         if (pool.isEmpty()) {
             pool = artifacts.values().toSeq();
         }
+        if (pool.isEmpty()) return null;
         return pool.random(rand).copy();
     }
 
     /** 获取指定稀有度的随机藏品 */
     public static Artifact getRandom(Rand rand, Rarity rarity) {
+        if (artifacts.isEmpty()) load();
         Seq<Artifact> pool = new Seq<>();
         for (Artifact a : artifacts.values()) {
             if (a.rarity == rarity) pool.add(a);
         }
-        return pool.isEmpty() ? null : pool.random(rand).copy();
+        if (pool.isEmpty()) return null;
+        return pool.random(rand).copy();
     }
 
     /** 获取套装效果 */

@@ -11,8 +11,10 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.Scaling;
 
 import mindustry.content.*;
+import mindustry.core.GameState;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -82,6 +84,25 @@ public class ArtifactDialog {
             ui.showInfoToast("[red]暂无商品可出售[]", 2f);
             return;
         }
+
+        // Pause the game during shop
+        state.set(mindustry.core.GameState.State.paused);
+
+        // Broadcast shop open to all players (host only)
+        if (RougeNet.isHost()) {
+            RougeNet.broadcastShopOpen(offers);
+        }
+
+        // Show recommendation dialog first (5 second pause for recommendations)
+        ShopRecommendationDialog.show(offers, () -> {
+            // After recommendations, show the actual shop
+            showShopContent(dialog, offers, onClose);
+            // Unpause after shop opens
+            state.set(mindustry.core.GameState.State.playing);
+        });
+    }
+
+    private static void showShopContent(Dialog dialog, Seq<Artifact> offers, Runnable onClose){
 
         ObjectMap<Artifact, Integer> prices = new ObjectMap<>();
         prices.put(offers.get(0), 50);
@@ -271,8 +292,17 @@ public class ArtifactDialog {
     // ===== 辅助方法 =====
 
     /** 获取藏品图标 */
-    private static Element getArtifactIcon(Artifact artifact) {
+    public static Element getArtifactIcon(Artifact artifact) {
         TextureRegion region = getArtifactIconTexture(artifact);
+        if (region == null || region.texture == null) {
+            region = Core.atlas.find("icon-gear");
+        }
+        if (region == null || region.texture == null) {
+            region = Core.atlas.find("icon-question");
+        }
+        if (region == null || region.texture == null) {
+            region = Core.atlas.find("white");
+        }
         return new Image(region).setScaling(Scaling.fit);
     }
 

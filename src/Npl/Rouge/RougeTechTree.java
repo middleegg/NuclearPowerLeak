@@ -51,6 +51,7 @@ public class RougeTechTree {
     private static TreePanel treePanel;
     private static ScrollPane treeScroll;
     private static Minimap minimap;
+    private static boolean readOnly = false;
 
     public static final Seq<TechNode> techNodes = new Seq<>();
 
@@ -174,6 +175,15 @@ public class RougeTechTree {
     }
 
     public static void show(){
+        readOnly = false;
+        initTechTree();
+        selectedNode = null;
+        build();
+        dialog.show();
+    }
+
+    public static void showReadOnly(){
+        readOnly = true;
         initTechTree();
         selectedNode = null;
         build();
@@ -189,8 +199,13 @@ public class RougeTechTree {
         dialog.setBackground(blackBg);
 
         dialog.cont.table(top -> {
-            top.add("外场演绎").color(Pal.accent).fontScale(1.4f).left().padRight(30);
-            top.add("消耗铜矿获取永久增益").color(Color.lightGray).left();
+            if(readOnly){
+                top.add("[gray]外场演绎 (只读)[]").color(Color.gray).fontScale(1.4f).left().padRight(30);
+                top.add("[gray]仅房主可操作[]").color(Color.gray).left();
+            }else{
+                top.add("外场演绎").color(Pal.accent).fontScale(1.4f).left().padRight(30);
+                top.add("消耗铜矿获取永久增益").color(Color.lightGray).left();
+            }
         }).growX().pad(15).row();
 
         dialog.cont.table(main -> {
@@ -286,6 +301,10 @@ public class RougeTechTree {
         detailPanel.row();
         if(node.isMaxed()){
             detailPanel.add("[green]已满级[]").color(Color.green).center().pad(20).row();
+        }else if(readOnly){
+            detailPanel.add("[gray]当前等级: " + node.currentLevel + "/" + node.maxLevel + "[]").color(Color.gray).center().pad(10).row();
+            detailPanel.row();
+            detailPanel.add("[gray]仅房主可研究[]").color(Color.gray).center().pad(10).row();
         }else{
             detailPanel.add("费用: [yellow]" + node.getCurrentCost() + " 铜矿[]").color(Color.lightGray).center().pad(10).row();
             detailPanel.row();

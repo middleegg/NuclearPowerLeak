@@ -620,13 +620,7 @@ public class NuBlocks {
             outputItem = new ItemStack(NuItems.remakeSource,4);
             craftTime = 480f;
             liquidCapacity = 500f;
-            craftEffect = new MultiEffect(new WaveEffect(){{
-                colorFrom = NuItems.remakeSource.color;colorTo = Color.white;
-                lightColor = NuLiquid.divineTears.lightColor;
-                sizeFrom = 36f;sizeTo = 80f;
-                strokeFrom = 2.5f;strokeTo = 8.75f;interp = Interp.pow2InInverse;
-               lifetime = 120f;startDelay = 75f;
-            }},new ParticleEffect(){{
+            craftEffect = new MultiEffect(new ParticleEffect(){{
                 particles =15;cone = 360;
                length = -30f;baseLength = -4f;
                interp = Interp.pow2In;sizeInterp = Interp.pow5Out;

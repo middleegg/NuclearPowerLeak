@@ -61,6 +61,8 @@ public class nu extends Mod {
             RougeLobby.init();
             RougeGameControl.init();
             RougeMenu.init();
+            RougeBuildMenuHook.init();
+            RougeBuildMenuHook.hookPlacementFragment();
             WarningLineManager.init();
             // ─── Boss血条管理器初始化 ───
             bossBarManager = new BossBarManager();

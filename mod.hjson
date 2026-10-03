@@ -2,7 +2,7 @@ displayName: "NuclearPowerLeak"
 name: "nu"
 author: "Zero(middle_egg),闰闰小师妹,涅翎，祈汐"
 main: "Npl.nu"
-description: "a mod for mindustry,it includes java and hjson"
+description: "核泄漏（NuclearPowerLeak）——一款为 Mindustry 打造的 Java 模组。\n\n【新增星球】\n阿泽厄尔（Azer）：一颗黄昏星球，旧日联邦的发源地。在四大灾厄的摧残下，如今荒败不堪，直到一位星间旅者的意外降临……\n\n【剧情战役】\n扮演失忆的外来者，探索阿泽厄尔的命运。\n遇见怀尔德博士，营救被苍白教会分裂势力绑架的月光——\n你的选择将决定走向：救赎、毁灭、腐化，或逃亡。\n\n【新增内容】\n▸ 资源：生铁、T型煤、硫芯、单晶体、磁铁、脆纶、气浮石、原胶、橡胶、碱银、铀晶、原铀、铊化物、铀、瓶装磁暴 等\n▸ 流体：污秽、液氧、核废液、奇液\n▸ 方块：涵盖传送带、钻头、液体管道、电力系统、防御墙壁、炮塔、工厂等数十种新方块\n▸ 特色防御：储能墙（满电自愈、死亡复活）、磁力墙（吸引并减速敌方地面单位）\n\n【rougeMode】\n全新外场演绎玩法，包含 Rouge 核心、时序储晶（通用货币）、单位传输站等局外成长系统，支持多人联机。\n\n【致谢】\n涅翎、甄迹零（Zero）、闰闰道安、郑zip、火星人076、128大佬、希恩斯喵\n以及团队：Learn MindustryMod制作组、VanillaExpansion制作组\n\n【反馈】\n官方QQ群：652349649"
 version:1.0.1
 minGameVersion: 158
 java: true

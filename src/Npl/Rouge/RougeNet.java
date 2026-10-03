@@ -1,6 +1,7 @@
 package Npl.Rouge;
 
 import arc.*;
+import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import mindustry.gen.*;
@@ -35,11 +36,19 @@ public class RougeNet {
     public static final String CH_EVENT = "npl-rouge-event";
     /** 客户端 → 房主：请求补发状态 */
     public static final String CH_HELLO = "npl-rouge-hello";
+    /** 房主 → 客户端：商店打开（非战斗节点） */
+    public static final String CH_SHOP_OPEN = "npl-rouge-shop-open";
+    /** 客户端 → 房主：推荐藏品 */
+    public static final String CH_RECOMMEND = "npl-rouge-recommend";
+    /** 房主 → 客户端：推荐更新 */
+    public static final String CH_RECOMMEND_UPDATE = "npl-rouge-recommend-update";
 
     /** 事件类型 */
     public static final byte EV_SELECT = 1;
     public static final byte EV_LOBBY = 2;
     public static final byte EV_EVAC = 3;
+    public static final byte EV_SHOP_OPEN = 4;
+    public static final byte EV_NODE_ENTER = 5;
 
     private static final int VERSION = 1;
     private static boolean initialized = false;
@@ -82,8 +91,11 @@ public class RougeNet {
         // 客户端：接收房主广播
         netServer.addBinaryPacketHandler(CH_STATE, (player, data) -> handleState(data));
         netServer.addBinaryPacketHandler(CH_EVENT, (player, data) -> handleEvent(data));
+        netServer.addBinaryPacketHandler(CH_SHOP_OPEN, (player, data) -> handleShopOpen(data));
+        netServer.addBinaryPacketHandler(CH_RECOMMEND_UPDATE, (player, data) -> handleRecommendUpdate(data));
         // 房主：接收客户端请求
         netClient.addBinaryPacketHandler(CH_HELLO, data -> handleHello());
+        netClient.addBinaryPacketHandler(CH_RECOMMEND, data -> handleRecommend(data));
 
         // 有人进来（此时对方已加载完世界流）就补发一次完整状态
         Events.on(PlayerJoin.class, e -> {
@@ -398,5 +410,103 @@ public class RougeNet {
     public static void requestState(){
         if(!isClient()) return;
         Call.clientBinaryPacketReliable(CH_HELLO, new byte[0]);
+    }
+
+    // ==================== 商店与推荐 ====================
+
+    /** 房主：广播商店打开 */
+    public static void broadcastShopOpen(Seq<Artifact> options){
+        if(!isHost()) return;
+        try{
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Writes w = new Writes(new DataOutputStream(baos));
+            w.i(EV_SHOP_OPEN);
+            w.i(options.size);
+            for(Artifact a : options){
+                w.str(a != null ? a.id : "");
+            }
+            w.close();
+            Call.serverBinaryPacketReliable(CH_SHOP_OPEN, baos.toByteArray());
+        }catch(Exception e){
+            Log.err("[RougeNet] broadcastShopOpen failed", e);
+        }
+    }
+
+    /** 客户端：发送推荐 */
+    public static void broadcastRecommendation(int index, String artifactId){
+        if(!isClient()) return;
+        try{
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Writes w = new Writes(new DataOutputStream(baos));
+            w.i(index);
+            w.str(artifactId);
+            w.str(player.name);
+            w.close();
+            Call.clientBinaryPacketReliable(CH_RECOMMEND, baos.toByteArray());
+        }catch(Exception e){
+            Log.err("[RougeNet] broadcastRecommendation failed", e);
+        }
+    }
+
+    /** 房主：处理客户端推荐 */
+    private static void handleRecommend(byte[] data){
+        if(!isHost()) return;
+        try{
+            Reads r = new Reads(new DataInputStream(new ByteArrayInputStream(data)));
+            int index = r.i();
+            String artifactId = r.str();
+            String playerName = r.str();
+            r.close();
+
+            ShopRecommendationDialog.addRecommendation(index, playerName);
+        }catch(Exception e){
+            Log.err("[RougeNet] handleRecommend failed", e);
+        }
+    }
+
+    /** 客户端：处理商店打开 */
+    private static void handleShopOpen(byte[] data){
+        if(!isClient()) return;
+        try{
+            Reads r = new Reads(new DataInputStream(new ByteArrayInputStream(data)));
+            r.i(); // type
+            int count = r.i();
+            Seq<Artifact> options = new Seq<>();
+            for(int i = 0; i < count; i++){
+                String id = r.str();
+                Artifact a = ArtifactDatabase.get(id);
+                if(a != null) options.add(a);
+            }
+            r.close();
+
+            // Show shop recommendation dialog for client
+            ShopRecommendationDialog.show(options, () -> {
+                // After recommendation, show the actual shop (read-only for client)
+                ArtifactDialog.showShop(null);
+            });
+        }catch(Exception e){
+            Log.err("[RougeNet] handleShopOpen failed", e);
+        }
+    }
+
+    /** 客户端：处理推荐更新 */
+    private static void handleRecommendUpdate(byte[] data){
+        // Update recommendation display
+    }
+
+    /** 房主：广播节点进入（非战斗节点） */
+    public static void broadcastNodeEnter(String nodeName, String nodeType){
+        if(!isHost()) return;
+        try{
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Writes w = new Writes(new DataOutputStream(baos));
+            w.i(EV_NODE_ENTER);
+            w.str(nodeName);
+            w.str(nodeType);
+            w.close();
+            Call.serverBinaryPacketReliable(CH_EVENT, baos.toByteArray());
+        }catch(Exception e){
+            Log.err("[RougeNet] broadcastNodeEnter failed", e);
+        }
     }
 }

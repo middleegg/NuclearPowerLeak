@@ -159,6 +159,6 @@ public class BossBarManager {
         if (mindustry.Vars.player == null || mindustry.Vars.player.team() == null) {
             return unit.team != mindustry.game.Team.derelict;
         }
-        return Npl.content.FriendTeam.FriendlyFaction.isEnemy(unit.team);
+        return unit.team != mindustry.Vars.player.team() && unit.team != mindustry.game.Team.derelict;
     }
 }
